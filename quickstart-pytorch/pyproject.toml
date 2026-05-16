@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quickstart-pytorch"
+version = "0.1.0"
+description = "Flower PyTorch Example"
+license = { text = "MIT" }
+
+dependencies = [
+    "flwr[simulation]>=1.29.0",
+    "torch",
+    "torchvision",
+]
+
+[tool.flwr.app]
+publisher = "rishi"
+
+[tool.flwr.app.components]
+serverapp = "pytorchexample.server_app:app"
+clientapp = "pytorchexample.client_app:app"
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pytorchexample"]
