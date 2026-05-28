@@ -1,51 +1,148 @@
+from collections import OrderedDict
+
 import flwr as fl
+import torch
 
-print("SERVER FILE LOADED")
+from flwr.common import (
 
-NUM_CLIENTS = 2
+    Context,
+
+    parameters_to_ndarrays
+)
+
+from flwr.server import (
+
+    ServerApp,
+
+    ServerAppComponents
+)
+
+from flwr.server.strategy import (
+    FedAvg
+)
+
+from .model import load_model
+
+from .task import save_model
 
 
-# METRIC AGGREGATION
 def weighted_average(metrics):
 
     accuracies = [
+
         num_examples * m["accuracy"]
+
         for num_examples, m in metrics
     ]
 
     examples = [
+
         num_examples
+
         for num_examples, _ in metrics
     ]
 
     return {
-        "accuracy": sum(accuracies) / sum(examples)
+
+        "accuracy":
+
+        sum(accuracies)
+
+        / sum(examples)
     }
 
 
-# SERVER FUNCTION
-def server_fn(context):
+class SaveModelStrategy(FedAvg):
 
-    print("[SERVER] Creating strategy")
+    def aggregate_fit(
 
-    strategy = fl.server.strategy.FedAvg(
+        self,
+
+        server_round,
+
+        results,
+
+        failures
+    ):
+
+        aggregated = super().aggregate_fit(
+
+            server_round,
+
+            results,
+
+            failures
+        )
+
+        if aggregated is not None:
+
+            parameters, _ = aggregated
+
+            ndarrays = (
+
+                parameters_to_ndarrays(
+                    parameters
+                )
+            )
+
+            model = load_model()
+
+            params_dict = zip(
+
+                model.state_dict().keys(),
+
+                ndarrays
+            )
+
+            state_dict = OrderedDict({
+
+                k: torch.tensor(v)
+
+                for k, v in params_dict
+            })
+
+            model.load_state_dict(
+
+                state_dict,
+
+                strict=True
+            )
+
+            save_model(
+
+                model,
+
+                server_round
+            )
+
+        return aggregated
+
+
+def server_fn(context: Context):
+
+    strategy = SaveModelStrategy(
+
         fraction_fit=1.0,
+
         fraction_evaluate=1.0,
-        min_fit_clients=NUM_CLIENTS,
-        min_evaluate_clients=NUM_CLIENTS,
-        min_available_clients=NUM_CLIENTS,
-        evaluate_metrics_aggregation_fn=weighted_average,
+
+        min_fit_clients=2,
+
+        min_evaluate_clients=2,
+
+        min_available_clients=2,
+
+        evaluate_metrics_aggregation_fn=
+        weighted_average
     )
 
-    config = fl.server.ServerConfig(
-        num_rounds=5,
-    )
+    return ServerAppComponents(
 
-    return fl.server.ServerAppComponents(
-        strategy=strategy,
-        server_config=config,
+        strategy=strategy
     )
 
 
-# MODERN FLOWER SERVER APP
-app = fl.server.ServerApp(server_fn=server_fn)
+app = ServerApp(
+
+    server_fn=server_fn
+)

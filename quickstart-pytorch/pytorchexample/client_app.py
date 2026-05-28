@@ -1,80 +1,190 @@
 import flwr as fl
-print("CLIENT FILE LOADED")
-from pytorchexample.task import (
-    DEVICE,
-    Net,
-    get_parameters,
+import torch
+
+from flwr.client import NumPyClient
+
+from .model import load_model
+
+from .task import (
+
     load_data,
-    set_parameters,
-    test,
+
     train,
+
+    test,
+
+    DEVICE
 )
 
-NUM_CLIENTS = 2
+from .utils import (
+    poison_parameters
+)
 
 
-class FlowerClient(fl.client.NumPyClient):
+class FlowerClient(NumPyClient):
 
-    def __init__(self, partition_id: int):
+    def __init__(self, client_id):
 
-        self.partition_id = partition_id
+        self.client_id = client_id
 
-        self.net = Net().to(DEVICE)
-
-        self.trainloader = load_data(
-            partition_id,
-            NUM_CLIENTS,
+        self.model = load_model().to(
+            DEVICE
         )
 
-    def get_parameters(self, config):
+        self.trainloader, self.testloader = (
 
-        print(f"[CLIENT {self.partition_id}] Sending parameters")
-
-        return get_parameters(self.net)
-
-    def fit(self, parameters, config):
-
-        print(f"[CLIENT {self.partition_id}] Training started")
-
-        set_parameters(self.net, parameters)
-
-        train(self.net, self.trainloader)
-
-        print(f"[CLIENT {self.partition_id}] Training completed")
-
-        return (
-            get_parameters(self.net),
-            len(self.trainloader.dataset),
-            {},
+            load_data(client_id)
         )
 
-    def evaluate(self, parameters, config):
+    def get_parameters(
+        self,
+        config
+    ):
 
-        set_parameters(self.net, parameters)
+        return [
 
-        loss, accuracy = test(
-            self.net,
-            self.trainloader,
+            val.cpu().numpy()
+
+            for _, val in
+            self.model.state_dict().items()
+        ]
+
+    def set_parameters(
+        self,
+        parameters
+    ):
+
+        params_dict = zip(
+
+            self.model.state_dict().keys(),
+
+            parameters
         )
+
+        state_dict = {
+
+            k: torch.tensor(v)
+
+            for k, v in params_dict
+        }
+
+        self.model.load_state_dict(
+
+            state_dict,
+
+            strict=True
+        )
+
+    def fit(
+        self,
+        parameters,
+        config
+    ):
 
         print(
-            f"[CLIENT {self.partition_id}] Accuracy: {accuracy:.4f}"
+            f"\nClient "
+            f"{self.client_id} "
+            f"training..."
+        )
+
+        self.set_parameters(
+            parameters
+        )
+
+        train(
+
+            self.model,
+
+            self.trainloader,
+
+            epochs=1
+        )
+
+        updated_params = (
+            self.get_parameters({})
+        )
+
+        # Malicious client simulation
+        if self.client_id == 2:
+
+            print(
+                "\nMalicious "
+                "client detected!"
+            )
+
+            updated_params = (
+
+                poison_parameters(
+                    updated_params
+                )
+            )
+
+        return (
+
+            updated_params,
+
+            len(
+                self.trainloader.dataset
+            ),
+
+            {
+                "client_id":
+                self.client_id
+            }
+        )
+
+    def evaluate(
+
+        self,
+
+        parameters,
+
+        config
+    ):
+
+        self.set_parameters(
+            parameters
+        )
+
+        loss, accuracy = test(
+
+            self.model,
+
+            self.testloader
         )
 
         return (
+
             float(loss),
-            len(self.trainloader.dataset),
-            {"accuracy": float(accuracy)},
+
+            len(
+                self.testloader.dataset
+            ),
+
+            {
+                "accuracy":
+                float(accuracy)
+            }
         )
 
 
-# CLIENT FACTORY
 def client_fn(context):
 
-    partition_id = context.node_config["partition-id"]
+    client_id = (
 
-    return FlowerClient(partition_id).to_client()
+        context.node_config[
+            "partition-id"
+        ]
+
+        + 1
+    )
+
+    return FlowerClient(
+        client_id
+    ).to_client()
 
 
-# FLOWER CLIENT APP
-app = fl.client.ClientApp(client_fn=client_fn)
+app = fl.client.ClientApp(
+
+    client_fn=client_fn
+)

@@ -1,102 +1,147 @@
-from collections import OrderedDict
+import os
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
 from torch.utils.data import DataLoader
-from torchvision.datasets import MNIST
-from torchvision.transforms import Compose, Normalize, ToTensor
 
-DEVICE = torch.device("cpu")
-
-
-# MODEL
-class Net(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-        self.fc1 = nn.Linear(28 * 28, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 10)
-
-    def forward(self, x):
-
-        x = x.view(-1, 28 * 28)
-
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-
-        return self.fc3(x)
-
-
-# DATASET
-transform = Compose([
-    ToTensor(),
-    Normalize((0.1307,), (0.3081,))
-])
-
-trainset = MNIST(
-    root="./data",
-    train=True,
-    download=True,
-    transform=transform,
+from torchvision import (
+    datasets,
+    transforms
 )
 
+import torch.nn as nn
+import torch.optim as optim
 
-# LOAD CLIENT DATA
-def load_data(partition_id, num_partitions):
 
-    partition_size = len(trainset) // num_partitions
+DEVICE = torch.device(
 
-    start = partition_id * partition_size
-    end = start + partition_size
+    "cuda"
 
-    subset = torch.utils.data.Subset(
-        trainset,
-        list(range(start, end))
+    if torch.cuda.is_available()
+
+    else "cpu"
+)
+
+print(f"Using device: {DEVICE}")
+
+
+transform = transforms.Compose([
+
+    transforms.Lambda(
+        lambda img: img.convert("RGB")
+    ),
+
+    transforms.Resize((64, 64)),
+
+    transforms.ToTensor(),
+])
+
+
+def load_data(client_id):
+
+    train_path = (
+        f"dataset/client{client_id}/train"
+    )
+
+    test_path = (
+        f"dataset/client{client_id}/test"
+    )
+
+    trainset = datasets.ImageFolder(
+
+        train_path,
+
+        transform=transform
+    )
+
+    testset = datasets.ImageFolder(
+
+        test_path,
+
+        transform=transform
     )
 
     trainloader = DataLoader(
-        subset,
-        batch_size=32,
+
+        trainset,
+
+        batch_size=8,
+
         shuffle=True,
+
+        num_workers=0
     )
 
-    return trainloader
+    testloader = DataLoader(
+
+        testset,
+
+        batch_size=8,
+
+        shuffle=False,
+
+        num_workers=0
+    )
+
+    return trainloader, testloader
 
 
-# TRAIN FUNCTION
-def train(net, trainloader):
+def train(model, trainloader, epochs=1):
 
     criterion = nn.CrossEntropyLoss()
 
-    optimizer = torch.optim.Adam(
-        net.parameters(),
-        lr=0.001,
+    optimizer = optim.Adam(
+
+        model.parameters(),
+
+        lr=0.001
     )
 
-    net.train()
+    model.train()
 
-    for epoch in range(1):
+    for epoch in range(epochs):
 
-        for images, labels in trainloader:
+        running_loss = 0.0
 
-            images, labels = images.to(DEVICE), labels.to(DEVICE)
+        for batch_idx, (
+            images,
+            labels
+        ) in enumerate(trainloader):
+
+            print(
+
+                f"Batch "
+                f"{batch_idx+1}/"
+                f"{len(trainloader)}"
+            )
+
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
 
             optimizer.zero_grad()
 
-            outputs = net(images)
+            outputs = model(images)
 
-            loss = criterion(outputs, labels)
+            loss = criterion(
+                outputs,
+                labels
+            )
 
             loss.backward()
 
             optimizer.step()
 
+            running_loss += loss.item()
 
-# TEST FUNCTION
-def test(net, trainloader):
+        print(
+
+            f"Epoch {epoch+1} "
+            f"Loss: "
+            f"{running_loss:.4f}"
+        )
+
+
+def test(model, testloader):
 
     criterion = nn.CrossEntropyLoss()
 
@@ -104,43 +149,64 @@ def test(net, trainloader):
     total = 0
     loss = 0.0
 
-    net.eval()
+    model.eval()
 
     with torch.no_grad():
 
-        for images, labels in trainloader:
+        for images, labels in testloader:
 
-            images, labels = images.to(DEVICE), labels.to(DEVICE)
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
 
-            outputs = net(images)
+            outputs = model(images)
 
-            loss += criterion(outputs, labels).item()
+            loss += criterion(
+                outputs,
+                labels
+            ).item()
 
-            _, predicted = torch.max(outputs.data, 1)
+            _, predicted = torch.max(
+                outputs,
+                1
+            )
 
             total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+
+            correct += (
+
+                predicted == labels
+
+            ).sum().item()
 
     accuracy = correct / total
+
+    print(
+        f"Accuracy: "
+        f"{accuracy:.4f}"
+    )
 
     return loss, accuracy
 
 
-# GET PARAMETERS
-def get_parameters(net):
-    return [val.cpu().numpy() for _, val in net.state_dict().items()]
+def save_model(model, round_num):
 
-
-# SET PARAMETERS
-def set_parameters(net, parameters):
-
-    params_dict = zip(net.state_dict().keys(), parameters)
-
-    state_dict = OrderedDict(
-        {
-            k: torch.tensor(v)
-            for k, v in params_dict
-        }
+    os.makedirs(
+        "saved_models",
+        exist_ok=True
     )
 
-    net.load_state_dict(state_dict, strict=True)
+    path = (
+
+        f"saved_models/"
+        f"global_model_round_"
+        f"{round_num}.pth"
+    )
+
+    torch.save(
+
+        model.state_dict(),
+
+        path
+    )
+
+    print(f"Saved: {path}")

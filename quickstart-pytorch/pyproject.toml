@@ -5,17 +5,20 @@ build-backend = "hatchling.build"
 [project]
 name = "quickstart-pytorch"
 version = "0.1.0"
-description = "Flower PyTorch Example"
-license = { text = "MIT" }
+description = "Federated Deepfake Detection"
 
 dependencies = [
-    "flwr[simulation]>=1.29.0",
+    "flwr[simulation]==1.13.1",
     "torch",
     "torchvision",
+    "numpy==1.26.4"
 ]
 
 [tool.flwr.app]
 publisher = "rishi"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -25,6 +28,7 @@ clientapp = "pytorchexample.client_app:app"
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
+options.num-supernodes = 2
 
 [tool.hatch.build.targets.wheel]
 packages = ["pytorchexample"]
