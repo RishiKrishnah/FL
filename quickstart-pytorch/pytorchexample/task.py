@@ -1,6 +1,7 @@
 import os
 
 import torch
+torch.backends.cudnn.benchmark = True
 
 from torch.utils.data import DataLoader
 
@@ -12,6 +13,11 @@ from torchvision import (
 import torch.nn as nn
 import torch.optim as optim
 
+from sklearn.metrics import (
+    precision_score,
+    recall_score,
+    f1_score
+)
 
 DEVICE = torch.device(
 
@@ -24,18 +30,43 @@ DEVICE = torch.device(
 
 print(f"Using device: {DEVICE}")
 
+try:
+    if DEVICE.type == "cuda":
+        print("GPU Enabled")
+        print(
+            f"GPU Count: {torch.cuda.device_count()}"
+        )
+
+        if torch.cuda.device_count() > 0:
+            print(
+                torch.cuda.get_device_name(
+                    torch.cuda.current_device()
+                )
+            )
+
+except Exception as e:
+    print(
+        f"GPU info unavailable: {e}"
+    )
+from PIL import Image
+
+def convert_rgb(img):
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    return img
 
 transform = transforms.Compose([
+    transforms.Lambda(convert_rgb),
 
-    transforms.Lambda(
-        lambda img: img.convert("RGB")
-    ),
-
-    transforms.Resize((64, 64)),
+    transforms.Resize((224, 224)),
 
     transforms.ToTensor(),
-])
 
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
 
 def load_data(client_id):
 
@@ -62,40 +93,55 @@ def load_data(client_id):
     )
 
     trainloader = DataLoader(
-
         trainset,
-
-        batch_size=8,
-
+        batch_size=128,
         shuffle=True,
-
-        num_workers=0
+        num_workers=0,
+        pin_memory=False
     )
 
     testloader = DataLoader(
-
         testset,
-
-        batch_size=8,
-
+        batch_size=128,
         shuffle=False,
-
-        num_workers=0
+        num_workers=0,
+        pin_memory=False
+    )
+    print(
+        f"Client {client_id}"
     )
 
+    print(
+        f"Train Images: "
+        f"{len(trainset)}"
+    )
+
+    print(
+        f"Test Images : "
+        f"{len(testset)}"
+    )
     return trainloader, testloader
 
+
+from tqdm import tqdm
+import time
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
 def train(model, trainloader, epochs=1):
 
     criterion = nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(
-
-        model.parameters(),
-
+        filter(
+            lambda p: p.requires_grad,
+            model.parameters()
+        ),
         lr=0.001
     )
+
+    scaler = torch.cuda.amp.GradScaler()
 
     model.train()
 
@@ -103,43 +149,200 @@ def train(model, trainloader, epochs=1):
 
         running_loss = 0.0
 
-        for batch_idx, (
-            images,
-            labels
-        ) in enumerate(trainloader):
+        correct = 0
+        total = 0
 
-            print(
+        start_time = time.time()
 
-                f"Batch "
-                f"{batch_idx+1}/"
-                f"{len(trainloader)}"
+        progress_bar = tqdm(
+            trainloader,
+            desc=f"Epoch {epoch+1}/{epochs}",
+            leave=True
+        )
+
+        for batch_idx, (images, labels) in enumerate(progress_bar):
+
+            images = images.to(
+                DEVICE,
+                non_blocking=True
             )
 
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
+            labels = labels.to(
+                DEVICE,
+                non_blocking=True
+            )
 
             optimizer.zero_grad()
 
-            outputs = model(images)
+            with torch.cuda.amp.autocast():
 
-            loss = criterion(
-                outputs,
-                labels
-            )
+                outputs = model(images)
 
-            loss.backward()
+                loss = criterion(
+                    outputs,
+                    labels
+                )
 
-            optimizer.step()
+            scaler.scale(loss).backward()
+
+            scaler.step(optimizer)
+
+            scaler.update()
 
             running_loss += loss.item()
 
-        print(
+            _, predicted = torch.max(
+                outputs,
+                1
+            )
 
-            f"Epoch {epoch+1} "
-            f"Loss: "
-            f"{running_loss:.4f}"
+            correct += (
+                predicted == labels
+            ).sum().item()
+
+            total += labels.size(0)
+
+            accuracy = (
+                100.0 *
+                correct /
+                total
+            )
+
+            elapsed = (
+                time.time()
+                - start_time
+            )
+
+            images_processed = (
+                (batch_idx + 1)
+                * images.size(0)
+            )
+
+            img_per_sec = (
+                images_processed
+                / elapsed
+            )
+
+            eta_seconds = (
+                elapsed /
+                (batch_idx + 1)
+            ) * (
+                len(trainloader)
+                - batch_idx
+                - 1
+            )
+
+            progress_bar.set_postfix({
+                "loss":
+                    f"{loss.item():.4f}",
+                "acc":
+                    f"{accuracy:.2f}%",
+                "img/s":
+                    f"{img_per_sec:.1f}",
+                "eta":
+                    f"{eta_seconds/60:.1f}m"
+            })
+
+            if batch_idx % 100 == 0:
+
+                if torch.cuda.is_available():
+
+                    allocated = (
+                        torch.cuda.memory_allocated()
+                        / 1024**3
+                    )
+
+                    reserved = (
+                        torch.cuda.memory_reserved()
+                        / 1024**3
+                    )
+
+                    print(
+                        f"\nBatch "
+                        f"{batch_idx}/"
+                        f"{len(trainloader)}"
+                    )
+
+                    print(
+                        f"GPU Allocated: "
+                        f"{allocated:.2f} GB"
+                    )
+
+                    print(
+                        f"GPU Reserved : "
+                        f"{reserved:.2f} GB"
+                    )
+
+        epoch_time = (
+            time.time()
+            - start_time
         )
 
+        avg_loss = (
+            running_loss
+            / len(trainloader)
+        )
+
+        final_acc = (
+            100.0 *
+            correct /
+            total
+        )
+
+        print("\n" + "=" * 50)
+
+        print(
+            f"Epoch {epoch+1} Complete"
+        )
+
+        print(
+            f"Average Loss : "
+            f"{avg_loss:.4f}"
+        )
+
+        print(
+            f"Accuracy     : "
+            f"{final_acc:.2f}%"
+        )
+
+        print(
+            f"Time         : "
+            f"{epoch_time:.2f}s"
+        )
+
+        print(
+            f"Images       : "
+            f"{total}"
+        )
+
+        print(
+            f"Images/sec   : "
+            f"{total/epoch_time:.2f}"
+        )
+
+        if torch.cuda.is_available():
+
+            allocated = (
+                torch.cuda.memory_allocated()
+                / 1024**3
+            )
+
+            reserved = (
+                torch.cuda.memory_reserved()
+                / 1024**3
+            )
+
+            print(
+                f"GPU Allocated: "
+                f"{allocated:.2f} GB"
+            )
+
+            print(
+                f"GPU Reserved : "
+                f"{reserved:.2f} GB"
+            )
+
+        print("=" * 50)
 
 def test(model, testloader):
 
@@ -153,7 +356,7 @@ def test(model, testloader):
 
     with torch.no_grad():
 
-        for images, labels in testloader:
+        for images, labels in tqdm(testloader, desc="Testing",leave=True):
 
             images = images.to(DEVICE)
             labels = labels.to(DEVICE)

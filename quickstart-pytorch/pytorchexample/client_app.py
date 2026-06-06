@@ -104,6 +104,11 @@ class FlowerClient(NumPyClient):
         config
     ):
 
+        print(
+            f"\nCLIENT {self.client_id} "
+            f"STARTING EVALUATION"
+        )
+
         self.set_parameters(parameters)
 
         loss, accuracy = test(
@@ -111,18 +116,16 @@ class FlowerClient(NumPyClient):
             self.testloader
         )
 
-        return (
-
-            float(loss),
-
-            len(self.testloader.dataset),
-
-            {
-                "accuracy":
-                float(accuracy)
-            }
+        print(
+            f"\nCLIENT {self.client_id} "
+            f"EVALUATION COMPLETE"
         )
 
+        return (
+            float(loss),
+            len(self.testloader.dataset),
+            {"accuracy": float(accuracy)}
+        )
 
 def client_fn(context):
 

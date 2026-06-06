@@ -9,9 +9,12 @@ description = "Federated Deepfake Detection"
 
 dependencies = [
     "flwr[simulation]==1.13.1",
-    "torch",
-    "torchvision",
-    "numpy==1.26.4"
+    "torch==2.3.1",
+    "torchvision==0.18.1",
+    "torchaudio==2.3.1",
+    "numpy==1.26.4",
+    "scikit-learn",
+    "tqdm"
 ]
 
 [tool.flwr.app]
