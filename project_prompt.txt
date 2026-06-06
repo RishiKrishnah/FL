@@ -1,0 +1,1122 @@
+
+=== FILE: ingest.py ===
+from pathlib import Path
+
+IGNORE_DIRS = {
+    ".git", "__pycache__", "venv", ".venv",
+    "node_modules"
+}
+
+TEXT_EXTENSIONS = {
+    ".py", ".txt", ".md", ".json",
+    ".yaml", ".yml", ".toml", ".cfg", ".ini"
+}
+
+with open("project_prompt.txt", "w", encoding="utf-8") as out:
+    for p in Path(".").rglob("*"):
+        if not p.is_file():
+            continue
+
+        if any(part in IGNORE_DIRS for part in p.parts):
+            continue
+
+        if p.suffix.lower() not in TEXT_EXTENSIONS:
+            continue
+
+        try:
+            content = p.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        out.write(f"\n=== FILE: {p} ===\n")
+        out.write(content)
+        out.write("\n")
+
+print("Generated project_prompt.txt")
+
+=== FILE: project_prompt.txt ===
+
+
+=== FILE: README.md ===
+# Federated Learning for Deepfake Detection using PyTorch and Flower
+
+## Overview
+
+This project implements a **Federated Learning (FL)** system using the **Flower Framework** and **PyTorch**. The current implementation uses the **MNIST dataset** to simulate federated training across multiple clients. The project serves as the foundational architecture for a larger research-oriented system focused on **Federated Deepfake Detection**.
+
+The system demonstrates how multiple distributed clients can collaboratively train a machine learning model without directly sharing their local datasets, thereby preserving privacy and reducing centralized data dependency.
+
+---
+
+# Project Objectives
+
+* Understand and implement Federated Learning concepts
+* Build a distributed training pipeline using Flower
+* Simulate multiple FL clients locally
+* Train a neural network collaboratively using PyTorch
+* Create a scalable base architecture for Deepfake Detection research
+* Explore privacy-preserving AI systems
+
+---
+
+# Technologies Used
+
+| Technology    | Purpose                      |
+| ------------- | ---------------------------- |
+| Python        | Programming Language         |
+| PyTorch       | Deep Learning Framework      |
+| Flower (FLWR) | Federated Learning Framework |
+| NumPy         | Numerical Operations         |
+| TorchVision   | Dataset Handling             |
+| MNIST Dataset | Initial Experimental Dataset |
+
+---
+
+# Project Structure
+
+```bash
+rishikrishnah-fl/
+│
+├── README.md
+│
+└── quickstart-pytorch/
+    │
+    ├── README.md
+    ├── LICENSE
+    ├── pyproject.toml
+    │
+    ├── data/
+    │   └── MNIST/
+    │       └── raw/
+    │
+    └── pytorchexample/
+        ├── __init__.py
+        ├── client_app.py
+        ├── model.py
+        ├── server_app.py
+        ├── task.py
+        └── utils.py
+```
+
+---
+
+# File Descriptions
+
+## `client_app.py`
+
+Defines the Flower client logic.
+
+Responsibilities:
+
+* Loads local dataset partition
+* Performs local model training
+* Evaluates model performance
+* Sends updated model weights back to the FL server
+
+---
+
+## `server_app.py`
+
+Defines the federated server strategy.
+
+Responsibilities:
+
+* Initializes global model
+* Aggregates client updates
+* Coordinates communication rounds
+* Manages federated averaging (FedAvg)
+
+---
+
+## `model.py`
+
+Contains the PyTorch neural network architecture.
+
+Responsibilities:
+
+* Defines model layers
+* Implements forward propagation
+* Serves as the global and local model structure
+
+---
+
+## `task.py`
+
+Handles dataset loading and training operations.
+
+Responsibilities:
+
+* Dataset preprocessing
+* Data partitioning
+* Local training loop
+* Evaluation functions
+
+---
+
+## `utils.py`
+
+Contains helper utility functions used across the project.
+
+---
+
+## `pyproject.toml`
+
+Project configuration file.
+
+Contains:
+
+* Dependency management
+* Flower app configuration
+* Federation setup
+* Simulation settings
+
+---
+
+# Federated Learning Workflow
+
+```text
+          Global Server
+                 │
+        -------------------
+        │                 │
+     Client 1         Client 2
+        │                 │
+   Local Training    Local Training
+        │                 │
+        -------Aggregation-------
+                 │
+          Updated Global Model
+```
+
+---
+
+# How Federated Learning Works in this Project
+
+1. The server initializes a global model.
+2. Multiple clients receive the model.
+3. Each client trains the model locally on its own dataset partition.
+4. Clients send updated parameters back to the server.
+5. The server aggregates updates using Federated Averaging (FedAvg).
+6. The updated global model is redistributed.
+7. The process repeats for multiple communication rounds.
+
+---
+
+# Installation Guide
+
+## Prerequisites
+
+Ensure the following are installed:
+
+* Python 3.10+
+* pip
+* virtualenv (recommended)
+
+---
+
+# Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/your-username/rishikrishnah-fl.git
+cd rishikrishnah-fl/quickstart-pytorch
+```
+
+---
+
+# Step 2: Create Virtual Environment
+
+## Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+## Linux / macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+# Step 3: Install Dependencies
+
+```bash
+pip install -e .
+```
+
+---
+
+# Dependencies
+
+The project uses the following dependencies:
+
+```toml
+dependencies = [
+    "flwr[simulation]==1.13.1",
+    "torch",
+    "torchvision",
+    "numpy==1.26.4"
+]
+```
+
+---
+
+# Running the Federated Learning Simulation
+
+Navigate to:
+
+```bash
+cd quickstart-pytorch
+```
+
+Run the FL simulation:
+
+```bash
+flwr run . --stream
+```
+
+---
+
+# Running with Custom Configurations
+
+Example:
+
+```bash
+flwr run . --run-config "num-server-rounds=5 learning-rate=0.05" --stream
+```
+
+---
+
+# Current Configuration
+
+## Number of Clients
+
+```toml
+options.num-supernodes = 2
+```
+
+## Number of Federated Rounds
+
+```toml
+num-server-rounds = 3
+```
+
+---
+
+# Dataset Information
+
+## MNIST Dataset
+
+The current implementation uses the MNIST handwritten digit dataset.
+
+Features:
+
+* 70,000 grayscale images
+* 28×28 image size
+* 10 output classes (digits 0–9)
+
+Purpose:
+
+* Initial FL experimentation
+* System validation
+* Architecture testing
+
+---
+
+# Future Scope: Deepfake Detection
+
+This project is intended to evolve into a **Federated Deepfake Detection System**.
+
+Planned improvements include:
+
+* Replace MNIST with deepfake datasets
+* Integrate CNN/ViT architectures
+* Add secure aggregation
+* Implement differential privacy
+* Add client heterogeneity simulation
+* Use real-world distributed clients
+* Improve communication efficiency
+* Add adversarial robustness
+
+---
+
+# Research Motivation
+
+Traditional deepfake detection systems require centralized datasets, which may introduce:
+
+* Privacy concerns
+* Data-sharing restrictions
+* High communication costs
+
+Federated Learning addresses these issues by enabling decentralized model training while keeping raw data local.
+
+This project explores the intersection of:
+
+* Artificial Intelligence
+* Computer Vision
+* Federated Learning
+* Privacy-Preserving Machine Learning
+
+---
+
+# Example Output
+
+```text
+INFO : Starting Flower ServerApp
+INFO : Requesting initial parameters from one random client
+INFO : Federated Learning Round 1
+INFO : Aggregating client updates
+INFO : Evaluation completed
+```
+
+---
+
+# Learning Outcomes
+
+Through this project, the following concepts can be understood:
+
+* Federated Learning architecture
+* Client-server FL communication
+* Federated Averaging (FedAvg)
+* Distributed training
+* PyTorch model integration with Flower
+* Privacy-preserving ML systems
+
+---
+
+# Challenges Faced
+
+* Flower framework configuration
+* Local client synchronization
+* Dataset partitioning
+* Large dependency management
+* GitHub large file handling
+* Simulation optimization on CPU systems
+
+---
+
+# References
+
+* Flower Documentation
+  https://flower.ai/docs/
+
+* PyTorch Documentation
+  https://pytorch.org/docs/
+
+* Federated Learning Research Paper
+  McMahan et al., "Communication-Efficient Learning of Deep Networks from Decentralized Data"
+
+---
+
+# License
+
+This project is licensed under the Apache License 2.0.
+
+See the `LICENSE` file for details.
+
+---
+
+# Author
+
+## Rishi Krishna
+
+B.Tech CSE (AI & Robotics)
+VIT Chennai
+
+---
+
+# Acknowledgements
+
+Special thanks to:
+
+* Flower Framework developers
+* PyTorch community
+* VIT Chennai
+* Research contributors in Federated Learning and Deepfake Detection
+
+---
+
+
+=== FILE: quickstart-pytorch\pyproject.toml ===
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quickstart-pytorch"
+version = "0.1.0"
+description = "Federated Deepfake Detection"
+
+dependencies = [
+    "flwr[simulation]==1.13.1",
+    "torch",
+    "torchvision",
+    "numpy==1.26.4"
+]
+
+[tool.flwr.app]
+publisher = "rishi"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
+
+[tool.flwr.app.components]
+serverapp = "pytorchexample.server_app:app"
+clientapp = "pytorchexample.client_app:app"
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 2
+
+[tool.hatch.build.targets.wheel]
+packages = ["pytorchexample"]
+
+=== FILE: quickstart-pytorch\README.md ===
+---
+tags: [quickstart, vision, fds]
+dataset: [CIFAR-10]
+framework: [torch, torchvision]
+---
+
+# Federated Learning with PyTorch and Flower (Quickstart Example)
+
+This introductory example to Flower uses PyTorch, but deep knowledge of PyTorch is not necessarily required to run the example. However, it will help you understand how to adapt Flower to your use case. Running this example in itself is quite easy. This example uses [Flower Datasets](https://flower.ai/docs/datasets/) to download, partition and preprocess the CIFAR-10 dataset.
+
+## Set up the project
+
+### Fetch the app
+
+Install Flower:
+
+```shell
+pip install flwr
+```
+
+Fetch the app:
+
+```shell
+flwr new @flwrlabs/quickstart-pytorch
+```
+
+This will create a new directory called `quickstart-pytorch` with the following structure:
+
+```shell
+quickstart-pytorch
+├── pytorchexample
+│   ├── __init__.py
+│   ├── client_app.py   # Defines your ClientApp
+│   ├── server_app.py   # Defines your ServerApp
+│   └── task.py         # Defines your model, training and data loading
+├── pyproject.toml      # Project metadata like dependencies and configs
+└── README.md
+```
+
+### Install dependencies and project
+
+Install the dependencies defined in `pyproject.toml` as well as the `pytorchexample` package.
+
+```bash
+pip install -e .
+```
+
+## Run the project
+
+You can run your Flower project in both _simulation_ and _deployment_ mode without making changes to the code. If you are starting with Flower, we recommend you using the _simulation_ mode as it requires fewer components to be launched manually. By default, `flwr run` will make use of the Simulation Engine.
+
+### Run with the Simulation Engine
+
+> [!TIP]
+> This example runs faster when the `ClientApp`s have access to a GPU. Check the [Simulation Engine documentation](https://flower.ai/docs/framework/how-to-run-simulations.html) to learn more about Flower simulations and how to optimize them.
+
+```bash
+# Run with the default federation (CPU only)
+flwr run .  --stream
+```
+
+You can also override some of the settings for your `ClientApp` and `ServerApp` defined in `pyproject.toml`. For example:
+
+```bash
+flwr run . --run-config "num-server-rounds=5 learning-rate=0.05"  --stream
+```
+
+> [!TIP]
+> For a more detailed walk-through check our [quickstart PyTorch tutorial](https://flower.ai/docs/framework/tutorial-quickstart-pytorch.html)
+
+### Run with the Deployment Engine
+
+Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-with-deployment-engine.html) to run the same app in this example but with Flower's Deployment Engine. After that, you might be intersted in setting up [secure TLS-enabled communications](https://flower.ai/docs/framework/how-to-enable-tls-connections.html) and [SuperNode authentication](https://flower.ai/docs/framework/how-to-authenticate-supernodes.html) in your federation.
+
+If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
+
+
+=== FILE: quickstart-pytorch\pytorchexample\client_app.py ===
+import flwr as fl
+import torch
+
+from flwr.client import NumPyClient
+
+from .model import load_model
+
+from .task import (
+    load_data,
+    train,
+    test,
+    DEVICE
+)
+
+from .utils import poison_parameters
+
+
+class FlowerClient(NumPyClient):
+
+    def __init__(self, client_id):
+
+        self.client_id = client_id
+
+        self.model = load_model().to(DEVICE)
+
+        self.trainloader, self.testloader = (
+            load_data(client_id)
+        )
+
+    def get_parameters(self, config):
+
+        return [
+
+            val.cpu().numpy()
+
+            for _, val in
+            self.model.state_dict().items()
+        ]
+
+    def set_parameters(self, parameters):
+
+        params_dict = zip(
+            self.model.state_dict().keys(),
+            parameters
+        )
+
+        state_dict = {
+
+            k: torch.tensor(v).to(DEVICE)
+
+            for k, v in params_dict
+        }
+
+        self.model.load_state_dict(
+            state_dict,
+            strict=True
+        )
+
+    def fit(self, parameters, config):
+
+        print(
+            f"Client {self.client_id} "
+            f"training..."
+        )
+
+        self.set_parameters(parameters)
+
+        train(
+            self.model,
+            self.trainloader,
+            epochs=1
+        )
+
+        updated_params = self.get_parameters({})
+
+        # Simulate malicious client
+        if self.client_id == 2:
+
+            print(
+                "Client 2 is malicious!"
+            )
+
+            updated_params = (
+                poison_parameters(
+                    updated_params
+                )
+            )
+
+        return (
+
+            updated_params,
+
+            len(self.trainloader.dataset),
+
+            {
+                "client_id":
+                self.client_id
+            }
+        )
+
+    def evaluate(
+        self,
+        parameters,
+        config
+    ):
+
+        self.set_parameters(parameters)
+
+        loss, accuracy = test(
+            self.model,
+            self.testloader
+        )
+
+        return (
+
+            float(loss),
+
+            len(self.testloader.dataset),
+
+            {
+                "accuracy":
+                float(accuracy)
+            }
+        )
+
+
+def client_fn(context):
+
+    client_id = (
+        context.node_config["partition-id"]
+        + 1
+    )
+
+    return FlowerClient(
+        client_id
+    ).to_client()
+
+
+app = fl.client.ClientApp(
+    client_fn=client_fn
+)
+
+=== FILE: quickstart-pytorch\pytorchexample\model.py ===
+import torch.nn as nn
+
+from torchvision.models import vit_b_16
+
+
+def load_model():
+
+    model = vit_b_16(
+        weights="IMAGENET1K_V1"
+    )
+
+    in_features = (
+        model.heads.head.in_features
+    )
+
+    model.heads.head = nn.Linear(
+        in_features,
+        2
+    )
+
+    return model
+
+=== FILE: quickstart-pytorch\pytorchexample\server_app.py ===
+from collections import OrderedDict
+
+import flwr as fl
+import torch
+
+from flwr.common import (
+
+    Context,
+
+    parameters_to_ndarrays
+)
+
+from flwr.server import (
+
+    ServerApp,
+
+    ServerAppComponents
+)
+
+from flwr.server.strategy import (
+    FedAvg
+)
+
+from .model import load_model
+
+from .task import save_model
+
+
+def weighted_average(metrics):
+
+    accuracies = [
+
+        num_examples * m["accuracy"]
+
+        for num_examples, m in metrics
+    ]
+
+    examples = [
+
+        num_examples
+
+        for num_examples, _ in metrics
+    ]
+
+    return {
+
+        "accuracy":
+
+        sum(accuracies)
+
+        / sum(examples)
+    }
+
+
+class SaveModelStrategy(FedAvg):
+
+    def aggregate_fit(
+
+        self,
+
+        server_round,
+
+        results,
+
+        failures
+    ):
+
+        aggregated = super().aggregate_fit(
+
+            server_round,
+
+            results,
+
+            failures
+        )
+
+        if aggregated is not None:
+
+            parameters, _ = aggregated
+
+            ndarrays = (
+
+                parameters_to_ndarrays(
+                    parameters
+                )
+            )
+
+            model = load_model()
+
+            params_dict = zip(
+
+                model.state_dict().keys(),
+
+                ndarrays
+            )
+
+            state_dict = OrderedDict({
+
+                k: torch.tensor(v)
+
+                for k, v in params_dict
+            })
+
+            model.load_state_dict(
+
+                state_dict,
+
+                strict=True
+            )
+
+            save_model(
+
+                model,
+
+                server_round
+            )
+
+        return aggregated
+
+
+def server_fn(context: Context):
+
+    strategy = SaveModelStrategy(
+
+        fraction_fit=1.0,
+
+        fraction_evaluate=1.0,
+
+        min_fit_clients=2,
+
+        min_evaluate_clients=2,
+
+        min_available_clients=2,
+
+        evaluate_metrics_aggregation_fn=
+        weighted_average
+    )
+
+    return ServerAppComponents(
+
+        strategy=strategy
+    )
+
+
+app = ServerApp(
+
+    server_fn=server_fn
+)
+
+=== FILE: quickstart-pytorch\pytorchexample\task.py ===
+import os
+
+import torch
+
+from torch.utils.data import DataLoader
+
+from torchvision import (
+    datasets,
+    transforms
+)
+
+import torch.nn as nn
+import torch.optim as optim
+
+from sklearn.metrics import (
+    precision_score,
+    recall_score,
+    f1_score
+)
+
+DEVICE = torch.device(
+
+    "cuda"
+
+    if torch.cuda.is_available()
+
+    else "cpu"
+)
+
+print(f"Using device: {DEVICE}")
+
+
+transform = transforms.Compose([
+    transforms.Lambda(
+        lambda img: img.convert("RGB")
+    ),
+
+    transforms.Resize((224,224)),
+
+    transforms.ToTensor(),
+
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+
+def load_data(client_id):
+
+    train_path = (
+        f"dataset/client{client_id}/train"
+    )
+
+    test_path = (
+        f"dataset/client{client_id}/test"
+    )
+
+    trainset = datasets.ImageFolder(
+
+        train_path,
+
+        transform=transform
+    )
+
+    testset = datasets.ImageFolder(
+
+        test_path,
+
+        transform=transform
+    )
+
+    trainloader = DataLoader(
+
+        trainset,
+
+        batch_size=8,
+
+        shuffle=True,
+
+        num_workers=0
+    )
+
+    testloader = DataLoader(
+
+        testset,
+
+        batch_size=8,
+
+        shuffle=False,
+
+        num_workers=0
+    )
+
+    return trainloader, testloader
+
+
+def train(model, trainloader, epochs=1):
+
+    criterion = nn.CrossEntropyLoss()
+
+    optimizer = optim.Adam(
+
+        model.parameters(),
+
+        lr=0.001
+    )
+
+    model.train()
+
+    for epoch in range(epochs):
+
+        running_loss = 0.0
+
+        for batch_idx, (
+            images,
+            labels
+        ) in enumerate(trainloader):
+
+            print(
+
+                f"Batch "
+                f"{batch_idx+1}/"
+                f"{len(trainloader)}"
+            )
+
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
+
+            optimizer.zero_grad()
+
+            outputs = model(images)
+
+            loss = criterion(
+                outputs,
+                labels
+            )
+
+            loss.backward()
+
+            optimizer.step()
+
+            running_loss += loss.item()
+
+        print(
+
+            f"Epoch {epoch+1} "
+            f"Loss: "
+            f"{running_loss:.4f}"
+        )
+
+
+def test(model, testloader):
+
+    criterion = nn.CrossEntropyLoss()
+
+    correct = 0
+    total = 0
+    loss = 0.0
+
+    model.eval()
+
+    with torch.no_grad():
+
+        for images, labels in testloader:
+
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
+
+            outputs = model(images)
+
+            loss += criterion(
+                outputs,
+                labels
+            ).item()
+
+            _, predicted = torch.max(
+                outputs,
+                1
+            )
+
+            total += labels.size(0)
+
+            correct += (
+
+                predicted == labels
+
+            ).sum().item()
+
+    accuracy = correct / total
+
+    print(
+        f"Accuracy: "
+        f"{accuracy:.4f}"
+    )
+
+    return loss, accuracy
+
+
+def save_model(model, round_num):
+
+    os.makedirs(
+        "saved_models",
+        exist_ok=True
+    )
+
+    path = (
+
+        f"saved_models/"
+        f"global_model_round_"
+        f"{round_num}.pth"
+    )
+
+    torch.save(
+
+        model.state_dict(),
+
+        path
+    )
+
+    print(f"Saved: {path}")
+
+=== FILE: quickstart-pytorch\pytorchexample\utils.py ===
+import numpy as np
+
+
+def poison_parameters(parameters):
+
+    poisoned = []
+
+    for param in parameters:
+
+        noise = np.random.normal(
+
+            0,
+
+            0.5,
+
+            param.shape
+        )
+
+        poisoned.append(
+            param + noise
+        )
+
+    return poisoned
+
+=== FILE: quickstart-pytorch\pytorchexample\__init__.py ===
+"""pytorchexample."""
+

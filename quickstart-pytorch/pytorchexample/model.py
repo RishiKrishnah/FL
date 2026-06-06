@@ -1,20 +1,20 @@
 import torch.nn as nn
 
-from torchvision.models import (
-    mobilenet_v2
-)
+from torchvision.models import vit_b_16
 
 
 def load_model():
 
-    model = mobilenet_v2(
-        weights=None
+    model = vit_b_16(
+        weights="IMAGENET1K_V1"
     )
 
-    model.classifier[1] = nn.Linear(
+    in_features = (
+        model.heads.head.in_features
+    )
 
-        model.last_channel,
-
+    model.heads.head = nn.Linear(
+        in_features,
         2
     )
 
