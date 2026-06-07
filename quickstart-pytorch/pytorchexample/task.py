@@ -3,7 +3,10 @@ import os
 import torch
 torch.backends.cudnn.benchmark = True
 
-from torch.utils.data import DataLoader
+from torch.utils.data import (
+    DataLoader,
+    Subset
+)
 
 from torchvision import (
     datasets,
@@ -50,6 +53,8 @@ except Exception as e:
     )
 from PIL import Image
 
+DEBUG = True
+
 def convert_rgb(img):
     if img.mode != "RGB":
         img = img.convert("RGB")
@@ -70,43 +75,72 @@ transform = transforms.Compose([
 
 def load_data(client_id):
 
-    train_path = (
-        f"dataset/client{client_id}/train"
-    )
-
-    test_path = (
-        f"dataset/client{client_id}/test"
-    )
+    train_path = f"dataset/client{client_id}/train"
+    val_path   = f"dataset/client{client_id}/val"
+    test_path  = f"dataset/client{client_id}/test"
 
     trainset = datasets.ImageFolder(
+    train_path,
+    transform=transform
+)
 
-        train_path,
-
+    valset = datasets.ImageFolder(
+        val_path,
         transform=transform
     )
 
     testset = datasets.ImageFolder(
-
         test_path,
-
         transform=transform
     )
+
+    # DEBUG MODE
+    if DEBUG:
+
+        train_limit = min(8000, len(trainset))
+        val_limit = min(2000, len(valset))
+        test_limit = min(2000, len(testset))
+
+        trainset = Subset(
+            trainset,
+            range(train_limit)
+        )
+
+        valset = Subset(
+            valset,
+            range(val_limit)
+        )
+
+        testset = Subset(
+            testset,
+            range(test_limit)
+        )
+
+        print(
+            f"[DEBUG MODE] "
+            f"Train={len(trainset)}, "
+            f"Val={len(valset)}, "
+            f"Test={len(testset)}"
+        )
 
     trainloader = DataLoader(
         trainset,
         batch_size=128,
-        shuffle=True,
-        num_workers=0,
-        pin_memory=False
+        shuffle=True
+    )
+
+    valloader = DataLoader(
+        valset,
+        batch_size=128,
+        shuffle=False
     )
 
     testloader = DataLoader(
         testset,
-        batch_size=128,
-        shuffle=False,
-        num_workers=0,
-        pin_memory=False
+        batch_size=16,
+        shuffle=False
     )
+
     print(
         f"Client {client_id}"
     )
@@ -120,8 +154,11 @@ def load_data(client_id):
         f"Test Images : "
         f"{len(testset)}"
     )
-    return trainloader, testloader
-
+    print(
+        f"Validate Images : "
+        f"{len(valset)}"
+    )
+    return trainloader, valloader, testloader
 
 from tqdm import tqdm
 import time
@@ -141,7 +178,7 @@ def train(model, trainloader, epochs=1):
         lr=0.001
     )
 
-    scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.amp.GradScaler("cuda",enabled=(DEVICE.type == "cuda"))
 
     model.train()
 
@@ -174,7 +211,7 @@ def train(model, trainloader, epochs=1):
 
             optimizer.zero_grad()
 
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
 
                 outputs = model(images)
 
@@ -389,7 +426,6 @@ def test(model, testloader):
     )
 
     return loss, accuracy
-
 
 def save_model(model, round_num):
 

@@ -1,23 +1,26 @@
 import numpy as np
 
-
 def poison_parameters(parameters):
 
-    poisoned = []
+    print("\nPOISONING STARTED")
 
-    for param in parameters:
+    for i, param in enumerate(parameters):
 
-        noise = np.random.normal(
+        before = np.mean(param)
 
+        param += np.random.normal(
             0,
-
-            0.5,
-
+            0.05,
             param.shape
+        ).astype(param.dtype)
+
+        after = np.mean(param)
+
+        print(
+            f"Layer {i}: "
+            f"{before:.6f} -> {after:.6f}"
         )
 
-        poisoned.append(
-            param + noise
-        )
+    print("POISONING FINISHED\n")
 
-    return poisoned
+    return parameters

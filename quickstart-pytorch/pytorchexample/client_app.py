@@ -11,21 +11,34 @@ from .task import (
     test,
     DEVICE
 )
+MALICIOUS_CLIENTS = {3}
 
 from .utils import poison_parameters
 
 
 class FlowerClient(NumPyClient):
 
-    def __init__(self, client_id):
+    def __init__(
+        self,
+        client_id,
+        model_name
+    ):
 
         self.client_id = client_id
 
-        self.model = load_model().to(DEVICE)
-
-        self.trainloader, self.testloader = (
-            load_data(client_id)
+        print(
+            f"Client {client_id} using model: {model_name}"
         )
+
+        self.model = load_model(
+            model_name
+        ).to(DEVICE)
+
+        (
+            self.trainloader,
+            self.valloader,
+            self.testloader
+        ) = load_data(client_id)
 
     def get_parameters(self, config):
 
@@ -60,24 +73,45 @@ class FlowerClient(NumPyClient):
 
         print(
             f"Client {self.client_id} "
-            f"training..."
+            f"starting fit..."
         )
 
         self.set_parameters(parameters)
 
+        print(
+            f"Client {self.client_id} "
+            f"starting training..."
+        )
+
+        local_epochs = config["local_epochs"]
+
         train(
             self.model,
             self.trainloader,
-            epochs=1
+            epochs=local_epochs
+        )
+
+        print(
+            f"Client {self.client_id} "
+            f"finished training"
+        )
+
+        print(
+            f"Client {self.client_id} "
+            f"extracting parameters..."
         )
 
         updated_params = self.get_parameters({})
 
-        # Simulate malicious client
-        if self.client_id == 2:
+        print(
+            f"Client {self.client_id} "
+            f"parameter extraction complete"
+        )
+
+        if self.client_id in MALICIOUS_CLIENTS:
 
             print(
-                "Client 2 is malicious!"
+                f"Client {self.client_id} is malicious!"
             )
 
             updated_params = (
@@ -85,6 +119,18 @@ class FlowerClient(NumPyClient):
                     updated_params
                 )
             )
+
+            print(
+                f"Client {self.client_id} poisoning complete"
+            )
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        print(
+            f"Client {self.client_id} "
+            f"returning results"
+        )
 
         return (
 
@@ -104,28 +150,41 @@ class FlowerClient(NumPyClient):
         config
     ):
 
-        print(
-            f"\nCLIENT {self.client_id} "
-            f"STARTING EVALUATION"
-        )
+        try:
 
-        self.set_parameters(parameters)
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"STARTING EVALUATION"
+            )
 
-        loss, accuracy = test(
-            self.model,
-            self.testloader
-        )
+            self.set_parameters(parameters)
 
-        print(
-            f"\nCLIENT {self.client_id} "
-            f"EVALUATION COMPLETE"
-        )
+            loss, accuracy = test(
+                self.model,
+                self.testloader
+            )
 
-        return (
-            float(loss),
-            len(self.testloader.dataset),
-            {"accuracy": float(accuracy)}
-        )
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"EVALUATION COMPLETE"
+            )
+
+            return (
+                float(loss),
+                len(self.testloader.dataset),
+                {"accuracy": float(accuracy)}
+            )
+
+        except Exception as e:
+
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"EVALUATION ERROR:"
+            )
+
+            print(e)
+
+            raise
 
 def client_fn(context):
 
@@ -134,8 +193,15 @@ def client_fn(context):
         + 1
     )
 
+    model_name = (
+        context.run_config[
+            "model-name"
+        ]
+    )
+
     return FlowerClient(
-        client_id
+        client_id,
+        model_name
     ).to_client()
 
 

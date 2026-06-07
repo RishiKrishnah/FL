@@ -1,20 +1,53 @@
 import torch.nn as nn
-from torchvision.models import vit_b_16
 
-def load_model():
+from torchvision.models import (
+    vit_b_16,
+    resnet18,
+    efficientnet_b0
+)
 
-    model = vit_b_16(weights="IMAGENET1K_V1")
+def load_model(model_name):
 
-    # Freeze backbone
-    for param in model.parameters():
-        param.requires_grad = False
+    if model_name == "vit":
 
-    # Train only classification head
-    in_features = model.heads.head.in_features
+        model = vit_b_16(
+            weights="IMAGENET1K_V1"
+        )
 
-    model.heads.head = nn.Linear(
-        in_features,
-        2
-    )
+        for param in model.parameters():
+            param.requires_grad = False
+
+        model.heads.head = nn.Linear(
+            model.heads.head.in_features,
+            2
+        )
+
+    elif model_name == "resnet18":
+
+        model = resnet18(
+            weights="IMAGENET1K_V1"
+        )
+
+        model.fc = nn.Linear(
+            model.fc.in_features,
+            2
+        )
+
+    elif model_name == "efficientnet":
+
+        model = efficientnet_b0(
+            weights="IMAGENET1K_V1"
+        )
+
+        model.classifier[1] = nn.Linear(
+            model.classifier[1].in_features,
+            2
+        )
+
+    else:
+
+        raise ValueError(
+            f"Unknown model: {model_name}"
+        )
 
     return model

@@ -1,5 +1,12 @@
 venv/
-venv_old/
-testvenv/
 __pycache__/
 *.pyc
+
+quickstart-pytorch/dataset/
+saved_models/
+quickstart-pytorch/saved_models/
+
+*.pth
+*.pt
+
+.ray/

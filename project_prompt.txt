@@ -465,6 +465,8 @@ publisher = "rishi"
 
 [tool.flwr.app.config]
 num-server-rounds = 3
+local-epochs = 3
+model-name = "vit"
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -474,7 +476,11 @@ clientapp = "pytorchexample.client_app:app"
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 2
+options.num-supernodes = 3
+
+[tool.flwr.federations.local-simulation.options.backend.client-resources]
+num-cpus = 2
+num-gpus = 1.0
 
 [tool.hatch.build.targets.wheel]
 packages = ["pytorchexample"]
@@ -571,21 +577,34 @@ from .task import (
     test,
     DEVICE
 )
+MALICIOUS_CLIENTS = {3}
 
 from .utils import poison_parameters
 
 
 class FlowerClient(NumPyClient):
 
-    def __init__(self, client_id):
+    def __init__(
+        self,
+        client_id,
+        model_name
+    ):
 
         self.client_id = client_id
 
-        self.model = load_model().to(DEVICE)
-
-        self.trainloader, self.testloader = (
-            load_data(client_id)
+        print(
+            f"Client {client_id} using model: {model_name}"
         )
+
+        self.model = load_model(
+            model_name
+        ).to(DEVICE)
+
+        (
+            self.trainloader,
+            self.valloader,
+            self.testloader
+        ) = load_data(client_id)
 
     def get_parameters(self, config):
 
@@ -620,24 +639,45 @@ class FlowerClient(NumPyClient):
 
         print(
             f"Client {self.client_id} "
-            f"training..."
+            f"starting fit..."
         )
 
         self.set_parameters(parameters)
 
+        print(
+            f"Client {self.client_id} "
+            f"starting training..."
+        )
+
+        local_epochs = config["local_epochs"]
+
         train(
             self.model,
             self.trainloader,
-            epochs=1
+            epochs=local_epochs
+        )
+
+        print(
+            f"Client {self.client_id} "
+            f"finished training"
+        )
+
+        print(
+            f"Client {self.client_id} "
+            f"extracting parameters..."
         )
 
         updated_params = self.get_parameters({})
 
-        # Simulate malicious client
-        if self.client_id == 2:
+        print(
+            f"Client {self.client_id} "
+            f"parameter extraction complete"
+        )
+
+        if self.client_id in MALICIOUS_CLIENTS:
 
             print(
-                "Client 2 is malicious!"
+                f"Client {self.client_id} is malicious!"
             )
 
             updated_params = (
@@ -645,6 +685,18 @@ class FlowerClient(NumPyClient):
                     updated_params
                 )
             )
+
+            print(
+                f"Client {self.client_id} poisoning complete"
+            )
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        print(
+            f"Client {self.client_id} "
+            f"returning results"
+        )
 
         return (
 
@@ -664,28 +716,41 @@ class FlowerClient(NumPyClient):
         config
     ):
 
-        print(
-            f"\nCLIENT {self.client_id} "
-            f"STARTING EVALUATION"
-        )
+        try:
 
-        self.set_parameters(parameters)
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"STARTING EVALUATION"
+            )
 
-        loss, accuracy = test(
-            self.model,
-            self.testloader
-        )
+            self.set_parameters(parameters)
 
-        print(
-            f"\nCLIENT {self.client_id} "
-            f"EVALUATION COMPLETE"
-        )
+            loss, accuracy = test(
+                self.model,
+                self.testloader
+            )
 
-        return (
-            float(loss),
-            len(self.testloader.dataset),
-            {"accuracy": float(accuracy)}
-        )
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"EVALUATION COMPLETE"
+            )
+
+            return (
+                float(loss),
+                len(self.testloader.dataset),
+                {"accuracy": float(accuracy)}
+            )
+
+        except Exception as e:
+
+            print(
+                f"\nCLIENT {self.client_id} "
+                f"EVALUATION ERROR:"
+            )
+
+            print(e)
+
+            raise
 
 def client_fn(context):
 
@@ -694,8 +759,15 @@ def client_fn(context):
         + 1
     )
 
+    model_name = (
+        context.run_config[
+            "model-name"
+        ]
+    )
+
     return FlowerClient(
-        client_id
+        client_id,
+        model_name
     ).to_client()
 
 
@@ -705,23 +777,56 @@ app = fl.client.ClientApp(
 
 === FILE: quickstart-pytorch\pytorchexample\model.py ===
 import torch.nn as nn
-from torchvision.models import vit_b_16
 
-def load_model():
+from torchvision.models import (
+    vit_b_16,
+    resnet18,
+    efficientnet_b0
+)
 
-    model = vit_b_16(weights="IMAGENET1K_V1")
+def load_model(model_name):
 
-    # Freeze backbone
-    for param in model.parameters():
-        param.requires_grad = False
+    if model_name == "vit":
 
-    # Train only classification head
-    in_features = model.heads.head.in_features
+        model = vit_b_16(
+            weights="IMAGENET1K_V1"
+        )
 
-    model.heads.head = nn.Linear(
-        in_features,
-        2
-    )
+        for param in model.parameters():
+            param.requires_grad = False
+
+        model.heads.head = nn.Linear(
+            model.heads.head.in_features,
+            2
+        )
+
+    elif model_name == "resnet18":
+
+        model = resnet18(
+            weights="IMAGENET1K_V1"
+        )
+
+        model.fc = nn.Linear(
+            model.fc.in_features,
+            2
+        )
+
+    elif model_name == "efficientnet":
+
+        model = efficientnet_b0(
+            weights="IMAGENET1K_V1"
+        )
+
+        model.classifier[1] = nn.Linear(
+            model.classifier[1].in_features,
+            2
+        )
+
+    else:
+
+        raise ValueError(
+            f"Unknown model: {model_name}"
+        )
 
     return model
 
@@ -732,16 +837,12 @@ import flwr as fl
 import torch
 
 from flwr.common import (
-
     Context,
-
     parameters_to_ndarrays
 )
 
 from flwr.server import (
-
     ServerApp,
-
     ServerAppComponents
 )
 
@@ -750,9 +851,7 @@ from flwr.server.strategy import (
 )
 
 from .model import load_model
-
 from .task import save_model
-
 
 def weighted_average(metrics):
 
@@ -781,6 +880,15 @@ def weighted_average(metrics):
 
 
 class SaveModelStrategy(FedAvg):
+
+    def __init__(
+        self,
+        model_name,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        self.model_name = model_name
 
     def aggregate_fit(
 
@@ -813,7 +921,9 @@ class SaveModelStrategy(FedAvg):
                 )
             )
 
-            model = load_model()
+            model_name = (self.model_name)
+
+            model = load_model(model_name)
 
             params_dict = zip(
 
@@ -845,30 +955,33 @@ class SaveModelStrategy(FedAvg):
 
         return aggregated
 
-
 def server_fn(context: Context):
+
+    local_epochs = context.run_config["local-epochs"]
+
+    model_name = context.run_config["model-name"]
+
+    def fit_config(server_round):
+        return {
+            "local_epochs": local_epochs
+        }
 
     strategy = SaveModelStrategy(
 
+        model_name=model_name,
+
         fraction_fit=1.0,
-
         fraction_evaluate=1.0,
-
-        min_fit_clients=2,
-
-        min_evaluate_clients=2,
-
-        min_available_clients=2,
-
-        evaluate_metrics_aggregation_fn=
-        weighted_average
+        min_fit_clients=3,
+        min_evaluate_clients=3,
+        min_available_clients=3,
+        on_fit_config_fn=fit_config,
+        evaluate_metrics_aggregation_fn=weighted_average,
     )
 
     return ServerAppComponents(
-
         strategy=strategy
     )
-
 
 app = ServerApp(
 
@@ -881,7 +994,10 @@ import os
 import torch
 torch.backends.cudnn.benchmark = True
 
-from torch.utils.data import DataLoader
+from torch.utils.data import (
+    DataLoader,
+    Subset
+)
 
 from torchvision import (
     datasets,
@@ -928,6 +1044,8 @@ except Exception as e:
     )
 from PIL import Image
 
+DEBUG = True
+
 def convert_rgb(img):
     if img.mode != "RGB":
         img = img.convert("RGB")
@@ -948,43 +1066,72 @@ transform = transforms.Compose([
 
 def load_data(client_id):
 
-    train_path = (
-        f"dataset/client{client_id}/train"
-    )
-
-    test_path = (
-        f"dataset/client{client_id}/test"
-    )
+    train_path = f"dataset/client{client_id}/train"
+    val_path   = f"dataset/client{client_id}/val"
+    test_path  = f"dataset/client{client_id}/test"
 
     trainset = datasets.ImageFolder(
+    train_path,
+    transform=transform
+)
 
-        train_path,
-
+    valset = datasets.ImageFolder(
+        val_path,
         transform=transform
     )
 
     testset = datasets.ImageFolder(
-
         test_path,
-
         transform=transform
     )
+
+    # DEBUG MODE
+    if DEBUG:
+
+        train_limit = min(8000, len(trainset))
+        val_limit = min(2000, len(valset))
+        test_limit = min(2000, len(testset))
+
+        trainset = Subset(
+            trainset,
+            range(train_limit)
+        )
+
+        valset = Subset(
+            valset,
+            range(val_limit)
+        )
+
+        testset = Subset(
+            testset,
+            range(test_limit)
+        )
+
+        print(
+            f"[DEBUG MODE] "
+            f"Train={len(trainset)}, "
+            f"Val={len(valset)}, "
+            f"Test={len(testset)}"
+        )
 
     trainloader = DataLoader(
         trainset,
         batch_size=128,
-        shuffle=True,
-        num_workers=0,
-        pin_memory=False
+        shuffle=True
+    )
+
+    valloader = DataLoader(
+        valset,
+        batch_size=128,
+        shuffle=False
     )
 
     testloader = DataLoader(
         testset,
-        batch_size=128,
-        shuffle=False,
-        num_workers=0,
-        pin_memory=False
+        batch_size=16,
+        shuffle=False
     )
+
     print(
         f"Client {client_id}"
     )
@@ -998,8 +1145,11 @@ def load_data(client_id):
         f"Test Images : "
         f"{len(testset)}"
     )
-    return trainloader, testloader
-
+    print(
+        f"Validate Images : "
+        f"{len(valset)}"
+    )
+    return trainloader, valloader, testloader
 
 from tqdm import tqdm
 import time
@@ -1019,7 +1169,7 @@ def train(model, trainloader, epochs=1):
         lr=0.001
     )
 
-    scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.amp.GradScaler("cuda",enabled=(DEVICE.type == "cuda"))
 
     model.train()
 
@@ -1052,7 +1202,7 @@ def train(model, trainloader, epochs=1):
 
             optimizer.zero_grad()
 
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
 
                 outputs = model(images)
 
@@ -1268,7 +1418,6 @@ def test(model, testloader):
 
     return loss, accuracy
 
-
 def save_model(model, round_num):
 
     os.makedirs(
@@ -1295,27 +1444,30 @@ def save_model(model, round_num):
 === FILE: quickstart-pytorch\pytorchexample\utils.py ===
 import numpy as np
 
-
 def poison_parameters(parameters):
 
-    poisoned = []
+    print("\nPOISONING STARTED")
 
-    for param in parameters:
+    for i, param in enumerate(parameters):
 
-        noise = np.random.normal(
+        before = np.mean(param)
 
+        param += np.random.normal(
             0,
-
-            0.5,
-
+            0.05,
             param.shape
+        ).astype(param.dtype)
+
+        after = np.mean(param)
+
+        print(
+            f"Layer {i}: "
+            f"{before:.6f} -> {after:.6f}"
         )
 
-        poisoned.append(
-            param + noise
-        )
+    print("POISONING FINISHED\n")
 
-    return poisoned
+    return parameters
 
 === FILE: quickstart-pytorch\pytorchexample\__init__.py ===
 """pytorchexample."""
