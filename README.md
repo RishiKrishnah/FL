@@ -1,400 +1,573 @@
-# Federated Learning for Deepfake Detection using PyTorch and Flower
+# Federated Deepfake Detection using Flower and PyTorch
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.3-red)
+![Flower](https://img.shields.io/badge/Flower-Federated%20Learning-orange)
+![License](https://img.shields.io/badge/License-Apache%202.0-green)
 
 ## Overview
 
-This project implements a **Federated Learning (FL)** system using the **Flower Framework** and **PyTorch**. The current implementation uses the **MNIST dataset** to simulate federated training across multiple clients. The project serves as the foundational architecture for a larger research-oriented system focused on **Federated Deepfake Detection**.
+This project implements a **Federated Learning (FL) framework for Deepfake Detection** using **PyTorch** and the **Flower (FLWR)** federated learning framework.
 
-The system demonstrates how multiple distributed clients can collaboratively train a machine learning model without directly sharing their local datasets, thereby preserving privacy and reducing centralized data dependency.
+The objective is to train a deepfake detection model collaboratively across multiple decentralized clients while ensuring that raw image data never leaves the client devices.
 
----
+Unlike traditional centralized machine learning pipelines, federated learning enables privacy-preserving model training by exchanging only model parameters instead of datasets.
 
-# Project Objectives
+The system is designed to support:
 
-* Understand and implement Federated Learning concepts
-* Build a distributed training pipeline using Flower
-* Simulate multiple FL clients locally
-* Train a neural network collaboratively using PyTorch
-* Create a scalable base architecture for Deepfake Detection research
-* Explore privacy-preserving AI systems
-
----
-
-# Technologies Used
-
-| Technology    | Purpose                      |
-| ------------- | ---------------------------- |
-| Python        | Programming Language         |
-| PyTorch       | Deep Learning Framework      |
-| Flower (FLWR) | Federated Learning Framework |
-| NumPy         | Numerical Operations         |
-| TorchVision   | Dataset Handling             |
-| MNIST Dataset | Initial Experimental Dataset |
+- Multiple federated clients
+- Deepfake image classification
+- Vision Transformer (ViT) based learning
+- CNN-based model comparisons
+- Federated Averaging (FedAvg)
+- Adversarial client simulation
+- Model poisoning attack experiments
+- GPU-accelerated distributed training
 
 ---
 
-# Project Structure
+## Research Motivation
 
-```bash
+Deepfake generation technologies have rapidly advanced, creating significant challenges in:
+
+- Digital media authenticity
+- Social media misinformation
+- Identity theft
+- Cybersecurity
+- Digital forensics
+
+Most deepfake detection systems require centralized datasets, which introduces:
+
+- Privacy concerns
+- Data ownership issues
+- Legal restrictions
+- Large communication overhead
+
+Federated Learning addresses these challenges by enabling collaborative model training without exposing local datasets.
+
+This project explores the intersection of:
+
+- Federated Learning
+- Computer Vision
+- Deepfake Detection
+- Privacy-Preserving Artificial Intelligence
+- Distributed Machine Learning
+- Adversarial Robustness
+
+---
+
+## Dataset
+
+### 140K Real and Fake Faces Dataset
+
+Dataset Source:
+
+https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
+
+Dataset Characteristics:
+
+| Property     | Value                 |
+| ------------ | --------------------- |
+| Total Images | ~140,000              |
+| Classes      | Real, Fake            |
+| Task         | Binary Classification |
+| Image Type   | Human Faces           |
+| Format       | JPG/PNG               |
+| Labels       | Real / Fake           |
+
+The dataset is partitioned across multiple federated clients to simulate decentralized data ownership.
+
+---
+
+## Project Architecture
+
+```text
+                    Global Server
+                           |
+        ---------------------------------------
+        |                 |                  |
+     Client 1          Client 2          Client 3
+        |                 |                  |
+   Local Dataset     Local Dataset     Local Dataset
+        |                 |                  |
+   Local Training    Local Training    Local Training
+        |                 |                  |
+        -------- Model Aggregation ----------
+                           |
+                   Updated Global Model
+```
+
+---
+
+## Features
+
+### Federated Learning
+
+- Flower-based federated architecture
+- Federated Averaging (FedAvg)
+- Multi-client simulation
+- Distributed model training
+- Configurable communication rounds
+
+### Deepfake Detection
+
+- Binary classification:
+  - Real Faces
+  - Fake Faces
+
+### Multiple Model Support
+
+The framework currently supports:
+
+| Model                         | Type        |
+| ----------------------------- | ----------- |
+| Vision Transformer (ViT-B/16) | Transformer |
+| ResNet18                      | CNN         |
+| EfficientNet-B0               | CNN         |
+
+Model selection can be configured through:
+
+```toml
+model-name = "vit"
+```
+
+Available options:
+
+```toml
+model-name = "vit"
+model-name = "resnet18"
+model-name = "efficientnet"
+```
+
+---
+
+## Adversarial Federated Learning
+
+The framework supports malicious client simulation.
+
+Example:
+
+```python
+MALICIOUS_CLIENTS = {3}
+```
+
+A malicious client performs parameter poisoning before sending updates to the server.
+
+Current attack implementation:
+
+- Gaussian Noise Injection
+- Parameter Perturbation
+
+Purpose:
+
+- Study robustness of federated learning
+- Evaluate impact of poisoned updates
+- Investigate secure aggregation techniques
+
+---
+
+## Repository Structure
+
+```text
 rishikrishnah-fl/
 │
 ├── README.md
+├── ingest.py
+├── split.py
+├── project_prompt.txt
 │
 └── quickstart-pytorch/
     │
-    ├── README.md
-    ├── LICENSE
     ├── pyproject.toml
+    ├── LICENSE
+    ├── README.md
     │
     ├── data/
-    │   └── MNIST/
-    │       └── raw/
     │
     └── pytorchexample/
         ├── __init__.py
         ├── client_app.py
-        ├── model.py
         ├── server_app.py
+        ├── model.py
         ├── task.py
         └── utils.py
 ```
 
 ---
 
-# File Descriptions
+## Component Description
 
-## `client_app.py`
+### client_app.py
 
-Defines the Flower client logic.
+Responsible for:
 
-Responsibilities:
-
-* Loads local dataset partition
-* Performs local model training
-* Evaluates model performance
-* Sends updated model weights back to the FL server
-
----
-
-## `server_app.py`
-
-Defines the federated server strategy.
-
-Responsibilities:
-
-* Initializes global model
-* Aggregates client updates
-* Coordinates communication rounds
-* Manages federated averaging (FedAvg)
+- Loading local client datasets
+- Training local models
+- Performing local evaluation
+- Returning model updates
+- Simulating malicious client behavior
 
 ---
 
-## `model.py`
+### server_app.py
 
-Contains the PyTorch neural network architecture.
+Responsible for:
 
-Responsibilities:
-
-* Defines model layers
-* Implements forward propagation
-* Serves as the global and local model structure
-
----
-
-## `task.py`
-
-Handles dataset loading and training operations.
-
-Responsibilities:
-
-* Dataset preprocessing
-* Data partitioning
-* Local training loop
-* Evaluation functions
+- Initializing global models
+- Aggregating client updates
+- Federated Averaging (FedAvg)
+- Saving global checkpoints
+- Managing communication rounds
 
 ---
 
-## `utils.py`
-
-Contains helper utility functions used across the project.
-
----
-
-## `pyproject.toml`
-
-Project configuration file.
+### model.py
 
 Contains:
 
-* Dependency management
-* Flower app configuration
-* Federation setup
-* Simulation settings
+- Vision Transformer implementation
+- ResNet18 implementation
+- EfficientNet implementation
+- Transfer learning setup
 
 ---
 
-# Federated Learning Workflow
+### task.py
 
-```text
-          Global Server
-                 │
-        -------------------
-        │                 │
-     Client 1         Client 2
-        │                 │
-   Local Training    Local Training
-        │                 │
-        -------Aggregation-------
-                 │
-          Updated Global Model
-```
+Responsible for:
+
+- Dataset loading
+- Image preprocessing
+- Training loops
+- Evaluation logic
+- Metric computation
+- Checkpoint generation
 
 ---
 
-# How Federated Learning Works in this Project
+### utils.py
 
-1. The server initializes a global model.
-2. Multiple clients receive the model.
-3. Each client trains the model locally on its own dataset partition.
-4. Clients send updated parameters back to the server.
-5. The server aggregates updates using Federated Averaging (FedAvg).
-6. The updated global model is redistributed.
-7. The process repeats for multiple communication rounds.
+Contains:
+
+- Parameter poisoning functions
+- Experimental attack utilities
+- Helper functions
 
 ---
 
-# Installation Guide
+### split.py
 
-## Prerequisites
+Dataset partitioning utility.
 
-Ensure the following are installed:
+Responsible for:
 
-* Python 3.10+
-* pip
-* virtualenv (recommended)
+- Splitting dataset among clients
+- Creating train/validation/test partitions
+- Simulating federated client ownership
 
 ---
 
-# Step 1: Clone the Repository
+## Installation
+
+### Clone Repository
 
 ```bash
-git clone https://github.com/your-username/rishikrishnah-fl.git
-cd rishikrishnah-fl/quickstart-pytorch
+git clone https://github.com/<your-username>/rishikrishnah-fl.git
+
+cd rishikrishnah-fl
 ```
 
 ---
 
-# Step 2: Create Virtual Environment
+### Create Virtual Environment
 
-## Windows
+Windows:
 
 ```bash
 python -m venv venv
+
 venv\Scripts\activate
 ```
 
-## Linux / macOS
+Linux/macOS:
 
 ```bash
 python3 -m venv venv
+
 source venv/bin/activate
 ```
 
 ---
 
-# Step 3: Install Dependencies
+### Install Dependencies
 
 ```bash
+cd quickstart-pytorch
+
 pip install -e .
 ```
 
 ---
 
-# Dependencies
+## Dependencies
 
-The project uses the following dependencies:
+Core dependencies:
 
-```toml
-dependencies = [
-    "flwr[simulation]==1.13.1",
-    "torch",
-    "torchvision",
-    "numpy==1.26.4"
-]
+```text
+Flower 1.13.1
+PyTorch 2.3.1
+TorchVision 0.18.1
+TorchAudio 2.3.1
+NumPy 1.26.4
+Scikit-Learn
+TQDM
 ```
 
 ---
 
-# Running the Federated Learning Simulation
+## Dataset Preparation
 
-Navigate to:
+Download the dataset from Kaggle.
+
+Organize the dataset and run:
+
+```bash
+python split.py
+```
+
+This creates client partitions:
+
+```text
+dataset/
+├── client1/
+├── client2/
+└── client3/
+```
+
+Each client contains:
+
+```text
+train/
+val/
+test/
+```
+
+with:
+
+```text
+real/
+fake/
+```
+
+subdirectories.
+
+---
+
+## Running Federated Learning
+
+Default execution:
 
 ```bash
 cd quickstart-pytorch
-```
 
-Run the FL simulation:
-
-```bash
 flwr run . --stream
 ```
 
 ---
 
-# Running with Custom Configurations
+### Custom Configuration
 
 Example:
 
 ```bash
-flwr run . --run-config "num-server-rounds=5 learning-rate=0.05" --stream
+flwr run . \
+--run-config \
+"num-server-rounds=10 local-epochs=5 model-name=resnet18" \
+--stream
 ```
 
 ---
 
-# Current Configuration
+## Training Configuration
 
-## Number of Clients
-
-```toml
-options.num-supernodes = 2
-```
-
-## Number of Federated Rounds
+Current default configuration:
 
 ```toml
 num-server-rounds = 3
+
+local-epochs = 3
+
+model-name = "vit"
+```
+
+Simulation settings:
+
+```toml
+options.num-supernodes = 3
 ```
 
 ---
 
-# Dataset Information
+## Output
 
-## MNIST Dataset
+After each communication round:
 
-The current implementation uses the MNIST handwritten digit dataset.
+```text
+saved_models/
+├── global_model_round_1.pth
+├── global_model_round_2.pth
+├── global_model_round_3.pth
+```
 
-Features:
-
-* 70,000 grayscale images
-* 28×28 image size
-* 10 output classes (digits 0–9)
-
-Purpose:
-
-* Initial FL experimentation
-* System validation
-* Architecture testing
+These checkpoints contain the aggregated global model.
 
 ---
 
-# Future Scope: Deepfake Detection
+## Evaluation Metrics
 
-This project is intended to evolve into a **Federated Deepfake Detection System**.
+The framework supports:
 
-Planned improvements include:
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- Loss
 
-* Replace MNIST with deepfake datasets
-* Integrate CNN/ViT architectures
-* Add secure aggregation
-* Implement differential privacy
-* Add client heterogeneity simulation
-* Use real-world distributed clients
-* Improve communication efficiency
-* Add adversarial robustness
+These metrics can be extended for future experiments.
 
 ---
 
-# Research Motivation
+## Experimental Objectives
 
-Traditional deepfake detection systems require centralized datasets, which may introduce:
+The project investigates:
 
-* Privacy concerns
-* Data-sharing restrictions
-* High communication costs
+### Model Comparison
 
-Federated Learning addresses these issues by enabling decentralized model training while keeping raw data local.
+- Vision Transformer vs ResNet18
+- Vision Transformer vs EfficientNet
+- CNN vs Transformer architectures
 
-This project explores the intersection of:
+### Federated Learning Performance
 
-* Artificial Intelligence
-* Computer Vision
-* Federated Learning
-* Privacy-Preserving Machine Learning
+- Accuracy across communication rounds
+- Convergence behavior
+- Client heterogeneity impact
+
+### Security Evaluation
+
+- Model poisoning attacks
+- Malicious client behavior
+- Robust aggregation strategies
 
 ---
 
-# Example Output
+## Future Work
+
+Planned extensions include:
+
+### Federated Learning
+
+- FedProx
+- FedNova
+- SCAFFOLD
+- Secure Aggregation
+- Differential Privacy
+
+### Deepfake Detection
+
+- Video Deepfake Detection
+- Multi-class Manipulation Detection
+- Temporal Analysis
+
+### Robustness
+
+- Byzantine-resilient aggregation
+- Backdoor attack detection
+- Adversarial defense mechanisms
+
+### Deployment
+
+- Edge-device federated learning
+- Docker deployment
+- Kubernetes orchestration
+- Cross-device federated systems
+
+---
+
+## Sample Training Output
 
 ```text
 INFO : Starting Flower ServerApp
-INFO : Requesting initial parameters from one random client
-INFO : Federated Learning Round 1
-INFO : Aggregating client updates
-INFO : Evaluation completed
+
+INFO : Federated Round 1
+
+Client 1 starting training...
+
+Client 2 starting training...
+
+Client 3 is malicious!
+
+INFO : Aggregating updates
+
+Saved: saved_models/global_model_round_1.pth
 ```
 
 ---
 
-# Learning Outcomes
+## References
 
-Through this project, the following concepts can be understood:
+### Flower Framework
 
-* Federated Learning architecture
-* Client-server FL communication
-* Federated Averaging (FedAvg)
-* Distributed training
-* PyTorch model integration with Flower
-* Privacy-preserving ML systems
+https://flower.ai/
 
----
+### PyTorch
 
-# Challenges Faced
+https://pytorch.org/
 
-* Flower framework configuration
-* Local client synchronization
-* Dataset partitioning
-* Large dependency management
-* GitHub large file handling
-* Simulation optimization on CPU systems
+### Vision Transformer Paper
 
----
+Dosovitskiy et al.
 
-# References
+"An Image is Worth 16x16 Words:
+Transformers for Image Recognition at Scale"
 
-* Flower Documentation
-  https://flower.ai/docs/
+### Federated Learning Paper
 
-* PyTorch Documentation
-  https://pytorch.org/docs/
+McMahan et al.
 
-* Federated Learning Research Paper
-  McMahan et al., "Communication-Efficient Learning of Deep Networks from Decentralized Data"
+"Communication-Efficient Learning of Deep Networks from Decentralized Data"
+
+### Dataset
+
+140K Real and Fake Faces Dataset
+
+https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
 
 ---
 
-# License
+## License
 
 This project is licensed under the Apache License 2.0.
 
-See the `LICENSE` file for details.
+See the LICENSE file for additional details.
 
 ---
 
-# Author
+## Author
 
-## Rishi Krishna
+**Rishi Krishna**
 
-B.Tech CSE (AI & Robotics)
-VIT Chennai
+B.Tech Computer Science and Engineering (AI & Robotics)
 
----
-
-# Acknowledgements
-
-Special thanks to:
-
-* Flower Framework developers
-* PyTorch community
-* VIT Chennai
-* Research contributors in Federated Learning and Deepfake Detection
+Vellore Institute of Technology (VIT), Chennai
 
 ---
+
+## Acknowledgements
+
+- Flower Framework Team
+- PyTorch Community
+- Kaggle Dataset Contributors
+- VIT Chennai
+- Federated Learning Research Community
+- Open Source AI Community
