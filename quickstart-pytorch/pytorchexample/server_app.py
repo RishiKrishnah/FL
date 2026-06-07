@@ -10,7 +10,8 @@ from flwr.common import (
 
 from flwr.server import (
     ServerApp,
-    ServerAppComponents
+    ServerAppComponents,
+    ServerConfig,
 )
 
 from flwr.server.strategy import (
@@ -124,9 +125,13 @@ class SaveModelStrategy(FedAvg):
 
 def server_fn(context: Context):
 
-    local_epochs = context.run_config["local-epochs"]
+    print("\n===== RUN CONFIG =====")
+    print(context.run_config)
+    print("======================\n")
 
+    local_epochs = context.run_config["local-epochs"]
     model_name = context.run_config["model-name"]
+    num_rounds = context.run_config["num-server-rounds"]
 
     def fit_config(server_round):
         return {
@@ -134,9 +139,7 @@ def server_fn(context: Context):
         }
 
     strategy = SaveModelStrategy(
-
         model_name=model_name,
-
         fraction_fit=1.0,
         fraction_evaluate=1.0,
         min_fit_clients=3,
@@ -147,7 +150,10 @@ def server_fn(context: Context):
     )
 
     return ServerAppComponents(
-        strategy=strategy
+        strategy=strategy,
+        config=ServerConfig(
+            num_rounds=num_rounds
+        ),
     )
 
 app = ServerApp(

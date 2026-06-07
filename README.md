@@ -314,10 +314,13 @@ pip install -e .
 Core dependencies:
 
 ```text
+Python 3.11.9
 Flower 1.13.1
+Ray 2.10.0
 PyTorch 2.3.1
 TorchVision 0.18.1
 TorchAudio 2.3.1
+CUDA 12.1
 NumPy 1.26.4
 Scikit-Learn
 TQDM

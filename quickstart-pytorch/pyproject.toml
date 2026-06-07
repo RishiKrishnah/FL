@@ -13,8 +13,11 @@ dependencies = [
     "torchvision==0.18.1",
     "torchaudio==2.3.1",
     "numpy==1.26.4",
-    "scikit-learn",
-    "tqdm"
+    "scikit-learn==1.9.0",
+    "tqdm==4.68.1",
+    "Pillow==12.2.0",
+    "PyYAML==6.0.3",
+    "requests==2.34.2"
 ]
 
 [tool.flwr.app]

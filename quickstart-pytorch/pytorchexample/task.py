@@ -97,23 +97,40 @@ def load_data(client_id):
     # DEBUG MODE
     if DEBUG:
 
-        train_limit = min(8000, len(trainset))
-        val_limit = min(2000, len(valset))
-        test_limit = min(2000, len(testset))
+        import random
+
+        train_limit = min(800, len(trainset))
+        val_limit = min(200, len(valset))
+        test_limit = min(200, len(testset))
+
+        train_indices = random.sample(
+            range(len(trainset)),
+            train_limit
+        )
+
+        val_indices = random.sample(
+            range(len(valset)),
+            val_limit
+        )
+
+        test_indices = random.sample(
+            range(len(testset)),
+            test_limit
+        )
 
         trainset = Subset(
             trainset,
-            range(train_limit)
+            train_indices
         )
 
         valset = Subset(
             valset,
-            range(val_limit)
+            val_indices
         )
 
         testset = Subset(
             testset,
-            range(test_limit)
+            test_indices
         )
 
         print(
@@ -125,19 +142,19 @@ def load_data(client_id):
 
     trainloader = DataLoader(
         trainset,
-        batch_size=128,
+        batch_size=32,
         shuffle=True
     )
 
     valloader = DataLoader(
         valset,
-        batch_size=128,
+        batch_size=32,
         shuffle=False
     )
 
     testloader = DataLoader(
         testset,
-        batch_size=16,
+        batch_size=32,
         shuffle=False
     )
 
