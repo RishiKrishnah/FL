@@ -24,12 +24,23 @@ def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
+    # Hybrid model
+    if (
+        any(k.startswith("resnet.") for k in keys)
+        and
+        any(k.startswith("vit.") for k in keys)
+    ):
+        return "hybrid"
+
+    # ViT
     if "class_token" in keys:
         return "vit"
 
+    # ResNet18
     if "conv1.weight" in keys:
         return "resnet18"
 
+    # EfficientNet
     if "features.0.0.weight" in keys:
         return "efficientnet"
 

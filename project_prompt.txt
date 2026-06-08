@@ -342,6 +342,8 @@ source venv/bin/activate
 ### Install Dependencies
 
 ```bash
+pip install -r requirements.txt
+
 cd quickstart-pytorch
 
 pip install -e .
@@ -643,12 +645,23 @@ def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
+    # Hybrid model
+    if (
+        any(k.startswith("resnet.") for k in keys)
+        and
+        any(k.startswith("vit.") for k in keys)
+    ):
+        return "hybrid"
+
+    # ViT
     if "class_token" in keys:
         return "vit"
 
+    # ResNet18
     if "conv1.weight" in keys:
         return "resnet18"
 
+    # EfficientNet
     if "features.0.0.weight" in keys:
         return "efficientnet"
 
@@ -1292,6 +1305,7 @@ app = fl.client.ClientApp(
 )
 
 === FILE: quickstart-pytorch\pytorchexample\model.py ===
+import torch
 import torch.nn as nn
 
 from torchvision.models import (
@@ -1299,6 +1313,57 @@ from torchvision.models import (
     resnet18,
     efficientnet_b0
 )
+
+
+class HybridResNetViT(nn.Module):
+
+    def __init__(self):
+
+        super().__init__()
+
+        # ResNet branch
+        self.resnet = resnet18(
+            weights="IMAGENET1K_V1"
+        )
+
+        self.resnet.fc = nn.Identity()
+
+        # ViT branch
+        self.vit = vit_b_16(
+            weights="IMAGENET1K_V1"
+        )
+
+        self.vit.heads = nn.Identity()
+
+        # Optional: freeze ViT to reduce training cost
+        for param in self.vit.parameters():
+            param.requires_grad = False
+
+        # Unfreeze last transformer block
+        for param in self.vit.encoder.layers[-1].parameters():
+            param.requires_grad = True
+
+        # Fusion classifier
+        self.classifier = nn.Sequential(
+            nn.Linear(512 + 768, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, 2)
+        )
+
+    def forward(self, x):
+
+        resnet_features = self.resnet(x)
+
+        vit_features = self.vit(x)
+
+        combined = torch.cat(
+            [resnet_features, vit_features],
+            dim=1
+        )
+
+        return self.classifier(combined)
+
 
 def load_model(model_name):
 
@@ -1337,6 +1402,10 @@ def load_model(model_name):
             model.classifier[1].in_features,
             2
         )
+
+    elif model_name == "hybrid":
+
+        model = HybridResNetViT()
 
     else:
 
@@ -1612,9 +1681,9 @@ def load_data(client_id):
 
         import random
 
-        train_limit = min(2000, len(trainset))
-        val_limit = min(500, len(valset))
-        test_limit = min(500, len(testset))
+        train_limit = min(7000, len(trainset))
+        val_limit = min(1500, len(valset))
+        test_limit = min(1500, len(testset))
 
         train_indices = random.sample(
             range(len(trainset)),
