@@ -11,7 +11,7 @@ from .task import (
     test,
     DEVICE
 )
-MALICIOUS_CLIENTS = {3}
+MALICIOUS_CLIENTS = {}
 
 from .utils import poison_parameters
 

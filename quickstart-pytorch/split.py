@@ -10,7 +10,7 @@ SOURCE = Path(
 
 DEST = Path("dataset")
 
-CLIENTS = 2
+CLIENTS = 5
 
 
 def split_images(images, clients):

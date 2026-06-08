@@ -99,9 +99,9 @@ def load_data(client_id):
 
         import random
 
-        train_limit = min(800, len(trainset))
-        val_limit = min(200, len(valset))
-        test_limit = min(200, len(testset))
+        train_limit = min(2000, len(trainset))
+        val_limit = min(500, len(valset))
+        test_limit = min(500, len(testset))
 
         train_indices = random.sample(
             range(len(trainset)),
@@ -142,19 +142,19 @@ def load_data(client_id):
 
     trainloader = DataLoader(
         trainset,
-        batch_size=32,
+        batch_size=64,
         shuffle=True
     )
 
     valloader = DataLoader(
         valset,
-        batch_size=32,
+        batch_size=64,
         shuffle=False
     )
 
     testloader = DataLoader(
         testset,
-        batch_size=32,
+        batch_size=64,
         shuffle=False
     )
 

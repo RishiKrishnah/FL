@@ -616,83 +616,6 @@ Vellore Institute of Technology (VIT), Chennai
 - Open Source AI Community
 
 
-=== FILE: split.py ===
-import shutil
-import random
-from pathlib import Path
-
-random.seed(42)
-
-SOURCE = Path(
-    r"C:\Users\rishi\OneDrive\My Downloads\dataset\real-vs-fake"
-)
-
-DEST = Path("dataset")
-
-CLIENTS = 2
-
-
-def split_images(images, clients):
-
-    random.shuffle(images)
-
-    size = len(images) // clients
-
-    splits = []
-
-    for i in range(clients):
-
-        start = i * size
-
-        if i == clients - 1:
-            end = len(images)
-        else:
-            end = (i + 1) * size
-
-        splits.append(images[start:end])
-
-    return splits
-
-
-for split in ["train", "valid", "test"]:
-
-    for label in ["real", "fake"]:
-
-        images = list(
-            (SOURCE / split / label).glob("*")
-        )
-
-        client_splits = split_images(
-            images,
-            CLIENTS
-        )
-
-        for client_id, subset in enumerate(
-            client_splits,
-            start=1
-        ):
-
-            target_dir = (
-                DEST
-                / f"client{client_id}"
-                / ("val" if split == "valid" else split)
-                / label
-            )
-
-            target_dir.mkdir(
-                parents=True,
-                exist_ok=True
-            )
-
-            for img in subset:
-
-                shutil.copy2(
-                    img,
-                    target_dir / img.name
-                )
-
-print("Done.")
-
 === FILE: quickstart-pytorch\evaluate_saved_model.py ===
 import torch
 import torch.nn as nn
@@ -1079,6 +1002,83 @@ Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-wi
 If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
 
 
+=== FILE: quickstart-pytorch\split.py ===
+import shutil
+import random
+from pathlib import Path
+
+random.seed(42)
+
+SOURCE = Path(
+    r"C:\Users\rishi\OneDrive\My Downloads\dataset\real-vs-fake"
+)
+
+DEST = Path("dataset")
+
+CLIENTS = 5
+
+
+def split_images(images, clients):
+
+    random.shuffle(images)
+
+    size = len(images) // clients
+
+    splits = []
+
+    for i in range(clients):
+
+        start = i * size
+
+        if i == clients - 1:
+            end = len(images)
+        else:
+            end = (i + 1) * size
+
+        splits.append(images[start:end])
+
+    return splits
+
+
+for split in ["train", "valid", "test"]:
+
+    for label in ["real", "fake"]:
+
+        images = list(
+            (SOURCE / split / label).glob("*")
+        )
+
+        client_splits = split_images(
+            images,
+            CLIENTS
+        )
+
+        for client_id, subset in enumerate(
+            client_splits,
+            start=1
+        ):
+
+            target_dir = (
+                DEST
+                / f"client{client_id}"
+                / ("val" if split == "valid" else split)
+                / label
+            )
+
+            target_dir.mkdir(
+                parents=True,
+                exist_ok=True
+            )
+
+            for img in subset:
+
+                shutil.copy2(
+                    img,
+                    target_dir / img.name
+                )
+
+print("Done.")
+
 === FILE: quickstart-pytorch\pytorchexample\client_app.py ===
 import flwr as fl
 import torch
@@ -1093,7 +1093,7 @@ from .task import (
     test,
     DEVICE
 )
-MALICIOUS_CLIENTS = {3}
+MALICIOUS_CLIENTS = {}
 
 from .utils import poison_parameters
 
@@ -1612,9 +1612,9 @@ def load_data(client_id):
 
         import random
 
-        train_limit = min(800, len(trainset))
-        val_limit = min(200, len(valset))
-        test_limit = min(200, len(testset))
+        train_limit = min(2000, len(trainset))
+        val_limit = min(500, len(valset))
+        test_limit = min(500, len(testset))
 
         train_indices = random.sample(
             range(len(trainset)),
@@ -1655,19 +1655,19 @@ def load_data(client_id):
 
     trainloader = DataLoader(
         trainset,
-        batch_size=32,
+        batch_size=64,
         shuffle=True
     )
 
     valloader = DataLoader(
         valset,
-        batch_size=32,
+        batch_size=64,
         shuffle=False
     )
 
     testloader = DataLoader(
         testset,
-        batch_size=32,
+        batch_size=64,
         shuffle=False
     )
 
