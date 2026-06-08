@@ -91,7 +91,7 @@ def evaluate():
 
     print("\nStarting evaluation...")
 
-    for client_id in [1, 2, 3]:
+    for client_id in [1, 2, 3, 4, 5]:
 
         print(
             f"\nEvaluating Client {client_id}"

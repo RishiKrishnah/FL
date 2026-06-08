@@ -712,7 +712,7 @@ def evaluate():
 
     print("\nStarting evaluation...")
 
-    for client_id in [1, 2, 3]:
+    for client_id in [1, 2, 3, 4, 5]:
 
         print(
             f"\nEvaluating Client {client_id}"
@@ -928,7 +928,7 @@ clientapp = "pytorchexample.client_app:app"
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 3
+options.num-supernodes = 5
 
 [tool.flwr.federations.local-simulation.options.backend.client-resources]
 num-cpus = 2
@@ -1560,9 +1560,9 @@ def server_fn(context: Context):
         model_name=model_name,
         fraction_fit=1.0,
         fraction_evaluate=1.0,
-        min_fit_clients=3,
-        min_evaluate_clients=3,
-        min_available_clients=3,
+        min_fit_clients=5,
+        min_evaluate_clients=5,
+        min_available_clients=5,
         on_fit_config_fn=fit_config,
         evaluate_metrics_aggregation_fn=weighted_average,
     )
@@ -1681,9 +1681,9 @@ def load_data(client_id):
 
         import random
 
-        train_limit = min(7000, len(trainset))
-        val_limit = min(1500, len(valset))
-        test_limit = min(1500, len(testset))
+        train_limit = min(500, len(trainset))
+        val_limit = min(100, len(valset))
+        test_limit = min(100, len(testset))
 
         train_indices = random.sample(
             range(len(trainset)),

@@ -99,9 +99,9 @@ def load_data(client_id):
 
         import random
 
-        train_limit = min(7000, len(trainset))
-        val_limit = min(1500, len(valset))
-        test_limit = min(1500, len(testset))
+        train_limit = min(500, len(trainset))
+        val_limit = min(100, len(valset))
+        test_limit = min(100, len(testset))
 
         train_indices = random.sample(
             range(len(trainset)),
