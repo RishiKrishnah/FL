@@ -3,10 +3,7 @@ from collections import OrderedDict
 import flwr as fl
 import torch
 
-from flwr.common import (
-    Context,
-    parameters_to_ndarrays
-)
+from flwr.common import Context, parameters_to_ndarrays
 
 from flwr.server import (
     ServerApp,
@@ -14,114 +11,50 @@ from flwr.server import (
     ServerConfig,
 )
 
-from flwr.server.strategy import (
-    FedAvg
-)
+from flwr.server.strategy import FedAvg
 
 from .model import load_model
 from .task import save_model
 
+
 def weighted_average(metrics):
 
-    accuracies = [
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
 
-        num_examples * m["accuracy"]
+    examples = [num_examples for num_examples, _ in metrics]
 
-        for num_examples, m in metrics
-    ]
-
-    examples = [
-
-        num_examples
-
-        for num_examples, _ in metrics
-    ]
-
-    return {
-
-        "accuracy":
-
-        sum(accuracies)
-
-        / sum(examples)
-    }
+    return {"accuracy": sum(accuracies) / sum(examples)}
 
 
 class SaveModelStrategy(FedAvg):
-
-    def __init__(
-        self,
-        model_name,
-        **kwargs
-    ):
+    def __init__(self, model_name, **kwargs):
         super().__init__(**kwargs)
 
         self.model_name = model_name
 
-    def aggregate_fit(
+    def aggregate_fit(self, server_round, results, failures):
 
-        self,
-
-        server_round,
-
-        results,
-
-        failures
-    ):
-
-        aggregated = super().aggregate_fit(
-
-            server_round,
-
-            results,
-
-            failures
-        )
+        aggregated = super().aggregate_fit(server_round, results, failures)
 
         if aggregated is not None:
-
             parameters, _ = aggregated
 
-            ndarrays = (
+            ndarrays = parameters_to_ndarrays(parameters)
 
-                parameters_to_ndarrays(
-                    parameters
-                )
-            )
-
-            model_name = (self.model_name)
+            model_name = self.model_name
 
             model = load_model(model_name)
 
-            params_dict = zip(
+            params_dict = zip(model.state_dict().keys(), ndarrays)
 
-                model.state_dict().keys(),
+            state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
 
-                ndarrays
-            )
+            model.load_state_dict(state_dict, strict=True)
 
-            state_dict = OrderedDict({
-
-                k: torch.tensor(v)
-
-                for k, v in params_dict
-            })
-
-            model.load_state_dict(
-
-                state_dict,
-
-                strict=True
-            )
-
-            save_model(
-
-                model,
-
-                server_round
-            )
+            save_model(model, server_round)
 
         return aggregated
+
 
 def server_fn(context: Context):
 
@@ -134,9 +67,7 @@ def server_fn(context: Context):
     num_rounds = context.run_config["num-server-rounds"]
 
     def fit_config(server_round):
-        return {
-            "local_epochs": local_epochs
-        }
+        return {"local_epochs": local_epochs}
 
     strategy = SaveModelStrategy(
         model_name=model_name,
@@ -151,12 +82,8 @@ def server_fn(context: Context):
 
     return ServerAppComponents(
         strategy=strategy,
-        config=ServerConfig(
-            num_rounds=num_rounds
-        ),
+        config=ServerConfig(num_rounds=num_rounds),
     )
 
-app = ServerApp(
 
-    server_fn=server_fn
-)
+app = ServerApp(server_fn=server_fn)

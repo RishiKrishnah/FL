@@ -1,13 +1,17 @@
 from pathlib import Path
 
-IGNORE_DIRS = {
-    ".git", "__pycache__", "venv", ".venv",
-    "node_modules"
-}
+IGNORE_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules"}
 
 TEXT_EXTENSIONS = {
-    ".py", ".txt", ".md", ".json",
-    ".yaml", ".yml", ".toml", ".cfg", ".ini"
+    ".py",
+    ".txt",
+    ".md",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".cfg",
+    ".ini",
 }
 
 with open("project_prompt.txt", "w", encoding="utf-8") as out:

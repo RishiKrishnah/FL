@@ -2,14 +2,18 @@
 === FILE: ingest.py ===
 from pathlib import Path
 
-IGNORE_DIRS = {
-    ".git", "__pycache__", "venv", ".venv",
-    "node_modules"
-}
+IGNORE_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules"}
 
 TEXT_EXTENSIONS = {
-    ".py", ".txt", ".md", ".json",
-    ".yaml", ".yml", ".toml", ".cfg", ".ini"
+    ".py",
+    ".txt",
+    ".md",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".cfg",
+    ".ini",
 }
 
 with open("project_prompt.txt", "w", encoding="utf-8") as out:
@@ -33,6 +37,7 @@ with open("project_prompt.txt", "w", encoding="utf-8") as out:
         out.write("\n")
 
 print("Generated project_prompt.txt")
+
 
 === FILE: project_prompt.txt ===
 
@@ -636,9 +641,7 @@ from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
 
-MODEL_PATH = (
-    "saved_models/global_model_round_3.pth"
-)
+MODEL_PATH = "saved_models/global_model_round_1.pth"
 
 
 def detect_model_type(state_dict):
@@ -646,10 +649,8 @@ def detect_model_type(state_dict):
     keys = list(state_dict.keys())
 
     # Hybrid model
-    if (
-        any(k.startswith("resnet.") for k in keys)
-        and
-        any(k.startswith("vit.") for k in keys)
+    if any(k.startswith("resnet.") for k in keys) and any(
+        k.startswith("vit.") for k in keys
     ):
         return "hybrid"
 
@@ -665,39 +666,24 @@ def detect_model_type(state_dict):
     if "features.0.0.weight" in keys:
         return "efficientnet"
 
-    raise ValueError(
-        "Unable to determine model type."
-    )
+    raise ValueError("Unable to determine model type.")
 
 
 def evaluate():
 
     print("\nLoading checkpoint...")
 
-    checkpoint = torch.load(
-        MODEL_PATH,
-        map_location="cpu"
-    )
+    checkpoint = torch.load(MODEL_PATH, map_location="cpu")
 
-    model_name = detect_model_type(
-        checkpoint
-    )
+    model_name = detect_model_type(checkpoint)
 
-    print(
-        f"Detected model: {model_name}"
-    )
+    print(f"Detected model: {model_name}")
 
-    model = load_model(
-        model_name
-    )
+    model = load_model(model_name)
 
-    model.load_state_dict(
-        checkpoint
-    )
+    model.load_state_dict(checkpoint)
 
-    model = model.to(
-        DEVICE
-    )
+    model = model.to(DEVICE)
 
     model.eval()
 
@@ -713,71 +699,33 @@ def evaluate():
     print("\nStarting evaluation...")
 
     for client_id in [1, 2, 3, 4, 5]:
+        print(f"\nEvaluating Client {client_id}")
 
-        print(
-            f"\nEvaluating Client {client_id}"
-        )
-
-        _, _, testloader = load_data(
-            client_id
-        )
+        _, _, testloader = load_data(client_id)
 
         with torch.no_grad():
-
             for images, labels in testloader:
+                images = images.to(DEVICE)
 
-                images = images.to(
-                    DEVICE
-                )
+                labels = labels.to(DEVICE)
 
-                labels = labels.to(
-                    DEVICE
-                )
+                outputs = model(images)
 
-                outputs = model(
-                    images
-                )
+                loss = criterion(outputs, labels)
 
-                loss = criterion(
-                    outputs,
-                    labels
-                )
+                total_loss += loss.item() * labels.size(0)
 
-                total_loss += (
-                    loss.item()
-                    * labels.size(0)
-                )
+                total_samples += labels.size(0)
 
-                total_samples += (
-                    labels.size(0)
-                )
+                probabilities = torch.softmax(outputs, dim=1)[:, 1]
 
-                probabilities = (
-                    torch.softmax(
-                        outputs,
-                        dim=1
-                    )[:, 1]
-                )
+                predictions = outputs.argmax(dim=1)
 
-                predictions = (
-                    outputs.argmax(
-                        dim=1
-                    )
-                )
+                all_labels.extend(labels.cpu().numpy())
 
-                all_labels.extend(
-                    labels.cpu().numpy()
-                )
+                all_predictions.extend(predictions.cpu().numpy())
 
-                all_predictions.extend(
-                    predictions.cpu().numpy()
-                )
-
-                all_probabilities.extend(
-                    probabilities
-                    .cpu()
-                    .numpy()
-                )
+                all_probabilities.extend(probabilities.cpu().numpy())
 
     from collections import Counter
 
@@ -787,82 +735,45 @@ def evaluate():
     print("\nPrediction Distribution:")
     print(Counter(all_predictions))
 
-    avg_loss = (
-        total_loss
-        / total_samples
-    )
+    avg_loss = total_loss / total_samples
 
-    accuracy = accuracy_score(
-        all_labels,
-        all_predictions
-    )
+    accuracy = accuracy_score(all_labels, all_predictions)
 
     precision = precision_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
+        all_labels, all_predictions, average="binary", zero_division=0
     )
 
     recall = recall_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
+        all_labels, all_predictions, average="binary", zero_division=0
     )
 
-    f1 = f1_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
-    )
+    f1 = f1_score(all_labels, all_predictions, average="binary", zero_division=0)
 
     if len(set(all_labels)) > 1:
-        auc = roc_auc_score(
-            all_labels,
-            all_probabilities
-        )
+        auc = roc_auc_score(all_labels, all_probabilities)
     else:
         auc = float("nan")
 
-    cm = confusion_matrix(
-        all_labels,
-        all_predictions
-    )
+    cm = confusion_matrix(all_labels, all_predictions)
 
     print("\n")
     print("=" * 70)
     print("FINAL EVALUATION RESULTS")
     print("=" * 70)
 
-    print(
-        f"Model      : {model_name}"
-    )
+    print(f"Model      : {model_name}")
 
-    print(
-        f"Loss       : {avg_loss:.6f}"
-    )
+    print(f"Loss       : {avg_loss:.6f}")
 
-    print(
-        f"Accuracy   : {accuracy:.6f}"
-    )
+    print(f"Accuracy   : {accuracy:.6f}")
 
-    print(
-        f"Precision  : {precision:.6f}"
-    )
+    print(f"Precision  : {precision:.6f}")
 
-    print(
-        f"Recall     : {recall:.6f}"
-    )
+    print(f"Recall     : {recall:.6f}")
 
-    print(
-        f"F1 Score   : {f1:.6f}"
-    )
+    print(f"F1 Score   : {f1:.6f}")
 
-    print(
-        f"ROC-AUC    : {auc:.6f}"
-    )
+    print(f"ROC-AUC    : {auc:.6f}")
 
     print("\nConfusion Matrix")
 
@@ -875,11 +786,8 @@ def evaluate():
             all_labels,
             all_predictions,
             labels=[0, 1],
-            target_names=[
-                "Fake",
-                "Real"
-            ],
-            zero_division=0
+            target_names=["Fake", "Real"],
+            zero_division=0,
         )
     )
 
@@ -888,6 +796,7 @@ def evaluate():
 
 if __name__ == "__main__":
     evaluate()
+
 
 === FILE: quickstart-pytorch\pyproject.toml ===
 [build-system]
@@ -1022,9 +931,7 @@ from pathlib import Path
 
 random.seed(42)
 
-SOURCE = Path(
-    r"C:\Users\rishi\OneDrive\My Downloads\dataset\real-vs-fake"
-)
+SOURCE = Path(r"C:\Users\rishi\OneDrive\My Downloads\dataset\real-vs-fake")
 
 DEST = Path("dataset")
 
@@ -1040,7 +947,6 @@ def split_images(images, clients):
     splits = []
 
     for i in range(clients):
-
         start = i * size
 
         if i == clients - 1:
@@ -1054,23 +960,12 @@ def split_images(images, clients):
 
 
 for split in ["train", "valid", "test"]:
-
     for label in ["real", "fake"]:
+        images = list((SOURCE / split / label).glob("*"))
 
-        images = list(
-            (SOURCE / split / label).glob("*")
-        )
+        client_splits = split_images(images, CLIENTS)
 
-        client_splits = split_images(
-            images,
-            CLIENTS
-        )
-
-        for client_id, subset in enumerate(
-            client_splits,
-            start=1
-        ):
-
+        for client_id, subset in enumerate(client_splits, start=1):
             target_dir = (
                 DEST
                 / f"client{client_id}"
@@ -1078,19 +973,13 @@ for split in ["train", "valid", "test"]:
                 / label
             )
 
-            target_dir.mkdir(
-                parents=True,
-                exist_ok=True
-            )
+            target_dir.mkdir(parents=True, exist_ok=True)
 
             for img in subset:
-
-                shutil.copy2(
-                    img,
-                    target_dir / img.name
-                )
+                shutil.copy2(img, target_dir / img.name)
 
 print("Done.")
+
 
 === FILE: quickstart-pytorch\pytorchexample\client_app.py ===
 import flwr as fl
@@ -1100,238 +989,130 @@ from flwr.client import NumPyClient
 
 from .model import load_model
 
-from .task import (
-    load_data,
-    train,
-    test,
-    DEVICE
-)
+from .task import load_data, train, test, DEVICE
+
 MALICIOUS_CLIENTS = {}
 
 from .utils import poison_parameters
 
 
 class FlowerClient(NumPyClient):
-
-    def __init__(
-        self,
-        client_id,
-        model_name
-    ):
+    def __init__(self, client_id, model_name):
 
         self.client_id = client_id
 
-        print(
-            f"Client {client_id} using model: {model_name}"
-        )
+        print(f"Client {client_id} using model: {model_name}")
 
-        self.model = load_model(
-            model_name
-        ).to(DEVICE)
+        self.model = load_model(model_name).to(DEVICE)
 
-        (
-            self.trainloader,
-            self.valloader,
-            self.testloader
-        ) = load_data(client_id)
+        (self.trainloader, self.valloader, self.testloader) = load_data(client_id)
 
     def get_parameters(self, config):
 
-        return [
-
-            val.cpu().numpy()
-
-            for _, val in
-            self.model.state_dict().items()
-        ]
+        return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
     def set_parameters(self, parameters):
 
-        params_dict = zip(
-            self.model.state_dict().keys(),
-            parameters
-        )
+        params_dict = zip(self.model.state_dict().keys(), parameters)
 
-        state_dict = {
+        state_dict = {k: torch.tensor(v).to(DEVICE) for k, v in params_dict}
 
-            k: torch.tensor(v).to(DEVICE)
-
-            for k, v in params_dict
-        }
-
-        self.model.load_state_dict(
-            state_dict,
-            strict=True
-        )
+        self.model.load_state_dict(state_dict, strict=True)
 
     def fit(self, parameters, config):
 
-        print(
-            f"Client {self.client_id} "
-            f"starting fit..."
-        )
+        print(f"Client {self.client_id} starting fit...")
 
         self.set_parameters(parameters)
 
-        print(
-            f"Client {self.client_id} "
-            f"starting training..."
-        )
+        print(f"Client {self.client_id} starting training...")
 
         local_epochs = config["local_epochs"]
 
-        train(
-            self.model,
-            self.trainloader,
-            epochs=local_epochs
-        )
+        train(self.model, self.trainloader, epochs=local_epochs)
 
-        print(
-            f"Client {self.client_id} "
-            f"finished training"
-        )
+        print(f"Client {self.client_id} finished training")
 
-        print(
-            f"Client {self.client_id} "
-            f"extracting parameters..."
-        )
+        print(f"Client {self.client_id} extracting parameters...")
 
         updated_params = self.get_parameters({})
 
-        print(
-            f"Client {self.client_id} "
-            f"parameter extraction complete"
-        )
+        print(f"Client {self.client_id} parameter extraction complete")
 
         if self.client_id in MALICIOUS_CLIENTS:
+            print(f"Client {self.client_id} is malicious!")
 
-            print(
-                f"Client {self.client_id} is malicious!"
-            )
+            updated_params = poison_parameters(updated_params)
 
-            updated_params = (
-                poison_parameters(
-                    updated_params
-                )
-            )
-
-            print(
-                f"Client {self.client_id} poisoning complete"
-            )
+            print(f"Client {self.client_id} poisoning complete")
 
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-        print(
-            f"Client {self.client_id} "
-            f"returning results"
-        )
+        print(f"Client {self.client_id} returning results")
 
         return (
-
             updated_params,
-
             len(self.trainloader.dataset),
-
-            {
-                "client_id":
-                self.client_id
-            }
+            {"client_id": self.client_id},
         )
 
-    def evaluate(
-        self,
-        parameters,
-        config
-    ):
+    def evaluate(self, parameters, config):
 
         try:
-
-            print(
-                f"\nCLIENT {self.client_id} "
-                f"STARTING EVALUATION"
-            )
+            print(f"\nCLIENT {self.client_id} STARTING EVALUATION")
 
             self.set_parameters(parameters)
 
-            loss, accuracy = test(
-                self.model,
-                self.testloader
-            )
+            loss, accuracy = test(self.model, self.testloader)
 
-            print(
-                f"\nCLIENT {self.client_id} "
-                f"EVALUATION COMPLETE"
-            )
+            print(f"\nCLIENT {self.client_id} EVALUATION COMPLETE")
 
             return (
                 float(loss),
                 len(self.testloader.dataset),
-                {"accuracy": float(accuracy)}
+                {"accuracy": float(accuracy)},
             )
 
         except Exception as e:
-
-            print(
-                f"\nCLIENT {self.client_id} "
-                f"EVALUATION ERROR:"
-            )
+            print(f"\nCLIENT {self.client_id} EVALUATION ERROR:")
 
             print(e)
 
             raise
 
+
 def client_fn(context):
 
-    client_id = (
-        context.node_config["partition-id"]
-        + 1
-    )
+    client_id = context.node_config["partition-id"] + 1
 
-    model_name = (
-        context.run_config[
-            "model-name"
-        ]
-    )
+    model_name = context.run_config["model-name"]
 
-    return FlowerClient(
-        client_id,
-        model_name
-    ).to_client()
+    return FlowerClient(client_id, model_name).to_client()
 
 
-app = fl.client.ClientApp(
-    client_fn=client_fn
-)
+app = fl.client.ClientApp(client_fn=client_fn)
+
 
 === FILE: quickstart-pytorch\pytorchexample\model.py ===
 import torch
 import torch.nn as nn
 
-from torchvision.models import (
-    vit_b_16,
-    resnet18,
-    efficientnet_b0
-)
+from torchvision.models import vit_b_16, resnet18, efficientnet_b0
 
 
 class HybridResNetViT(nn.Module):
-
     def __init__(self):
 
         super().__init__()
 
         # ResNet branch
-        self.resnet = resnet18(
-            weights="IMAGENET1K_V1"
-        )
+        self.resnet = resnet18(weights="IMAGENET1K_V1")
 
         self.resnet.fc = nn.Identity()
 
         # ViT branch
-        self.vit = vit_b_16(
-            weights="IMAGENET1K_V1"
-        )
+        self.vit = vit_b_16(weights="IMAGENET1K_V1")
 
         self.vit.heads = nn.Identity()
 
@@ -1345,10 +1126,7 @@ class HybridResNetViT(nn.Module):
 
         # Fusion classifier
         self.classifier = nn.Sequential(
-            nn.Linear(512 + 768, 512),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(512, 2)
+            nn.Linear(512 + 768, 512), nn.ReLU(), nn.Dropout(0.3), nn.Linear(512, 2)
         )
 
     def forward(self, x):
@@ -1357,10 +1135,7 @@ class HybridResNetViT(nn.Module):
 
         vit_features = self.vit(x)
 
-        combined = torch.cat(
-            [resnet_features, vit_features],
-            dim=1
-        )
+        combined = torch.cat([resnet_features, vit_features], dim=1)
 
         return self.classifier(combined)
 
@@ -1368,52 +1143,31 @@ class HybridResNetViT(nn.Module):
 def load_model(model_name):
 
     if model_name == "vit":
-
-        model = vit_b_16(
-            weights="IMAGENET1K_V1"
-        )
+        model = vit_b_16(weights="IMAGENET1K_V1")
 
         for param in model.parameters():
             param.requires_grad = False
 
-        model.heads.head = nn.Linear(
-            model.heads.head.in_features,
-            2
-        )
+        model.heads.head = nn.Linear(model.heads.head.in_features, 2)
 
     elif model_name == "resnet18":
+        model = resnet18(weights="IMAGENET1K_V1")
 
-        model = resnet18(
-            weights="IMAGENET1K_V1"
-        )
-
-        model.fc = nn.Linear(
-            model.fc.in_features,
-            2
-        )
+        model.fc = nn.Linear(model.fc.in_features, 2)
 
     elif model_name == "efficientnet":
+        model = efficientnet_b0(weights="IMAGENET1K_V1")
 
-        model = efficientnet_b0(
-            weights="IMAGENET1K_V1"
-        )
-
-        model.classifier[1] = nn.Linear(
-            model.classifier[1].in_features,
-            2
-        )
+        model.classifier[1] = nn.Linear(model.classifier[1].in_features, 2)
 
     elif model_name == "hybrid":
-
         model = HybridResNetViT()
 
     else:
-
-        raise ValueError(
-            f"Unknown model: {model_name}"
-        )
+        raise ValueError(f"Unknown model: {model_name}")
 
     return model
+
 
 === FILE: quickstart-pytorch\pytorchexample\server_app.py ===
 from collections import OrderedDict
@@ -1421,10 +1175,7 @@ from collections import OrderedDict
 import flwr as fl
 import torch
 
-from flwr.common import (
-    Context,
-    parameters_to_ndarrays
-)
+from flwr.common import Context, parameters_to_ndarrays
 
 from flwr.server import (
     ServerApp,
@@ -1432,114 +1183,50 @@ from flwr.server import (
     ServerConfig,
 )
 
-from flwr.server.strategy import (
-    FedAvg
-)
+from flwr.server.strategy import FedAvg
 
 from .model import load_model
 from .task import save_model
 
+
 def weighted_average(metrics):
 
-    accuracies = [
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
 
-        num_examples * m["accuracy"]
+    examples = [num_examples for num_examples, _ in metrics]
 
-        for num_examples, m in metrics
-    ]
-
-    examples = [
-
-        num_examples
-
-        for num_examples, _ in metrics
-    ]
-
-    return {
-
-        "accuracy":
-
-        sum(accuracies)
-
-        / sum(examples)
-    }
+    return {"accuracy": sum(accuracies) / sum(examples)}
 
 
 class SaveModelStrategy(FedAvg):
-
-    def __init__(
-        self,
-        model_name,
-        **kwargs
-    ):
+    def __init__(self, model_name, **kwargs):
         super().__init__(**kwargs)
 
         self.model_name = model_name
 
-    def aggregate_fit(
+    def aggregate_fit(self, server_round, results, failures):
 
-        self,
-
-        server_round,
-
-        results,
-
-        failures
-    ):
-
-        aggregated = super().aggregate_fit(
-
-            server_round,
-
-            results,
-
-            failures
-        )
+        aggregated = super().aggregate_fit(server_round, results, failures)
 
         if aggregated is not None:
-
             parameters, _ = aggregated
 
-            ndarrays = (
+            ndarrays = parameters_to_ndarrays(parameters)
 
-                parameters_to_ndarrays(
-                    parameters
-                )
-            )
-
-            model_name = (self.model_name)
+            model_name = self.model_name
 
             model = load_model(model_name)
 
-            params_dict = zip(
+            params_dict = zip(model.state_dict().keys(), ndarrays)
 
-                model.state_dict().keys(),
+            state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
 
-                ndarrays
-            )
+            model.load_state_dict(state_dict, strict=True)
 
-            state_dict = OrderedDict({
-
-                k: torch.tensor(v)
-
-                for k, v in params_dict
-            })
-
-            model.load_state_dict(
-
-                state_dict,
-
-                strict=True
-            )
-
-            save_model(
-
-                model,
-
-                server_round
-            )
+            save_model(model, server_round)
 
         return aggregated
+
 
 def server_fn(context: Context):
 
@@ -1552,9 +1239,7 @@ def server_fn(context: Context):
     num_rounds = context.run_config["num-server-rounds"]
 
     def fit_config(server_round):
-        return {
-            "local_epochs": local_epochs
-        }
+        return {"local_epochs": local_epochs}
 
     strategy = SaveModelStrategy(
         model_name=model_name,
@@ -1569,151 +1254,95 @@ def server_fn(context: Context):
 
     return ServerAppComponents(
         strategy=strategy,
-        config=ServerConfig(
-            num_rounds=num_rounds
-        ),
+        config=ServerConfig(num_rounds=num_rounds),
     )
 
-app = ServerApp(
 
-    server_fn=server_fn
-)
+app = ServerApp(server_fn=server_fn)
+
 
 === FILE: quickstart-pytorch\pytorchexample\task.py ===
 import os
 
 import torch
+
 torch.backends.cudnn.benchmark = True
 
-from torch.utils.data import (
-    DataLoader,
-    Subset
-)
+from torch.utils.data import DataLoader, Subset
 
-from torchvision import (
-    datasets,
-    transforms
-)
+from torchvision import datasets, transforms
 
 import torch.nn as nn
 import torch.optim as optim
 
-from sklearn.metrics import (
-    precision_score,
-    recall_score,
-    f1_score
-)
+from sklearn.metrics import precision_score, recall_score, f1_score
 
-DEVICE = torch.device(
-
-    "cuda"
-
-    if torch.cuda.is_available()
-
-    else "cpu"
-)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 print(f"Using device: {DEVICE}")
 
 try:
     if DEVICE.type == "cuda":
         print("GPU Enabled")
-        print(
-            f"GPU Count: {torch.cuda.device_count()}"
-        )
+        print(f"GPU Count: {torch.cuda.device_count()}")
 
         if torch.cuda.device_count() > 0:
-            print(
-                torch.cuda.get_device_name(
-                    torch.cuda.current_device()
-                )
-            )
+            print(torch.cuda.get_device_name(torch.cuda.current_device()))
 
 except Exception as e:
-    print(
-        f"GPU info unavailable: {e}"
-    )
+    print(f"GPU info unavailable: {e}")
 from PIL import Image
 
 DEBUG = True
+
 
 def convert_rgb(img):
     if img.mode != "RGB":
         img = img.convert("RGB")
     return img
 
-transform = transforms.Compose([
-    transforms.Lambda(convert_rgb),
 
-    transforms.Resize((224, 224)),
+transform = transforms.Compose(
+    [
+        transforms.Lambda(convert_rgb),
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
+)
 
-    transforms.ToTensor(),
-
-    transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
-    )
-])
 
 def load_data(client_id):
 
     train_path = f"dataset/client{client_id}/train"
-    val_path   = f"dataset/client{client_id}/val"
-    test_path  = f"dataset/client{client_id}/test"
+    val_path = f"dataset/client{client_id}/val"
+    test_path = f"dataset/client{client_id}/test"
 
-    trainset = datasets.ImageFolder(
-    train_path,
-    transform=transform
-)
+    trainset = datasets.ImageFolder(train_path, transform=transform)
 
-    valset = datasets.ImageFolder(
-        val_path,
-        transform=transform
-    )
+    valset = datasets.ImageFolder(val_path, transform=transform)
 
-    testset = datasets.ImageFolder(
-        test_path,
-        transform=transform
-    )
+    testset = datasets.ImageFolder(test_path, transform=transform)
 
     # DEBUG MODE
     if DEBUG:
-
         import random
 
         train_limit = min(500, len(trainset))
         val_limit = min(100, len(valset))
         test_limit = min(100, len(testset))
 
-        train_indices = random.sample(
-            range(len(trainset)),
-            train_limit
-        )
+        train_indices = random.sample(range(len(trainset)), train_limit)
 
-        val_indices = random.sample(
-            range(len(valset)),
-            val_limit
-        )
+        val_indices = random.sample(range(len(valset)), val_limit)
 
-        test_indices = random.sample(
-            range(len(testset)),
-            test_limit
-        )
+        test_indices = random.sample(range(len(testset)), test_limit)
 
-        trainset = Subset(
-            trainset,
-            train_indices
-        )
+        trainset = Subset(trainset, train_indices)
 
-        valset = Subset(
-            valset,
-            val_indices
-        )
+        valset = Subset(valset, val_indices)
 
-        testset = Subset(
-            testset,
-            test_indices
-        )
+        testset = Subset(testset, test_indices)
 
         print(
             f"[DEBUG MODE] "
@@ -1722,42 +1351,20 @@ def load_data(client_id):
             f"Test={len(testset)}"
         )
 
-    trainloader = DataLoader(
-        trainset,
-        batch_size=64,
-        shuffle=True
-    )
+    trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
 
-    valloader = DataLoader(
-        valset,
-        batch_size=64,
-        shuffle=False
-    )
+    valloader = DataLoader(valset, batch_size=64, shuffle=False)
 
-    testloader = DataLoader(
-        testset,
-        batch_size=64,
-        shuffle=False
-    )
+    testloader = DataLoader(testset, batch_size=64, shuffle=False)
 
-    print(
-        f"Client {client_id}"
-    )
+    print(f"Client {client_id}")
 
-    print(
-        f"Train Images: "
-        f"{len(trainset)}"
-    )
+    print(f"Train Images: {len(trainset)}")
 
-    print(
-        f"Test Images : "
-        f"{len(testset)}"
-    )
-    print(
-        f"Validate Images : "
-        f"{len(valset)}"
-    )
+    print(f"Test Images : {len(testset)}")
+    print(f"Validate Images : {len(valset)}")
     return trainloader, valloader, testloader
+
 
 from tqdm import tqdm
 import time
@@ -1765,24 +1372,20 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+
 def train(model, trainloader, epochs=1):
 
     criterion = nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(
-        filter(
-            lambda p: p.requires_grad,
-            model.parameters()
-        ),
-        lr=0.001
+        filter(lambda p: p.requires_grad, model.parameters()), lr=0.001
     )
 
-    scaler = torch.amp.GradScaler("cuda",enabled=(DEVICE.type == "cuda"))
+    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
 
     model.train()
 
     for epoch in range(epochs):
-
         running_loss = 0.0
 
         correct = 0
@@ -1790,34 +1393,19 @@ def train(model, trainloader, epochs=1):
 
         start_time = time.time()
 
-        progress_bar = tqdm(
-            trainloader,
-            desc=f"Epoch {epoch+1}/{epochs}",
-            leave=True
-        )
+        progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
+            images = images.to(DEVICE, non_blocking=True)
 
-            images = images.to(
-                DEVICE,
-                non_blocking=True
-            )
-
-            labels = labels.to(
-                DEVICE,
-                non_blocking=True
-            )
+            labels = labels.to(DEVICE, non_blocking=True)
 
             optimizer.zero_grad()
 
             with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
-
                 outputs = model(images)
 
-                loss = criterion(
-                    outputs,
-                    labels
-                )
+                loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
 
@@ -1827,158 +1415,76 @@ def train(model, trainloader, epochs=1):
 
             running_loss += loss.item()
 
-            _, predicted = torch.max(
-                outputs,
-                1
-            )
+            _, predicted = torch.max(outputs, 1)
 
-            correct += (
-                predicted == labels
-            ).sum().item()
+            correct += (predicted == labels).sum().item()
 
             total += labels.size(0)
 
-            accuracy = (
-                100.0 *
-                correct /
-                total
+            accuracy = 100.0 * correct / total
+
+            elapsed = time.time() - start_time
+
+            images_processed = (batch_idx + 1) * images.size(0)
+
+            img_per_sec = images_processed / elapsed
+
+            eta_seconds = (elapsed / (batch_idx + 1)) * (
+                len(trainloader) - batch_idx - 1
             )
 
-            elapsed = (
-                time.time()
-                - start_time
+            progress_bar.set_postfix(
+                {
+                    "loss": f"{loss.item():.4f}",
+                    "acc": f"{accuracy:.2f}%",
+                    "img/s": f"{img_per_sec:.1f}",
+                    "eta": f"{eta_seconds / 60:.1f}m",
+                }
             )
-
-            images_processed = (
-                (batch_idx + 1)
-                * images.size(0)
-            )
-
-            img_per_sec = (
-                images_processed
-                / elapsed
-            )
-
-            eta_seconds = (
-                elapsed /
-                (batch_idx + 1)
-            ) * (
-                len(trainloader)
-                - batch_idx
-                - 1
-            )
-
-            progress_bar.set_postfix({
-                "loss":
-                    f"{loss.item():.4f}",
-                "acc":
-                    f"{accuracy:.2f}%",
-                "img/s":
-                    f"{img_per_sec:.1f}",
-                "eta":
-                    f"{eta_seconds/60:.1f}m"
-            })
 
             if batch_idx % 100 == 0:
-
                 if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated() / 1024**3
 
-                    allocated = (
-                        torch.cuda.memory_allocated()
-                        / 1024**3
-                    )
+                    reserved = torch.cuda.memory_reserved() / 1024**3
 
-                    reserved = (
-                        torch.cuda.memory_reserved()
-                        / 1024**3
-                    )
+                    print(f"\nBatch {batch_idx}/{len(trainloader)}")
 
-                    print(
-                        f"\nBatch "
-                        f"{batch_idx}/"
-                        f"{len(trainloader)}"
-                    )
+                    print(f"GPU Allocated: {allocated:.2f} GB")
 
-                    print(
-                        f"GPU Allocated: "
-                        f"{allocated:.2f} GB"
-                    )
+                    print(f"GPU Reserved : {reserved:.2f} GB")
 
-                    print(
-                        f"GPU Reserved : "
-                        f"{reserved:.2f} GB"
-                    )
+        epoch_time = time.time() - start_time
 
-        epoch_time = (
-            time.time()
-            - start_time
-        )
+        avg_loss = running_loss / len(trainloader)
 
-        avg_loss = (
-            running_loss
-            / len(trainloader)
-        )
-
-        final_acc = (
-            100.0 *
-            correct /
-            total
-        )
+        final_acc = 100.0 * correct / total
 
         print("\n" + "=" * 50)
 
-        print(
-            f"Epoch {epoch+1} Complete"
-        )
+        print(f"Epoch {epoch + 1} Complete")
 
-        print(
-            f"Average Loss : "
-            f"{avg_loss:.4f}"
-        )
+        print(f"Average Loss : {avg_loss:.4f}")
 
-        print(
-            f"Accuracy     : "
-            f"{final_acc:.2f}%"
-        )
+        print(f"Accuracy     : {final_acc:.2f}%")
 
-        print(
-            f"Time         : "
-            f"{epoch_time:.2f}s"
-        )
+        print(f"Time         : {epoch_time:.2f}s")
 
-        print(
-            f"Images       : "
-            f"{total}"
-        )
+        print(f"Images       : {total}")
 
-        print(
-            f"Images/sec   : "
-            f"{total/epoch_time:.2f}"
-        )
+        print(f"Images/sec   : {total / epoch_time:.2f}")
 
         if torch.cuda.is_available():
+            allocated = torch.cuda.memory_allocated() / 1024**3
 
-            allocated = (
-                torch.cuda.memory_allocated()
-                / 1024**3
-            )
+            reserved = torch.cuda.memory_reserved() / 1024**3
 
-            reserved = (
-                torch.cuda.memory_reserved()
-                / 1024**3
-            )
+            print(f"GPU Allocated: {allocated:.2f} GB")
 
-            print(
-                f"GPU Allocated: "
-                f"{allocated:.2f} GB"
-            )
-
-            print(
-                f"GPU Reserved : "
-                f"{reserved:.2f} GB"
-            )
+            print(f"GPU Reserved : {reserved:.2f} GB")
 
         print("=" * 50)
+
 
 def test(model, testloader):
 
@@ -1991,91 +1497,59 @@ def test(model, testloader):
     model.eval()
 
     with torch.no_grad():
-
-        for images, labels in tqdm(testloader, desc="Testing",leave=True):
-
+        for images, labels in tqdm(testloader, desc="Testing", leave=True):
             images = images.to(DEVICE)
             labels = labels.to(DEVICE)
 
             outputs = model(images)
 
-            loss += criterion(
-                outputs,
-                labels
-            ).item()
+            loss += criterion(outputs, labels).item()
 
-            _, predicted = torch.max(
-                outputs,
-                1
-            )
+            _, predicted = torch.max(outputs, 1)
 
             total += labels.size(0)
 
-            correct += (
-
-                predicted == labels
-
-            ).sum().item()
+            correct += (predicted == labels).sum().item()
 
     accuracy = correct / total
 
-    print(
-        f"Accuracy: "
-        f"{accuracy:.4f}"
-    )
+    print(f"Accuracy: {accuracy:.4f}")
 
     return loss, accuracy
 
+
 def save_model(model, round_num):
 
-    os.makedirs(
-        "saved_models",
-        exist_ok=True
-    )
+    os.makedirs("saved_models", exist_ok=True)
 
-    path = (
+    path = f"saved_models/global_model_round_{round_num}.pth"
 
-        f"saved_models/"
-        f"global_model_round_"
-        f"{round_num}.pth"
-    )
-
-    torch.save(
-
-        model.state_dict(),
-
-        path
-    )
+    torch.save(model.state_dict(), path)
 
     print(f"Saved: {path}")
 
+
 === FILE: quickstart-pytorch\pytorchexample\utils.py ===
 import numpy as np
+
 
 def poison_parameters(parameters):
 
     print("\nPOISONING STARTED")
 
     for i, param in enumerate(parameters):
-
         before = np.mean(param)
 
-        param += np.random.normal(
-            0,
-            0.05,
-            param.shape
-        ).astype(param.dtype)
+        param += np.random.normal(0, 0.05, param.shape).astype(param.dtype)
 
         after = np.mean(param)
 
-        print(
-            f"Layer {i}: "
-            f"{before:.6f} -> {after:.6f}"
-        )
+        print(f"Layer {i}: {before:.6f} -> {after:.6f}")
 
     print("POISONING FINISHED\n")
 
     return parameters
+
 
 === FILE: quickstart-pytorch\pytorchexample\__init__.py ===
 """pytorchexample."""

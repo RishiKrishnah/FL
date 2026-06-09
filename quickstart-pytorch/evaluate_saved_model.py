@@ -15,9 +15,7 @@ from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
 
-MODEL_PATH = (
-    "saved_models/global_model_round_3.pth"
-)
+MODEL_PATH = "saved_models/global_model_round_1.pth"
 
 
 def detect_model_type(state_dict):
@@ -25,10 +23,8 @@ def detect_model_type(state_dict):
     keys = list(state_dict.keys())
 
     # Hybrid model
-    if (
-        any(k.startswith("resnet.") for k in keys)
-        and
-        any(k.startswith("vit.") for k in keys)
+    if any(k.startswith("resnet.") for k in keys) and any(
+        k.startswith("vit.") for k in keys
     ):
         return "hybrid"
 
@@ -44,39 +40,24 @@ def detect_model_type(state_dict):
     if "features.0.0.weight" in keys:
         return "efficientnet"
 
-    raise ValueError(
-        "Unable to determine model type."
-    )
+    raise ValueError("Unable to determine model type.")
 
 
 def evaluate():
 
     print("\nLoading checkpoint...")
 
-    checkpoint = torch.load(
-        MODEL_PATH,
-        map_location="cpu"
-    )
+    checkpoint = torch.load(MODEL_PATH, map_location="cpu")
 
-    model_name = detect_model_type(
-        checkpoint
-    )
+    model_name = detect_model_type(checkpoint)
 
-    print(
-        f"Detected model: {model_name}"
-    )
+    print(f"Detected model: {model_name}")
 
-    model = load_model(
-        model_name
-    )
+    model = load_model(model_name)
 
-    model.load_state_dict(
-        checkpoint
-    )
+    model.load_state_dict(checkpoint)
 
-    model = model.to(
-        DEVICE
-    )
+    model = model.to(DEVICE)
 
     model.eval()
 
@@ -92,71 +73,33 @@ def evaluate():
     print("\nStarting evaluation...")
 
     for client_id in [1, 2, 3, 4, 5]:
+        print(f"\nEvaluating Client {client_id}")
 
-        print(
-            f"\nEvaluating Client {client_id}"
-        )
-
-        _, _, testloader = load_data(
-            client_id
-        )
+        _, _, testloader = load_data(client_id)
 
         with torch.no_grad():
-
             for images, labels in testloader:
+                images = images.to(DEVICE)
 
-                images = images.to(
-                    DEVICE
-                )
+                labels = labels.to(DEVICE)
 
-                labels = labels.to(
-                    DEVICE
-                )
+                outputs = model(images)
 
-                outputs = model(
-                    images
-                )
+                loss = criterion(outputs, labels)
 
-                loss = criterion(
-                    outputs,
-                    labels
-                )
+                total_loss += loss.item() * labels.size(0)
 
-                total_loss += (
-                    loss.item()
-                    * labels.size(0)
-                )
+                total_samples += labels.size(0)
 
-                total_samples += (
-                    labels.size(0)
-                )
+                probabilities = torch.softmax(outputs, dim=1)[:, 1]
 
-                probabilities = (
-                    torch.softmax(
-                        outputs,
-                        dim=1
-                    )[:, 1]
-                )
+                predictions = outputs.argmax(dim=1)
 
-                predictions = (
-                    outputs.argmax(
-                        dim=1
-                    )
-                )
+                all_labels.extend(labels.cpu().numpy())
 
-                all_labels.extend(
-                    labels.cpu().numpy()
-                )
+                all_predictions.extend(predictions.cpu().numpy())
 
-                all_predictions.extend(
-                    predictions.cpu().numpy()
-                )
-
-                all_probabilities.extend(
-                    probabilities
-                    .cpu()
-                    .numpy()
-                )
+                all_probabilities.extend(probabilities.cpu().numpy())
 
     from collections import Counter
 
@@ -166,82 +109,45 @@ def evaluate():
     print("\nPrediction Distribution:")
     print(Counter(all_predictions))
 
-    avg_loss = (
-        total_loss
-        / total_samples
-    )
+    avg_loss = total_loss / total_samples
 
-    accuracy = accuracy_score(
-        all_labels,
-        all_predictions
-    )
+    accuracy = accuracy_score(all_labels, all_predictions)
 
     precision = precision_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
+        all_labels, all_predictions, average="binary", zero_division=0
     )
 
     recall = recall_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
+        all_labels, all_predictions, average="binary", zero_division=0
     )
 
-    f1 = f1_score(
-        all_labels,
-        all_predictions,
-        average="binary",
-        zero_division=0
-    )
+    f1 = f1_score(all_labels, all_predictions, average="binary", zero_division=0)
 
     if len(set(all_labels)) > 1:
-        auc = roc_auc_score(
-            all_labels,
-            all_probabilities
-        )
+        auc = roc_auc_score(all_labels, all_probabilities)
     else:
         auc = float("nan")
 
-    cm = confusion_matrix(
-        all_labels,
-        all_predictions
-    )
+    cm = confusion_matrix(all_labels, all_predictions)
 
     print("\n")
     print("=" * 70)
     print("FINAL EVALUATION RESULTS")
     print("=" * 70)
 
-    print(
-        f"Model      : {model_name}"
-    )
+    print(f"Model      : {model_name}")
 
-    print(
-        f"Loss       : {avg_loss:.6f}"
-    )
+    print(f"Loss       : {avg_loss:.6f}")
 
-    print(
-        f"Accuracy   : {accuracy:.6f}"
-    )
+    print(f"Accuracy   : {accuracy:.6f}")
 
-    print(
-        f"Precision  : {precision:.6f}"
-    )
+    print(f"Precision  : {precision:.6f}")
 
-    print(
-        f"Recall     : {recall:.6f}"
-    )
+    print(f"Recall     : {recall:.6f}")
 
-    print(
-        f"F1 Score   : {f1:.6f}"
-    )
+    print(f"F1 Score   : {f1:.6f}")
 
-    print(
-        f"ROC-AUC    : {auc:.6f}"
-    )
+    print(f"ROC-AUC    : {auc:.6f}")
 
     print("\nConfusion Matrix")
 
@@ -254,11 +160,8 @@ def evaluate():
             all_labels,
             all_predictions,
             labels=[0, 1],
-            target_names=[
-                "Fake",
-                "Real"
-            ],
-            zero_division=0
+            target_names=["Fake", "Real"],
+            zero_division=0,
         )
     )
 
