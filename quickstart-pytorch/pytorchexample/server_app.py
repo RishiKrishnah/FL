@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-import flwr as fl
 import torch
 
 from flwr.common import Context, parameters_to_ndarrays

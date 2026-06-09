@@ -15,7 +15,7 @@ from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
 
-MODEL_PATH = "saved_models/global_model_round_1.pth"
+MODEL_PATH = "saved_models/global_model_round_3.pth"
 
 
 def detect_model_type(state_dict):

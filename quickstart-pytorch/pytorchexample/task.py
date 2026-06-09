@@ -8,8 +8,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 
-from sklearn.metrics import precision_score, recall_score, f1_score
-from PIL import Image
 from tqdm import tqdm
 
 torch.backends.cudnn.benchmark = True
