@@ -1,17 +1,18 @@
 import os
+import time
 
 import torch
-
-torch.backends.cudnn.benchmark = True
-
-from torch.utils.data import DataLoader, Subset
-
-from torchvision import datasets, transforms
-
 import torch.nn as nn
 import torch.optim as optim
 
+from torch.utils.data import DataLoader, Subset
+from torchvision import datasets, transforms
+
 from sklearn.metrics import precision_score, recall_score, f1_score
+from PIL import Image
+from tqdm import tqdm
+
+torch.backends.cudnn.benchmark = True
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -27,7 +28,6 @@ try:
 
 except Exception as e:
     print(f"GPU info unavailable: {e}")
-from PIL import Image
 
 DEBUG = True
 
@@ -100,13 +100,6 @@ def load_data(client_id):
     print(f"Test Images : {len(testset)}")
     print(f"Validate Images : {len(valset)}")
     return trainloader, valloader, testloader
-
-
-from tqdm import tqdm
-import time
-import torch
-import torch.nn as nn
-import torch.optim as optim
 
 
 def train(model, trainloader, epochs=1):

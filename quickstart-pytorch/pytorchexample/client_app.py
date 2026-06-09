@@ -7,9 +7,9 @@ from .model import load_model
 
 from .task import load_data, train, test, DEVICE
 
-MALICIOUS_CLIENTS = {}
-
 from .utils import poison_parameters
+
+MALICIOUS_CLIENTS = {}
 
 
 class FlowerClient(NumPyClient):
