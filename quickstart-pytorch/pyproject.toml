@@ -36,7 +36,7 @@ clientapp = "pytorchexample.client_app:app"
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 5
+options.num-supernodes = 3
 
 [tool.flwr.federations.local-simulation.options.backend.client-resources]
 num-cpus = 2

@@ -1,9 +1,17 @@
 import torch
 import torch.nn as nn
 
-from torchvision.models import vit_b_16, resnet18, efficientnet_b0
+from torchvision.models import (
+    vit_b_16,
+    resnet18,
+    efficientnet_b0,
+    swin_t,
+)
 
 
+# ==========================================================
+# ResNet18 + ViT Hybrid
+# ==========================================================
 class HybridResNetViT(nn.Module):
     def __init__(self):
 
@@ -11,25 +19,25 @@ class HybridResNetViT(nn.Module):
 
         # ResNet branch
         self.resnet = resnet18(weights="IMAGENET1K_V1")
-
         self.resnet.fc = nn.Identity()
 
         # ViT branch
         self.vit = vit_b_16(weights="IMAGENET1K_V1")
-
         self.vit.heads = nn.Identity()
 
-        # Optional: freeze ViT to reduce training cost
+        # Freeze ViT
         for param in self.vit.parameters():
             param.requires_grad = False
 
-        # Unfreeze last transformer block
+        # Fine-tune last transformer block
         for param in self.vit.encoder.layers[-1].parameters():
             param.requires_grad = True
 
-        # Fusion classifier
         self.classifier = nn.Sequential(
-            nn.Linear(512 + 768, 512), nn.ReLU(), nn.Dropout(0.3), nn.Linear(512, 2)
+            nn.Linear(512 + 768, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, 2),
         )
 
     def forward(self, x):
@@ -38,33 +46,122 @@ class HybridResNetViT(nn.Module):
 
         vit_features = self.vit(x)
 
-        combined = torch.cat([resnet_features, vit_features], dim=1)
+        combined = torch.cat(
+            [resnet_features, vit_features],
+            dim=1,
+        )
 
         return self.classifier(combined)
 
 
+# ==========================================================
+# ResNet18 + Swin Transformer Hybrid
+# ==========================================================
+class HybridResNetSwin(nn.Module):
+    def __init__(self):
+
+        super().__init__()
+
+        # ResNet branch
+        self.resnet = resnet18(weights="IMAGENET1K_V1")
+        self.resnet.fc = nn.Identity()
+
+        # Swin branch
+        self.swin = swin_t(weights="IMAGENET1K_V1")
+        self.swin.head = nn.Identity()
+
+        # Freeze Swin
+        for param in self.swin.parameters():
+            param.requires_grad = False
+
+        # Fine-tune final Swin stage
+        for param in self.swin.features[-1].parameters():
+            param.requires_grad = True
+
+        self.classifier = nn.Sequential(
+            nn.Linear(512 + 768, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, 2),
+        )
+
+    def forward(self, x):
+
+        resnet_features = self.resnet(x)
+
+        swin_features = self.swin(x)
+
+        combined = torch.cat(
+            [resnet_features, swin_features],
+            dim=1,
+        )
+
+        return self.classifier(combined)
+
+
+# ==========================================================
+# Model Loader
+# ==========================================================
 def load_model(model_name):
 
+    # ------------------------------------------------------
+    # Vision Transformer
+    # ------------------------------------------------------
     if model_name == "vit":
         model = vit_b_16(weights="IMAGENET1K_V1")
 
         for param in model.parameters():
             param.requires_grad = False
 
-        model.heads.head = nn.Linear(model.heads.head.in_features, 2)
+        model.heads.head = nn.Linear(
+            model.heads.head.in_features,
+            2,
+        )
 
+    # ------------------------------------------------------
+    # ResNet18
+    # ------------------------------------------------------
     elif model_name == "resnet18":
         model = resnet18(weights="IMAGENET1K_V1")
 
-        model.fc = nn.Linear(model.fc.in_features, 2)
+        model.fc = nn.Linear(
+            model.fc.in_features,
+            2,
+        )
 
+    # ------------------------------------------------------
+    # EfficientNet-B0
+    # ------------------------------------------------------
     elif model_name == "efficientnet":
         model = efficientnet_b0(weights="IMAGENET1K_V1")
 
-        model.classifier[1] = nn.Linear(model.classifier[1].in_features, 2)
+        model.classifier[1] = nn.Linear(
+            model.classifier[1].in_features,
+            2,
+        )
 
+    # ------------------------------------------------------
+    # Swin Transformer
+    # ------------------------------------------------------
+    elif model_name == "swin":
+        model = swin_t(weights="IMAGENET1K_V1")
+
+        model.head = nn.Linear(
+            model.head.in_features,
+            2,
+        )
+
+    # ------------------------------------------------------
+    # ResNet + ViT Hybrid
+    # ------------------------------------------------------
     elif model_name == "hybrid":
         model = HybridResNetViT()
+
+    # ------------------------------------------------------
+    # ResNet + Swin Hybrid
+    # ------------------------------------------------------
+    elif model_name == "hybrid_swin":
+        model = HybridResNetSwin()
 
     else:
         raise ValueError(f"Unknown model: {model_name}")

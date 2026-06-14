@@ -72,9 +72,9 @@ def server_fn(context: Context):
         model_name=model_name,
         fraction_fit=1.0,
         fraction_evaluate=1.0,
-        min_fit_clients=5,
-        min_evaluate_clients=5,
-        min_available_clients=5,
+        min_fit_clients=3,
+        min_evaluate_clients=3,
+        min_available_clients=3,
         on_fit_config_fn=fit_config,
         evaluate_metrics_aggregation_fn=weighted_average,
     )

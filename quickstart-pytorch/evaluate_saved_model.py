@@ -14,7 +14,7 @@ from sklearn.metrics import (
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
-
+NUM_CLIENTS = 3
 MODEL_PATH = "saved_models/global_model_round_3.pth"
 
 
@@ -22,7 +22,13 @@ def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
-    # Hybrid model
+    # Hybrid ResNet + Swin
+    if any(k.startswith("resnet.") for k in keys) and any(
+        k.startswith("swin.") for k in keys
+    ):
+        return "hybrid_swin"
+
+    # Hybrid ResNet + ViT
     if any(k.startswith("resnet.") for k in keys) and any(
         k.startswith("vit.") for k in keys
     ):
@@ -32,12 +38,16 @@ def detect_model_type(state_dict):
     if "class_token" in keys:
         return "vit"
 
+    # Swin
+    if "head.weight" in keys and any(k.startswith("features.") for k in keys):
+        return "swin"
+
     # ResNet18
     if "conv1.weight" in keys:
         return "resnet18"
 
     # EfficientNet
-    if "features.0.0.weight" in keys:
+    if "features.0.0.weight" in keys and "classifier.1.weight" in keys:
         return "efficientnet"
 
     raise ValueError("Unable to determine model type.")
@@ -72,7 +82,7 @@ def evaluate():
 
     print("\nStarting evaluation...")
 
-    for client_id in [1, 2, 3, 4, 5]:
+    for client_id in range(1, NUM_CLIENTS + 1):
         print(f"\nEvaluating Client {client_id}")
 
         _, _, testloader = load_data(client_id)
