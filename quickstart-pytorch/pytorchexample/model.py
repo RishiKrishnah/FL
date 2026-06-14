@@ -9,6 +9,88 @@ from torchvision.models import (
 )
 
 
+class FrequencyBranch(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool2d((1, 1)),
+        )
+
+    def forward(self, x):
+        fft = torch.fft.fft2(x)
+        fft = torch.abs(fft)
+        fft = torch.log1p(fft)
+        out = self.features(fft)
+        return out.flatten(1)
+
+
+class ArtifactGuidedDeepfakeNet(nn.Module):
+    def __init__(self):
+
+        super().__init__()
+
+        # Spatial Branch
+        self.resnet = resnet18(weights="IMAGENET1K_V1")
+        self.resnet.fc = nn.Identity()
+
+        # Frequency Branch
+        self.frequency_branch = FrequencyBranch()
+
+        # ViT Branch
+        self.vit = vit_b_16(weights="IMAGENET1K_V1")
+
+        self.vit.heads = nn.Identity()
+
+        for param in self.vit.parameters():
+            param.requires_grad = False
+
+        for param in self.vit.encoder.layers[-1].parameters():
+            param.requires_grad = True
+
+        # Artifact Fusion
+
+        self.fusion = nn.Sequential(
+            nn.Linear(512 + 128, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+        )
+
+        # Artifact Attention
+
+        self.attention = nn.Sequential(
+            nn.Linear(512, 512),
+            nn.Sigmoid(),
+        )
+
+        # Final Classifier
+
+        self.classifier = nn.Sequential(
+            nn.Linear(512 + 768, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, 2),
+        )
+
+    def forward(self, x):
+        Fs = self.resnet(x)
+        Ff = self.frequency_branch(x)
+        artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
+        attention_map = self.attention(artifact_features)
+        guided_features = artifact_features * attention_map
+        vit_features = self.vit(x)
+        final_features = torch.cat([guided_features, vit_features], dim=1)
+        return self.classifier(final_features)
+
+
 # ==========================================================
 # ResNet18 + ViT Hybrid
 # ==========================================================
@@ -162,6 +244,9 @@ def load_model(model_name):
     # ------------------------------------------------------
     elif model_name == "hybrid_swin":
         model = HybridResNetSwin()
+
+    elif model_name == "artifact_vit":
+        model = ArtifactGuidedDeepfakeNet()
 
     else:
         raise ValueError(f"Unknown model: {model_name}")

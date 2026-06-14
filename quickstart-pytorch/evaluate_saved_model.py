@@ -22,6 +22,9 @@ def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
+    if any(k.startswith("frequency_branch") for k in keys):
+        return "artifact_vit"
+
     # Hybrid ResNet + Swin
     if any(k.startswith("resnet.") for k in keys) and any(
         k.startswith("swin.") for k in keys

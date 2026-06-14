@@ -62,9 +62,9 @@ def load_data(client_id):
     if DEBUG:
         import random
 
-        train_limit = min(500, len(trainset))
-        val_limit = min(100, len(valset))
-        test_limit = min(100, len(testset))
+        train_limit = min(100, len(trainset))
+        val_limit = min(50, len(valset))
+        test_limit = min(50, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
 
