@@ -38,57 +38,122 @@ class ArtifactGuidedDeepfakeNet(nn.Module):
 
         super().__init__()
 
-        # Spatial Branch
+        # =====================================================
+        # Spatial Branch (ResNet18)
+        # =====================================================
         self.resnet = resnet18(weights="IMAGENET1K_V1")
         self.resnet.fc = nn.Identity()
 
+        # =====================================================
         # Frequency Branch
+        # =====================================================
         self.frequency_branch = FrequencyBranch()
 
+        # =====================================================
         # ViT Branch
+        # =====================================================
         self.vit = vit_b_16(weights="IMAGENET1K_V1")
-
         self.vit.heads = nn.Identity()
 
+        # Freeze ViT
         for param in self.vit.parameters():
             param.requires_grad = False
 
+        # Fine-tune last transformer block
         for param in self.vit.encoder.layers[-1].parameters():
             param.requires_grad = True
 
+        # =====================================================
         # Artifact Fusion
-
+        # =====================================================
         self.fusion = nn.Sequential(
             nn.Linear(512 + 128, 512),
             nn.ReLU(),
             nn.Dropout(0.3),
         )
 
-        # Artifact Attention
-
+        # =====================================================
+        # Artifact Attention Module
+        # =====================================================
         self.attention = nn.Sequential(
+            nn.Linear(512, 512),
+            nn.ReLU(),
             nn.Linear(512, 512),
             nn.Sigmoid(),
         )
 
-        # Final Classifier
+        # =====================================================
+        # Artifact Projection
+        # Maps forensic representation to transformer space
+        # =====================================================
+        self.artifact_projection = nn.Sequential(
+            nn.Linear(512, 768),
+            nn.LayerNorm(768),
+            nn.ReLU(),
+        )
 
+        # =====================================================
+        # Final Classifier
+        # Artifact Embedding (768)
+        # +
+        # ViT Embedding (768)
+        # =====================================================
         self.classifier = nn.Sequential(
-            nn.Linear(512 + 768, 512),
+            nn.Linear(768 + 768, 512),
             nn.ReLU(),
             nn.Dropout(0.3),
             nn.Linear(512, 2),
         )
 
     def forward(self, x):
+
+        # -----------------------------------------------------
+        # Spatial Features
+        # -----------------------------------------------------
         Fs = self.resnet(x)
+
+        # -----------------------------------------------------
+        # Frequency Features
+        # -----------------------------------------------------
         Ff = self.frequency_branch(x)
+
+        # -----------------------------------------------------
+        # Artifact Fusion
+        # -----------------------------------------------------
         artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
+
+        # -----------------------------------------------------
+        # Artifact Attention
+        # -----------------------------------------------------
         attention_map = self.attention(artifact_features)
-        guided_features = artifact_features * attention_map
+
+        guided_artifacts = artifact_features * attention_map
+
+        # -----------------------------------------------------
+        # Project Artifact Features
+        # into Transformer Feature Space
+        # -----------------------------------------------------
+        artifact_embedding = self.artifact_projection(guided_artifacts)
+
+        # -----------------------------------------------------
+        # Global Semantic Features
+        # -----------------------------------------------------
         vit_features = self.vit(x)
-        final_features = torch.cat([guided_features, vit_features], dim=1)
-        return self.classifier(final_features)
+
+        # -----------------------------------------------------
+        # Final Fusion
+        # -----------------------------------------------------
+        final_features = torch.cat(
+            [
+                artifact_embedding,
+                vit_features,
+            ],
+            dim=1,
+        )
+
+        logits = self.classifier(final_features)
+
+        return logits
 
 
 # ==========================================================
