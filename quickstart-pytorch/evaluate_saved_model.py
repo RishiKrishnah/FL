@@ -22,6 +22,11 @@ def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
+    # FAFT
+    if any(k.startswith("patch_embed") for k in keys):
+        return "faft"
+
+    # Artifact ViT
     if any(k.startswith("frequency_branch") for k in keys):
         return "artifact_vit"
 

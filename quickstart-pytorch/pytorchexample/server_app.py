@@ -1,5 +1,5 @@
 from collections import OrderedDict
-
+import numpy as np
 import torch
 
 from flwr.common import Context, parameters_to_ndarrays
@@ -19,7 +19,6 @@ from .task import save_model
 def weighted_average(metrics):
 
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-
     examples = [num_examples for num_examples, _ in metrics]
 
     return {"accuracy": sum(accuracies) / sum(examples)}
@@ -37,19 +36,12 @@ class SaveModelStrategy(FedAvg):
 
         if aggregated is not None:
             parameters, _ = aggregated
-
             ndarrays = parameters_to_ndarrays(parameters)
-
             model_name = self.model_name
-
             model = load_model(model_name)
-
             params_dict = zip(model.state_dict().keys(), ndarrays)
-
             state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-
             model.load_state_dict(state_dict, strict=True)
-
             save_model(model, server_round)
 
         return aggregated
@@ -66,23 +58,97 @@ def server_fn(context: Context):
     num_rounds = context.run_config["num-server-rounds"]
 
     def fit_config(server_round):
-        return {"local_epochs": local_epochs}
 
-    strategy = SaveModelStrategy(
-        model_name=model_name,
-        fraction_fit=1.0,
-        fraction_evaluate=1.0,
-        min_fit_clients=3,
-        min_evaluate_clients=3,
-        min_available_clients=3,
-        on_fit_config_fn=fit_config,
-        evaluate_metrics_aggregation_fn=weighted_average,
-    )
+        config = {"local_epochs": local_epochs}
+
+        if (
+            model_name == "faft"
+            and hasattr(strategy, "global_memory")
+            and strategy.global_memory is not None
+        ):
+            config["global_memory"] = strategy.global_memory.tolist()
+        return config
+
+    if model_name == "faft":
+        strategy = FAFTStrategy(
+            model_name=model_name,
+            fraction_fit=1.0,
+            fraction_evaluate=1.0,
+            min_fit_clients=3,
+            min_evaluate_clients=3,
+            min_available_clients=3,
+            on_fit_config_fn=fit_config,
+            evaluate_metrics_aggregation_fn=weighted_average,
+        )
+
+    else:
+        strategy = SaveModelStrategy(
+            model_name=model_name,
+            fraction_fit=1.0,
+            fraction_evaluate=1.0,
+            min_fit_clients=3,
+            min_evaluate_clients=3,
+            min_available_clients=3,
+            on_fit_config_fn=fit_config,
+            evaluate_metrics_aggregation_fn=weighted_average,
+        )
 
     return ServerAppComponents(
         strategy=strategy,
         config=ServerConfig(num_rounds=num_rounds),
     )
+
+
+class FAFTStrategy(SaveModelStrategy):
+    def __init__(self, model_name, **kwargs):
+
+        super().__init__(
+            model_name=model_name,
+            **kwargs,
+        )
+
+        self.global_memory = None
+
+    def aggregate_fit(
+        self,
+        server_round,
+        results,
+        failures,
+    ):
+
+        aggregated = super().aggregate_fit(
+            server_round,
+            results,
+            failures,
+        )
+
+        prototypes = []
+
+        weights = []
+
+        for _, fit_res in results:
+            if "prototype" in fit_res.metrics:
+                prototypes.append(np.array(fit_res.metrics["prototype"]))
+
+                weights.append(fit_res.num_examples)
+
+        if len(prototypes) > 0:
+            global_proto = np.average(
+                prototypes,
+                axis=0,
+                weights=weights,
+            )
+
+            if self.global_memory is None:
+                self.global_memory = global_proto
+
+            else:
+                self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+
+            print(f"\nRound {server_round} Prototype Aggregated")
+            print(f"Memory Shape: {self.global_memory.shape}")
+
+        return aggregated
 
 
 app = ServerApp(server_fn=server_fn)
