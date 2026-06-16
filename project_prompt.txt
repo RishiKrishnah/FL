@@ -623,7 +623,112 @@ Vellore Institute of Technology (VIT), Chennai
 - Open Source AI Community
 
 
-=== FILE: quickstart-pytorch\evaluate_saved_model.py ===
+=== FILE: quickstart-pytorch/split.py ===
+import shutil
+import random
+from pathlib import Path
+
+random.seed(42)
+
+SOURCE = Path("/root/Rishi/datasets/real_vs_fake/real-vs-fake")
+
+DEST = Path("dataset")
+
+CLIENTS = 5
+
+
+def split_images(images, clients):
+
+    random.shuffle(images)
+
+    size = len(images) // clients
+
+    splits = []
+
+    for i in range(clients):
+        start = i * size
+
+        if i == clients - 1:
+            end = len(images)
+        else:
+            end = (i + 1) * size
+
+        splits.append(images[start:end])
+
+    return splits
+
+
+for split in ["train", "valid", "test"]:
+    for label in ["real", "fake"]:
+        images = list((SOURCE / split / label).glob("*"))
+
+        client_splits = split_images(images, CLIENTS)
+
+        for client_id, subset in enumerate(client_splits, start=1):
+            target_dir = (
+                DEST
+                / f"client{client_id}"
+                / ("val" if split == "valid" else split)
+                / label
+            )
+
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            for img in subset:
+                shutil.copy2(img, target_dir / img.name)
+
+print("Done.")
+
+
+=== FILE: quickstart-pytorch/pyproject.toml ===
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quickstart-pytorch"
+version = "0.1.0"
+description = "Federated Deepfake Detection"
+
+dependencies = [
+    "flwr[simulation]==1.13.1",
+    "torch==2.3.1",
+    "torchvision==0.18.1",
+    "torchaudio==2.3.1",
+    "numpy==1.26.4",
+    "scikit-learn==1.9.0",
+    "tqdm==4.68.1",
+    "Pillow==12.2.0",
+    "PyYAML==6.0.3",
+    "requests==2.34.2"
+]
+
+[tool.flwr.app]
+publisher = "rishi"
+
+[tool.flwr.app.config]
+num-server-rounds = 5
+local-epochs = 5
+model-name = "faft"
+
+[tool.flwr.app.components]
+serverapp = "pytorchexample.server_app:app"
+clientapp = "pytorchexample.client_app:app"
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 5
+
+[tool.flwr.federations.local-simulation.options.backend.client-resources]
+num-cpus = 4
+num-gpus = 0.5
+
+[tool.hatch.build.targets.wheel]
+packages = ["pytorchexample"]
+
+=== FILE: quickstart-pytorch/evaluate_saved_model.py ===
 import torch
 import torch.nn as nn
 
@@ -640,8 +745,8 @@ from sklearn.metrics import (
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
-NUM_CLIENTS = 3
-MODEL_PATH = "saved_models/global_model_round_3.pth"
+NUM_CLIENTS = 5
+MODEL_PATH = "saved_models/global_model_round_5.pth"
 
 
 def detect_model_type(state_dict):
@@ -816,55 +921,7 @@ if __name__ == "__main__":
     evaluate()
 
 
-=== FILE: quickstart-pytorch\pyproject.toml ===
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "quickstart-pytorch"
-version = "0.1.0"
-description = "Federated Deepfake Detection"
-
-dependencies = [
-    "flwr[simulation]==1.13.1",
-    "torch==2.3.1",
-    "torchvision==0.18.1",
-    "torchaudio==2.3.1",
-    "numpy==1.26.4",
-    "scikit-learn==1.9.0",
-    "tqdm==4.68.1",
-    "Pillow==12.2.0",
-    "PyYAML==6.0.3",
-    "requests==2.34.2"
-]
-
-[tool.flwr.app]
-publisher = "rishi"
-
-[tool.flwr.app.config]
-num-server-rounds = 3
-local-epochs = 3
-model-name = "vit"
-
-[tool.flwr.app.components]
-serverapp = "pytorchexample.server_app:app"
-clientapp = "pytorchexample.client_app:app"
-
-[tool.flwr.federations]
-default = "local-simulation"
-
-[tool.flwr.federations.local-simulation]
-options.num-supernodes = 3
-
-[tool.flwr.federations.local-simulation.options.backend.client-resources]
-num-cpus = 2
-num-gpus = 1.0
-
-[tool.hatch.build.targets.wheel]
-packages = ["pytorchexample"]
-
-=== FILE: quickstart-pytorch\README.md ===
+=== FILE: quickstart-pytorch/README.md ===
 ---
 tags: [quickstart, vision, fds]
 dataset: [CIFAR-10]
@@ -942,66 +999,289 @@ Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-wi
 If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
 
 
-=== FILE: quickstart-pytorch\split.py ===
-import shutil
-import random
-from pathlib import Path
+=== FILE: quickstart-pytorch/pytorchexample/__init__.py ===
+"""pytorchexample."""
 
-random.seed(42)
 
-SOURCE = Path(
-    r"C:\Users\rishi\OneDrive\My Downloads\archive (2)\real_vs_fake\real-vs-fake"
+=== FILE: quickstart-pytorch/pytorchexample/task.py ===
+import os
+import time
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+from torch.utils.data import DataLoader, Subset
+from torchvision import datasets, transforms
+
+from tqdm import tqdm
+from collections import Counter
+
+torch.backends.cudnn.benchmark = True
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+print(f"Using device: {DEVICE}")
+
+try:
+    if DEVICE.type == "cuda":
+        print("GPU Enabled")
+        print(f"GPU Count: {torch.cuda.device_count()}")
+
+        if torch.cuda.device_count() > 0:
+            print(torch.cuda.get_device_name(torch.cuda.current_device()))
+
+except Exception as e:
+    print(f"GPU info unavailable: {e}")
+
+DEBUG = True
+
+
+def convert_rgb(img):
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    return img
+
+
+transform = transforms.Compose(
+    [
+        transforms.Lambda(convert_rgb),
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
 )
 
-DEST = Path("dataset")
 
-CLIENTS = 5
+def load_data(client_id):
 
+    train_path = f"dataset/client{client_id}/train"
+    val_path = f"dataset/client{client_id}/val"
+    test_path = f"dataset/client{client_id}/test"
 
-def split_images(images, clients):
+    trainset = datasets.ImageFolder(train_path, transform=transform)
 
-    random.shuffle(images)
+    valset = datasets.ImageFolder(val_path, transform=transform)
 
-    size = len(images) // clients
+    testset = datasets.ImageFolder(test_path, transform=transform)
 
-    splits = []
+    # DEBUG MODE
+    if DEBUG:
+        import random
 
-    for i in range(clients):
-        start = i * size
+        random.seed(client_id)
 
-        if i == clients - 1:
-            end = len(images)
+        train_limit = min(2000, len(trainset))
+        val_limit = min(1000, len(valset))
+        test_limit = min(1000, len(testset))
+
+        train_indices = random.sample(range(len(trainset)), train_limit)
+
+        val_indices = random.sample(range(len(valset)), val_limit)
+
+        test_indices = random.sample(range(len(testset)), test_limit)
+
+        trainset = Subset(trainset, train_indices)
+
+        valset = Subset(valset, val_indices)
+
+        testset = Subset(testset, test_indices)
+
+        print(
+            f"[DEBUG MODE] "
+            f"Train={len(trainset)}, "
+            f"Val={len(valset)}, "
+            f"Test={len(testset)}"
+        )
+
+    def get_distribution(dataset):
+
+        if isinstance(dataset, Subset):
+            labels = [dataset.dataset.targets[i] for i in dataset.indices]
         else:
-            end = (i + 1) * size
+            labels = dataset.targets
 
-        splits.append(images[start:end])
+        return Counter(labels)
 
-    return splits
+    print(f"\nClient {client_id} Class Distribution")
+    print("Train:", get_distribution(trainset))
+    print("Val  :", get_distribution(valset))
+    print("Test :", get_distribution(testset))
+
+    trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
+
+    valloader = DataLoader(valset, batch_size=128, shuffle=False)
+
+    testloader = DataLoader(testset, batch_size=128, shuffle=False)
+
+    print(f"Client {client_id}")
+
+    print(f"Train Images: {len(trainset)}")
+
+    print(f"Test Images : {len(testset)}")
+    print(f"Validate Images : {len(valset)}")
+    return trainloader, valloader, testloader
 
 
-for split in ["train", "valid", "test"]:
-    for label in ["real", "fake"]:
-        images = list((SOURCE / split / label).glob("*"))
+def train(model, trainloader, epochs=1):
 
-        client_splits = split_images(images, CLIENTS)
+    criterion = nn.CrossEntropyLoss()
 
-        for client_id, subset in enumerate(client_splits, start=1):
-            target_dir = (
-                DEST
-                / f"client{client_id}"
-                / ("val" if split == "valid" else split)
-                / label
+    optimizer = optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
+    )
+
+    print("START classifier norm:", model.classifier[0].weight.norm().item())
+    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
+
+    model.train()
+
+    for epoch in range(epochs):
+        running_loss = 0.0
+
+        correct = 0
+        total = 0
+
+        start_time = time.time()
+
+        progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
+
+        for batch_idx, (images, labels) in enumerate(progress_bar):
+            images = images.to(DEVICE, non_blocking=True)
+
+            labels = labels.to(DEVICE, non_blocking=True)
+
+            optimizer.zero_grad()
+
+            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
+                outputs = model(images)
+
+                loss = criterion(outputs, labels)
+
+            scaler.scale(loss).backward()
+
+            scaler.step(optimizer)
+
+            scaler.update()
+
+            running_loss += loss.item()
+
+            _, predicted = torch.max(outputs, 1)
+
+            correct += (predicted == labels).sum().item()
+
+            total += labels.size(0)
+
+            accuracy = 100.0 * correct / total
+
+            elapsed = time.time() - start_time
+
+            images_processed = (batch_idx + 1) * images.size(0)
+
+            img_per_sec = images_processed / elapsed
+
+            eta_seconds = (elapsed / (batch_idx + 1)) * (
+                len(trainloader) - batch_idx - 1
             )
 
-            target_dir.mkdir(parents=True, exist_ok=True)
+            progress_bar.set_postfix(
+                {
+                    "loss": f"{loss.item():.4f}",
+                    "acc": f"{accuracy:.2f}%",
+                    "img/s": f"{img_per_sec:.1f}",
+                    "eta": f"{eta_seconds / 60:.1f}m",
+                }
+            )
 
-            for img in subset:
-                shutil.copy2(img, target_dir / img.name)
+            if batch_idx % 100 == 0:
+                if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated() / 1024**3
 
-print("Done.")
+                    reserved = torch.cuda.memory_reserved() / 1024**3
+
+                    print(f"\nBatch {batch_idx}/{len(trainloader)}")
+
+                    print(f"GPU Allocated: {allocated:.2f} GB")
+
+                    print(f"GPU Reserved : {reserved:.2f} GB")
+
+        epoch_time = time.time() - start_time
+
+        avg_loss = running_loss / len(trainloader)
+
+        final_acc = 100.0 * correct / total
+
+        print("\n" + "=" * 50)
+
+        print(f"Epoch {epoch + 1} Complete")
+
+        print(f"Average Loss : {avg_loss:.4f}")
+
+        print(f"Accuracy     : {final_acc:.2f}%")
+
+        print(f"Time         : {epoch_time:.2f}s")
+
+        print(f"Images       : {total}")
+
+        print(f"Images/sec   : {total / epoch_time:.2f}")
+
+        if torch.cuda.is_available():
+            allocated = torch.cuda.memory_allocated() / 1024**3
+
+            reserved = torch.cuda.memory_reserved() / 1024**3
+
+            print(f"GPU Allocated: {allocated:.2f} GB")
+
+            print(f"GPU Reserved : {reserved:.2f} GB")
+
+        print("=" * 50)
+    print("END classifier norm:", model.classifier[0].weight.norm().item())
 
 
-=== FILE: quickstart-pytorch\pytorchexample\client_app.py ===
+def test(model, testloader):
+
+    criterion = nn.CrossEntropyLoss()
+
+    correct = 0
+    total = 0
+    loss = 0.0
+
+    model.eval()
+
+    with torch.no_grad():
+        for images, labels in tqdm(testloader, desc="Testing", leave=True):
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
+
+            outputs = model(images)
+
+            loss += criterion(outputs, labels).item()
+
+            _, predicted = torch.max(outputs, 1)
+
+            total += labels.size(0)
+
+            correct += (predicted == labels).sum().item()
+
+    accuracy = correct / total
+
+    print(f"Accuracy: {accuracy:.4f}")
+
+    return loss, accuracy
+
+
+def save_model(model, round_num):
+
+    os.makedirs("saved_models", exist_ok=True)
+
+    path = f"saved_models/global_model_round_{round_num}.pth"
+
+    torch.save(model.state_dict(), path)
+
+    print(f"Saved: {path}")
+
+
+=== FILE: quickstart-pytorch/pytorchexample/client_app.py ===
 import flwr as fl
 import torch
 
@@ -1026,30 +1306,69 @@ class FlowerClient(NumPyClient):
 
     def get_parameters(self, config):
 
-        return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+        params = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-    def set_parameters(self, parameters):
+        if hasattr(self.model, "get_prototype"):
+            prototype = self.model.get_prototype()
 
-        params_dict = zip(self.model.state_dict().keys(), parameters)
+            if prototype is None:
+                prototype = torch.zeros(
+                    768,
+                    dtype=torch.float32,
+                )
+
+            params.append(prototype.detach().cpu().numpy().astype("float32"))
+
+        return params
+
+    def set_parameters(
+        self,
+        parameters,
+    ):
+
+        num_model_params = len(self.model.state_dict())
+
+        model_params = parameters[:num_model_params]
+
+        params_dict = zip(
+            self.model.state_dict().keys(),
+            model_params,
+        )
+
         state_dict = {k: torch.tensor(v).to(DEVICE) for k, v in params_dict}
-        self.model.load_state_dict(state_dict, strict=True)
 
-    def fit(self, parameters, config):
+        self.model.load_state_dict(
+            state_dict,
+            strict=True,
+        )
 
-        print(f"Client {self.client_id} starting fit...")
-        self.set_parameters(parameters)
+        # ----------------------------------
+        # Extract global memory if present
+        # ----------------------------------
 
-        if "global_memory" in config and hasattr(
+        if len(parameters) == num_model_params + 1 and hasattr(
             self.model,
             "set_global_memory",
         ):
             memory = torch.tensor(
-                config["global_memory"],
+                parameters[-1],
                 dtype=torch.float32,
                 device=DEVICE,
             )
 
             self.model.set_global_memory(memory)
+
+            print(
+                f"Client {self.client_id} "
+                f"received global memory "
+                f"shape={memory.shape}, "
+                f"norm={memory.norm().item():.4f}"
+            )
+
+    def fit(self, parameters, config):
+
+        print(f"Client {self.client_id} starting fit...")
+        self.set_parameters(parameters)
 
         print(f"Client {self.client_id} starting training...")
         local_epochs = config["local_epochs"]
@@ -1063,7 +1382,17 @@ class FlowerClient(NumPyClient):
 
         if self.client_id in MALICIOUS_CLIENTS:
             print(f"Client {self.client_id} is malicious!")
-            updated_params = poison_parameters(updated_params)
+
+            # Last element is the prototype
+            weights = updated_params[:-1]
+            prototype = updated_params[-1]
+
+            # Poison only model weights
+            weights = poison_parameters(weights)
+
+            # Reassemble update
+            updated_params = weights + [prototype]
+
             print(f"Client {self.client_id} poisoning complete")
 
         if torch.cuda.is_available():
@@ -1074,24 +1403,6 @@ class FlowerClient(NumPyClient):
         metrics = {
             "client_id": self.client_id,
         }
-
-        # if hasattr(self.model, "get_prototype"):
-        #     prototype = self.model.get_prototype()
-
-        #     if prototype is not None:
-        #         metrics["prototype"] = prototype.detach().cpu().numpy().tolist()
-
-        #         print(f"Client {self.client_id} Prototype Shape: {prototype.shape}")
-
-        if hasattr(self.model, "get_prototype"):
-            prototype = self.model.get_prototype()
-
-            if prototype is not None:
-                print(f"Client {self.client_id} Prototype Shape: {prototype.shape}")
-
-                metrics["prototype_norm"] = float(
-                    prototype.norm().detach().cpu().item()
-                )
 
         return (
             updated_params,
@@ -1128,7 +1439,7 @@ def client_fn(context):
 app = fl.client.ClientApp(client_fn=client_fn)
 
 
-=== FILE: quickstart-pytorch\pytorchexample\model.py ===
+=== FILE: quickstart-pytorch/pytorchexample/model.py ===
 import torch
 import torch.nn as nn
 
@@ -1782,7 +2093,7 @@ def load_model(model_name):
     return model
 
 
-=== FILE: quickstart-pytorch\pytorchexample\server_app.py ===
+=== FILE: quickstart-pytorch/pytorchexample/server_app.py ===
 from collections import OrderedDict
 import numpy as np
 import torch
@@ -1799,6 +2110,7 @@ from flwr.server.strategy import FedAvg
 
 from .model import load_model
 from .task import save_model
+from flwr.common import ndarrays_to_parameters
 
 
 def weighted_average(metrics):
@@ -1809,6 +2121,22 @@ def weighted_average(metrics):
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 
+def fedavg_weights(weight_sets, num_examples):
+
+    total_examples = sum(num_examples)
+
+    aggregated = []
+
+    for layer_idx in range(len(weight_sets[0])):
+        layer_sum = sum(
+            weights[layer_idx] * n for weights, n in zip(weight_sets, num_examples)
+        )
+
+        aggregated.append(layer_sum / total_examples)
+
+    return aggregated
+
+
 class SaveModelStrategy(FedAvg):
     def __init__(self, model_name, **kwargs):
         super().__init__(**kwargs)
@@ -1816,18 +2144,44 @@ class SaveModelStrategy(FedAvg):
         self.model_name = model_name
 
     def aggregate_fit(self, server_round, results, failures):
+        print(
+            f"\nRound {server_round}: results={len(results)}, failures={len(failures)}"
+        )
 
-        aggregated = super().aggregate_fit(server_round, results, failures)
+        aggregated = super().aggregate_fit(
+            server_round,
+            results,
+            failures,
+        )
 
-        if aggregated is not None:
-            parameters, _ = aggregated
-            ndarrays = parameters_to_ndarrays(parameters)
-            model_name = self.model_name
-            model = load_model(model_name)
-            params_dict = zip(model.state_dict().keys(), ndarrays)
-            state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-            model.load_state_dict(state_dict, strict=True)
-            save_model(model, server_round)
+        if aggregated is None:
+            print(f"Round {server_round}: aggregation returned None")
+            return None
+
+        parameters, metrics = aggregated
+
+        if parameters is None:
+            print(f"Round {server_round}: parameters are None")
+            return aggregated
+
+        ndarrays = parameters_to_ndarrays(parameters)
+
+        model = load_model(self.model_name)
+
+        model_ndarrays = ndarrays[: len(model.state_dict())]
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            model_ndarrays,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+
+        model.load_state_dict(state_dict, strict=True)
+
+        save_model(model, server_round)
+
+        print(f"Round {server_round}: model saved successfully")
 
         return aggregated
 
@@ -1846,12 +2200,6 @@ def server_fn(context: Context):
 
         config = {"local_epochs": local_epochs}
 
-        if (
-            model_name == "faft"
-            and hasattr(strategy, "global_memory")
-            and strategy.global_memory is not None
-        ):
-            config["global_memory"] = strategy.global_memory.tolist()
         return config
 
     if model_name == "faft":
@@ -1859,9 +2207,9 @@ def server_fn(context: Context):
             model_name=model_name,
             fraction_fit=1.0,
             fraction_evaluate=1.0,
-            min_fit_clients=3,
-            min_evaluate_clients=3,
-            min_available_clients=3,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
             on_fit_config_fn=fit_config,
             evaluate_metrics_aggregation_fn=weighted_average,
         )
@@ -1871,9 +2219,9 @@ def server_fn(context: Context):
             model_name=model_name,
             fraction_fit=1.0,
             fraction_evaluate=1.0,
-            min_fit_clients=3,
-            min_evaluate_clients=3,
-            min_available_clients=3,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
             on_fit_config_fn=fit_config,
             evaluate_metrics_aggregation_fn=weighted_average,
         )
@@ -1894,6 +2242,10 @@ class FAFTStrategy(SaveModelStrategy):
 
         self.global_memory = None
 
+        model = load_model(model_name)
+        self.num_model_tensors = len(model.state_dict())
+        del model
+
     def aggregate_fit(
         self,
         server_round,
@@ -1901,304 +2253,134 @@ class FAFTStrategy(SaveModelStrategy):
         failures,
     ):
 
-        aggregated = super().aggregate_fit(
-            server_round,
-            results,
-            failures,
+        print(
+            f"\nFAFT Round {server_round}: "
+            f"results={len(results)}, "
+            f"failures={len(failures)}"
         )
 
-        prototypes = []
+        if failures:
+            print("\n========== FAILURES ==========")
 
-        weights = []
+            for i, failure in enumerate(failures):
+                print(f"\nFailure {i + 1}:")
+                print(type(failure))
+                print(repr(failure))
+
+            print("\n==============================")
+
+        if not results:
+            print("No client results received")
+            return None
+
+        # --------------------------------------------------
+        # Separate model weights and prototypes
+        # --------------------------------------------------
+
+        expected_tensors = self.num_model_tensors + 1
+
+        weight_sets = []
+        prototypes = []
+        example_counts = []
 
         for _, fit_res in results:
-            if "prototype" in fit_res.metrics:
-                prototypes.append(np.array(fit_res.metrics["prototype"]))
+            ndarrays = parameters_to_ndarrays(fit_res.parameters)
 
-                weights.append(fit_res.num_examples)
+            if len(ndarrays) != expected_tensors:
+                raise ValueError(
+                    f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
+                )
 
-        if len(prototypes) > 0:
-            global_proto = np.average(
-                prototypes,
-                axis=0,
-                weights=weights,
-            )
+            model_weights = ndarrays[:-1]
 
-            if self.global_memory is None:
-                self.global_memory = global_proto
+            prototype = ndarrays[-1]
 
-            else:
-                self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+            weight_sets.append(model_weights)
 
-            print(f"\nRound {server_round} Prototype Aggregated")
-            print(f"Memory Shape: {self.global_memory.shape}")
+            prototypes.append(prototype)
 
-        return aggregated
+            example_counts.append(fit_res.num_examples)
+        # --------------------------------------------------
+        # FedAvg for model weights
+        # --------------------------------------------------
+        global_weights = fedavg_weights(
+            weight_sets,
+            example_counts,
+        )
+
+        # --------------------------------------------------
+        # Prototype aggregation
+        # --------------------------------------------------
+        global_proto = np.average(
+            prototypes,
+            axis=0,
+            weights=example_counts,
+        )
+
+        # --------------------------------------------------
+        # Update global memory
+        # --------------------------------------------------
+        if self.global_memory is None:
+            self.global_memory = global_proto
+
+            print("Initialized global memory")
+
+        else:
+            self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+
+            print("Updated global memory")
+
+        print(f"\nRound {server_round} Prototype Aggregated")
+
+        print(f"Memory Shape: {self.global_memory.shape}")
+
+        print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
+
+        # --------------------------------------------------
+        # Save aggregated global model
+        # --------------------------------------------------
+        model = load_model(self.model_name)
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            global_weights,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+
+        model.load_state_dict(
+            state_dict,
+            strict=True,
+        )
+
+        save_model(
+            model,
+            server_round,
+        )
+
+        print(f"Round {server_round}: model saved successfully")
+
+        # Broadcast:
+        #   global model weights
+        #   global memory vector
+        combined_parameters = global_weights + [self.global_memory.astype(np.float32)]
+        print(
+            f"Broadcasting "
+            f"{len(combined_parameters)} tensors "
+            f"({len(global_weights)} weights + memory)"
+        )
+        parameters = ndarrays_to_parameters(combined_parameters)
+
+        return (
+            parameters,
+            {"memory_norm": float(np.linalg.norm(self.global_memory))},
+        )
 
 
 app = ServerApp(server_fn=server_fn)
 
 
-=== FILE: quickstart-pytorch\pytorchexample\task.py ===
-import os
-import time
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-from torch.utils.data import DataLoader, Subset
-from torchvision import datasets, transforms
-
-from tqdm import tqdm
-
-torch.backends.cudnn.benchmark = True
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(f"Using device: {DEVICE}")
-
-try:
-    if DEVICE.type == "cuda":
-        print("GPU Enabled")
-        print(f"GPU Count: {torch.cuda.device_count()}")
-
-        if torch.cuda.device_count() > 0:
-            print(torch.cuda.get_device_name(torch.cuda.current_device()))
-
-except Exception as e:
-    print(f"GPU info unavailable: {e}")
-
-DEBUG = True
-
-
-def convert_rgb(img):
-    if img.mode != "RGB":
-        img = img.convert("RGB")
-    return img
-
-
-transform = transforms.Compose(
-    [
-        transforms.Lambda(convert_rgb),
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
-
-
-def load_data(client_id):
-
-    train_path = f"dataset/client{client_id}/train"
-    val_path = f"dataset/client{client_id}/val"
-    test_path = f"dataset/client{client_id}/test"
-
-    trainset = datasets.ImageFolder(train_path, transform=transform)
-
-    valset = datasets.ImageFolder(val_path, transform=transform)
-
-    testset = datasets.ImageFolder(test_path, transform=transform)
-
-    # DEBUG MODE
-    if DEBUG:
-        import random
-
-        train_limit = min(100, len(trainset))
-        val_limit = min(50, len(valset))
-        test_limit = min(50, len(testset))
-
-        train_indices = random.sample(range(len(trainset)), train_limit)
-
-        val_indices = random.sample(range(len(valset)), val_limit)
-
-        test_indices = random.sample(range(len(testset)), test_limit)
-
-        trainset = Subset(trainset, train_indices)
-
-        valset = Subset(valset, val_indices)
-
-        testset = Subset(testset, test_indices)
-
-        print(
-            f"[DEBUG MODE] "
-            f"Train={len(trainset)}, "
-            f"Val={len(valset)}, "
-            f"Test={len(testset)}"
-        )
-
-    trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
-
-    valloader = DataLoader(valset, batch_size=64, shuffle=False)
-
-    testloader = DataLoader(testset, batch_size=64, shuffle=False)
-
-    print(f"Client {client_id}")
-
-    print(f"Train Images: {len(trainset)}")
-
-    print(f"Test Images : {len(testset)}")
-    print(f"Validate Images : {len(valset)}")
-    return trainloader, valloader, testloader
-
-
-def train(model, trainloader, epochs=1):
-
-    criterion = nn.CrossEntropyLoss()
-
-    optimizer = optim.Adam(
-        filter(lambda p: p.requires_grad, model.parameters()), lr=0.001
-    )
-
-    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
-
-    model.train()
-
-    for epoch in range(epochs):
-        running_loss = 0.0
-
-        correct = 0
-        total = 0
-
-        start_time = time.time()
-
-        progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
-
-        for batch_idx, (images, labels) in enumerate(progress_bar):
-            images = images.to(DEVICE, non_blocking=True)
-
-            labels = labels.to(DEVICE, non_blocking=True)
-
-            optimizer.zero_grad()
-
-            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
-                outputs = model(images)
-
-                loss = criterion(outputs, labels)
-
-            scaler.scale(loss).backward()
-
-            scaler.step(optimizer)
-
-            scaler.update()
-
-            running_loss += loss.item()
-
-            _, predicted = torch.max(outputs, 1)
-
-            correct += (predicted == labels).sum().item()
-
-            total += labels.size(0)
-
-            accuracy = 100.0 * correct / total
-
-            elapsed = time.time() - start_time
-
-            images_processed = (batch_idx + 1) * images.size(0)
-
-            img_per_sec = images_processed / elapsed
-
-            eta_seconds = (elapsed / (batch_idx + 1)) * (
-                len(trainloader) - batch_idx - 1
-            )
-
-            progress_bar.set_postfix(
-                {
-                    "loss": f"{loss.item():.4f}",
-                    "acc": f"{accuracy:.2f}%",
-                    "img/s": f"{img_per_sec:.1f}",
-                    "eta": f"{eta_seconds / 60:.1f}m",
-                }
-            )
-
-            if batch_idx % 100 == 0:
-                if torch.cuda.is_available():
-                    allocated = torch.cuda.memory_allocated() / 1024**3
-
-                    reserved = torch.cuda.memory_reserved() / 1024**3
-
-                    print(f"\nBatch {batch_idx}/{len(trainloader)}")
-
-                    print(f"GPU Allocated: {allocated:.2f} GB")
-
-                    print(f"GPU Reserved : {reserved:.2f} GB")
-
-        epoch_time = time.time() - start_time
-
-        avg_loss = running_loss / len(trainloader)
-
-        final_acc = 100.0 * correct / total
-
-        print("\n" + "=" * 50)
-
-        print(f"Epoch {epoch + 1} Complete")
-
-        print(f"Average Loss : {avg_loss:.4f}")
-
-        print(f"Accuracy     : {final_acc:.2f}%")
-
-        print(f"Time         : {epoch_time:.2f}s")
-
-        print(f"Images       : {total}")
-
-        print(f"Images/sec   : {total / epoch_time:.2f}")
-
-        if torch.cuda.is_available():
-            allocated = torch.cuda.memory_allocated() / 1024**3
-
-            reserved = torch.cuda.memory_reserved() / 1024**3
-
-            print(f"GPU Allocated: {allocated:.2f} GB")
-
-            print(f"GPU Reserved : {reserved:.2f} GB")
-
-        print("=" * 50)
-
-
-def test(model, testloader):
-
-    criterion = nn.CrossEntropyLoss()
-
-    correct = 0
-    total = 0
-    loss = 0.0
-
-    model.eval()
-
-    with torch.no_grad():
-        for images, labels in tqdm(testloader, desc="Testing", leave=True):
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
-
-            outputs = model(images)
-
-            loss += criterion(outputs, labels).item()
-
-            _, predicted = torch.max(outputs, 1)
-
-            total += labels.size(0)
-
-            correct += (predicted == labels).sum().item()
-
-    accuracy = correct / total
-
-    print(f"Accuracy: {accuracy:.4f}")
-
-    return loss, accuracy
-
-
-def save_model(model, round_num):
-
-    os.makedirs("saved_models", exist_ok=True)
-
-    path = f"saved_models/global_model_round_{round_num}.pth"
-
-    torch.save(model.state_dict(), path)
-
-    print(f"Saved: {path}")
-
-
-=== FILE: quickstart-pytorch\pytorchexample\utils.py ===
+=== FILE: quickstart-pytorch/pytorchexample/utils.py ===
 import numpy as np
 
 
@@ -2218,8 +2400,4 @@ def poison_parameters(parameters):
     print("POISONING FINISHED\n")
 
     return parameters
-
-
-=== FILE: quickstart-pytorch\pytorchexample\__init__.py ===
-"""pytorchexample."""
 

@@ -22,30 +22,69 @@ class FlowerClient(NumPyClient):
 
     def get_parameters(self, config):
 
-        return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+        params = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-    def set_parameters(self, parameters):
+        if hasattr(self.model, "get_prototype"):
+            prototype = self.model.get_prototype()
 
-        params_dict = zip(self.model.state_dict().keys(), parameters)
+            if prototype is None:
+                prototype = torch.zeros(
+                    768,
+                    dtype=torch.float32,
+                )
+
+            params.append(prototype.detach().cpu().numpy().astype("float32"))
+
+        return params
+
+    def set_parameters(
+        self,
+        parameters,
+    ):
+
+        num_model_params = len(self.model.state_dict())
+
+        model_params = parameters[:num_model_params]
+
+        params_dict = zip(
+            self.model.state_dict().keys(),
+            model_params,
+        )
+
         state_dict = {k: torch.tensor(v).to(DEVICE) for k, v in params_dict}
-        self.model.load_state_dict(state_dict, strict=True)
 
-    def fit(self, parameters, config):
+        self.model.load_state_dict(
+            state_dict,
+            strict=True,
+        )
 
-        print(f"Client {self.client_id} starting fit...")
-        self.set_parameters(parameters)
+        # ----------------------------------
+        # Extract global memory if present
+        # ----------------------------------
 
-        if "global_memory" in config and hasattr(
+        if len(parameters) == num_model_params + 1 and hasattr(
             self.model,
             "set_global_memory",
         ):
             memory = torch.tensor(
-                config["global_memory"],
+                parameters[-1],
                 dtype=torch.float32,
                 device=DEVICE,
             )
 
             self.model.set_global_memory(memory)
+
+            print(
+                f"Client {self.client_id} "
+                f"received global memory "
+                f"shape={memory.shape}, "
+                f"norm={memory.norm().item():.4f}"
+            )
+
+    def fit(self, parameters, config):
+
+        print(f"Client {self.client_id} starting fit...")
+        self.set_parameters(parameters)
 
         print(f"Client {self.client_id} starting training...")
         local_epochs = config["local_epochs"]
@@ -59,7 +98,17 @@ class FlowerClient(NumPyClient):
 
         if self.client_id in MALICIOUS_CLIENTS:
             print(f"Client {self.client_id} is malicious!")
-            updated_params = poison_parameters(updated_params)
+
+            # Last element is the prototype
+            weights = updated_params[:-1]
+            prototype = updated_params[-1]
+
+            # Poison only model weights
+            weights = poison_parameters(weights)
+
+            # Reassemble update
+            updated_params = weights + [prototype]
+
             print(f"Client {self.client_id} poisoning complete")
 
         if torch.cuda.is_available():
@@ -70,24 +119,6 @@ class FlowerClient(NumPyClient):
         metrics = {
             "client_id": self.client_id,
         }
-
-        # if hasattr(self.model, "get_prototype"):
-        #     prototype = self.model.get_prototype()
-
-        #     if prototype is not None:
-        #         metrics["prototype"] = prototype.detach().cpu().numpy().tolist()
-
-        #         print(f"Client {self.client_id} Prototype Shape: {prototype.shape}")
-
-        if hasattr(self.model, "get_prototype"):
-            prototype = self.model.get_prototype()
-
-            if prototype is not None:
-                print(f"Client {self.client_id} Prototype Shape: {prototype.shape}")
-
-                metrics["prototype_norm"] = float(
-                    prototype.norm().detach().cpu().item()
-                )
 
         return (
             updated_params,

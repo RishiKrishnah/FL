@@ -14,8 +14,8 @@ from sklearn.metrics import (
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
-NUM_CLIENTS = 3
-MODEL_PATH = "saved_models/global_model_round_3.pth"
+NUM_CLIENTS = 5
+MODEL_PATH = "saved_models/global_model_round_5.pth"
 
 
 def detect_model_type(state_dict):

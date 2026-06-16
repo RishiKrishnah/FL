@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 
 from tqdm import tqdm
+from collections import Counter
 
 torch.backends.cudnn.benchmark = True
 
@@ -62,9 +63,11 @@ def load_data(client_id):
     if DEBUG:
         import random
 
-        train_limit = min(100, len(trainset))
-        val_limit = min(50, len(valset))
-        test_limit = min(50, len(testset))
+        random.seed(client_id)
+
+        train_limit = min(7000, len(trainset))
+        val_limit = min(1500, len(valset))
+        test_limit = min(1500, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
 
@@ -85,11 +88,25 @@ def load_data(client_id):
             f"Test={len(testset)}"
         )
 
-    trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
+    def get_distribution(dataset):
 
-    valloader = DataLoader(valset, batch_size=64, shuffle=False)
+        if isinstance(dataset, Subset):
+            labels = [dataset.dataset.targets[i] for i in dataset.indices]
+        else:
+            labels = dataset.targets
 
-    testloader = DataLoader(testset, batch_size=64, shuffle=False)
+        return Counter(labels)
+
+    print(f"\nClient {client_id} Class Distribution")
+    print("Train:", get_distribution(trainset))
+    print("Val  :", get_distribution(valset))
+    print("Test :", get_distribution(testset))
+
+    trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
+
+    valloader = DataLoader(valset, batch_size=128, shuffle=False)
+
+    testloader = DataLoader(testset, batch_size=128, shuffle=False)
 
     print(f"Client {client_id}")
 
@@ -105,9 +122,10 @@ def train(model, trainloader, epochs=1):
     criterion = nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(
-        filter(lambda p: p.requires_grad, model.parameters()), lr=0.001
+        filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
 
+    print("START classifier norm:", model.classifier[0].weight.norm().item())
     scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
 
     model.train()
@@ -211,6 +229,7 @@ def train(model, trainloader, epochs=1):
             print(f"GPU Reserved : {reserved:.2f} GB")
 
         print("=" * 50)
+    print("END classifier norm:", model.classifier[0].weight.norm().item())
 
 
 def test(model, testloader):

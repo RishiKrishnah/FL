@@ -4,9 +4,7 @@ from pathlib import Path
 
 random.seed(42)
 
-SOURCE = Path(
-    r"C:\Users\rishi\OneDrive\My Downloads\archive (2)\real_vs_fake\real-vs-fake"
-)
+SOURCE = Path("/root/Rishi/datasets/real_vs_fake/real-vs-fake")
 
 DEST = Path("dataset")
 

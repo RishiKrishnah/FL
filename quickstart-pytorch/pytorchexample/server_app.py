@@ -14,6 +14,7 @@ from flwr.server.strategy import FedAvg
 
 from .model import load_model
 from .task import save_model
+from flwr.common import ndarrays_to_parameters
 
 
 def weighted_average(metrics):
@@ -24,6 +25,22 @@ def weighted_average(metrics):
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 
+def fedavg_weights(weight_sets, num_examples):
+
+    total_examples = sum(num_examples)
+
+    aggregated = []
+
+    for layer_idx in range(len(weight_sets[0])):
+        layer_sum = sum(
+            weights[layer_idx] * n for weights, n in zip(weight_sets, num_examples)
+        )
+
+        aggregated.append(layer_sum / total_examples)
+
+    return aggregated
+
+
 class SaveModelStrategy(FedAvg):
     def __init__(self, model_name, **kwargs):
         super().__init__(**kwargs)
@@ -31,18 +48,44 @@ class SaveModelStrategy(FedAvg):
         self.model_name = model_name
 
     def aggregate_fit(self, server_round, results, failures):
+        print(
+            f"\nRound {server_round}: results={len(results)}, failures={len(failures)}"
+        )
 
-        aggregated = super().aggregate_fit(server_round, results, failures)
+        aggregated = super().aggregate_fit(
+            server_round,
+            results,
+            failures,
+        )
 
-        if aggregated is not None:
-            parameters, _ = aggregated
-            ndarrays = parameters_to_ndarrays(parameters)
-            model_name = self.model_name
-            model = load_model(model_name)
-            params_dict = zip(model.state_dict().keys(), ndarrays)
-            state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-            model.load_state_dict(state_dict, strict=True)
-            save_model(model, server_round)
+        if aggregated is None:
+            print(f"Round {server_round}: aggregation returned None")
+            return None
+
+        parameters, metrics = aggregated
+
+        if parameters is None:
+            print(f"Round {server_round}: parameters are None")
+            return aggregated
+
+        ndarrays = parameters_to_ndarrays(parameters)
+
+        model = load_model(self.model_name)
+
+        model_ndarrays = ndarrays[: len(model.state_dict())]
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            model_ndarrays,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+
+        model.load_state_dict(state_dict, strict=True)
+
+        save_model(model, server_round)
+
+        print(f"Round {server_round}: model saved successfully")
 
         return aggregated
 
@@ -61,12 +104,6 @@ def server_fn(context: Context):
 
         config = {"local_epochs": local_epochs}
 
-        if (
-            model_name == "faft"
-            and hasattr(strategy, "global_memory")
-            and strategy.global_memory is not None
-        ):
-            config["global_memory"] = strategy.global_memory.tolist()
         return config
 
     if model_name == "faft":
@@ -74,9 +111,9 @@ def server_fn(context: Context):
             model_name=model_name,
             fraction_fit=1.0,
             fraction_evaluate=1.0,
-            min_fit_clients=3,
-            min_evaluate_clients=3,
-            min_available_clients=3,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
             on_fit_config_fn=fit_config,
             evaluate_metrics_aggregation_fn=weighted_average,
         )
@@ -86,9 +123,9 @@ def server_fn(context: Context):
             model_name=model_name,
             fraction_fit=1.0,
             fraction_evaluate=1.0,
-            min_fit_clients=3,
-            min_evaluate_clients=3,
-            min_available_clients=3,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
             on_fit_config_fn=fit_config,
             evaluate_metrics_aggregation_fn=weighted_average,
         )
@@ -109,6 +146,10 @@ class FAFTStrategy(SaveModelStrategy):
 
         self.global_memory = None
 
+        model = load_model(model_name)
+        self.num_model_tensors = len(model.state_dict())
+        del model
+
     def aggregate_fit(
         self,
         server_round,
@@ -116,39 +157,128 @@ class FAFTStrategy(SaveModelStrategy):
         failures,
     ):
 
-        aggregated = super().aggregate_fit(
-            server_round,
-            results,
-            failures,
+        print(
+            f"\nFAFT Round {server_round}: "
+            f"results={len(results)}, "
+            f"failures={len(failures)}"
         )
 
-        prototypes = []
+        if failures:
+            print("\n========== FAILURES ==========")
 
-        weights = []
+            for i, failure in enumerate(failures):
+                print(f"\nFailure {i + 1}:")
+                print(type(failure))
+                print(repr(failure))
+
+            print("\n==============================")
+
+        if not results:
+            print("No client results received")
+            return None
+
+        # --------------------------------------------------
+        # Separate model weights and prototypes
+        # --------------------------------------------------
+
+        expected_tensors = self.num_model_tensors + 1
+
+        weight_sets = []
+        prototypes = []
+        example_counts = []
 
         for _, fit_res in results:
-            if "prototype" in fit_res.metrics:
-                prototypes.append(np.array(fit_res.metrics["prototype"]))
+            ndarrays = parameters_to_ndarrays(fit_res.parameters)
 
-                weights.append(fit_res.num_examples)
+            if len(ndarrays) != expected_tensors:
+                raise ValueError(
+                    f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
+                )
 
-        if len(prototypes) > 0:
-            global_proto = np.average(
-                prototypes,
-                axis=0,
-                weights=weights,
-            )
+            model_weights = ndarrays[:-1]
 
-            if self.global_memory is None:
-                self.global_memory = global_proto
+            prototype = ndarrays[-1]
 
-            else:
-                self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+            weight_sets.append(model_weights)
 
-            print(f"\nRound {server_round} Prototype Aggregated")
-            print(f"Memory Shape: {self.global_memory.shape}")
+            prototypes.append(prototype)
 
-        return aggregated
+            example_counts.append(fit_res.num_examples)
+        # --------------------------------------------------
+        # FedAvg for model weights
+        # --------------------------------------------------
+        global_weights = fedavg_weights(
+            weight_sets,
+            example_counts,
+        )
+
+        # --------------------------------------------------
+        # Prototype aggregation
+        # --------------------------------------------------
+        global_proto = np.average(
+            prototypes,
+            axis=0,
+            weights=example_counts,
+        )
+
+        # --------------------------------------------------
+        # Update global memory
+        # --------------------------------------------------
+        if self.global_memory is None:
+            self.global_memory = global_proto
+
+            print("Initialized global memory")
+
+        else:
+            self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+
+            print("Updated global memory")
+
+        print(f"\nRound {server_round} Prototype Aggregated")
+
+        print(f"Memory Shape: {self.global_memory.shape}")
+
+        print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
+
+        # --------------------------------------------------
+        # Save aggregated global model
+        # --------------------------------------------------
+        model = load_model(self.model_name)
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            global_weights,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+
+        model.load_state_dict(
+            state_dict,
+            strict=True,
+        )
+
+        save_model(
+            model,
+            server_round,
+        )
+
+        print(f"Round {server_round}: model saved successfully")
+
+        # Broadcast:
+        #   global model weights
+        #   global memory vector
+        combined_parameters = global_weights + [self.global_memory.astype(np.float32)]
+        print(
+            f"Broadcasting "
+            f"{len(combined_parameters)} tensors "
+            f"({len(global_weights)} weights + memory)"
+        )
+        parameters = ndarrays_to_parameters(combined_parameters)
+
+        return (
+            parameters,
+            {"memory_norm": float(np.linalg.norm(self.global_memory))},
+        )
 
 
 app = ServerApp(server_fn=server_fn)
