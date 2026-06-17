@@ -1595,35 +1595,45 @@ class ArtifactBiasGenerator(nn.Module):
         artifact_dim=768,
         num_heads=8,
         num_tokens=197,
+        rank=32,
     ):
         super().__init__()
 
         self.num_heads = num_heads
         self.num_tokens = num_tokens
+        self.rank = rank
 
-        self.bias = nn.Sequential(
-            nn.Linear(
-                artifact_dim,
-                512,
-            ),
-            nn.ReLU(),
-            nn.Linear(
-                512,
-                num_heads,
-            ),
+        self.query_proj = nn.Linear(
+            artifact_dim,
+            num_heads * num_tokens * rank,
+        )
+
+        self.key_proj = nn.Linear(
+            artifact_dim,
+            num_heads * rank * num_tokens,
         )
 
     def forward(self, artifact_embedding):
 
         B = artifact_embedding.size(0)
-        bias = self.bias(artifact_embedding)
 
-        bias = bias.view(
+        Q = self.query_proj(artifact_embedding)
+        Q = Q.view(
             B,
             self.num_heads,
-            1,
-            1,
+            self.num_tokens,
+            self.rank,
         )
+
+        K = self.key_proj(artifact_embedding)
+        K = K.view(
+            B,
+            self.num_heads,
+            self.rank,
+            self.num_tokens,
+        )
+
+        bias = Q @ K
 
         return bias
 
@@ -1898,6 +1908,9 @@ class FAFTNet(nn.Module):
         # Generate Bias
         # ----------------------------------
         artifact_bias = self.bias_generator(artifact_embedding)
+        if not hasattr(self, "_printed"):
+            print("Artifact bias shape:", artifact_bias.shape)
+            self._printed = True
 
         # ----------------------------------
         # Patch Embedding
