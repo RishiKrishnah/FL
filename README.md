@@ -1,191 +1,193 @@
-# Federated Deepfake Detection using Flower and PyTorch
+# Federated Artifact-Guided Frequency-Aware Transformer (FAFT) for Deepfake Detection
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
+### Privacy-Preserving Deepfake Detection using Federated Learning, Artifact-Aware Transformers, and Prototype Memory Aggregation
+
+![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.3-red)
-![Flower](https://img.shields.io/badge/Flower-Federated%20Learning-orange)
-![License](https://img.shields.io/badge/License-Apache%202.0-green)
-
-## Overview
-
-This project implements a **Federated Learning (FL) framework for Deepfake Detection** using **PyTorch** and the **Flower (FLWR)** federated learning framework.
-
-The objective is to train a deepfake detection model collaboratively across multiple decentralized clients while ensuring that raw image data never leaves the client devices.
-
-Unlike traditional centralized machine learning pipelines, federated learning enables privacy-preserving model training by exchanging only model parameters instead of datasets.
-
-The system is designed to support:
-
-- Multiple federated clients
-- Deepfake image classification
-- Vision Transformer (ViT) based learning
-- CNN-based model comparisons
-- Federated Averaging (FedAvg)
-- Adversarial client simulation
-- Model poisoning attack experiments
-- GPU-accelerated distributed training
+![Flower](https://img.shields.io/badge/Flower-1.13-orange)
+![Federated Learning](https://img.shields.io/badge/Federated-Learning-green)
+![Deepfake Detection](https://img.shields.io/badge/Deepfake-Detection-purple)
+![License](https://img.shields.io/badge/License-Apache%202.0-success)
 
 ---
 
-## Research Motivation
+# Overview
 
-Deepfake generation technologies have rapidly advanced, creating significant challenges in:
+This repository presents a complete Federated Learning framework for Deepfake Detection using PyTorch and Flower.
 
-- Digital media authenticity
-- Social media misinformation
-- Identity theft
-- Cybersecurity
-- Digital forensics
+The project investigates how deepfake detection models can be trained collaboratively across multiple decentralized clients without sharing raw image data.
 
-Most deepfake detection systems require centralized datasets, which introduces:
+Unlike traditional centralized approaches, only model parameters and prototype representations are exchanged, preserving data privacy while enabling collaborative learning.
 
-- Privacy concerns
-- Data ownership issues
-- Legal restrictions
-- Large communication overhead
+The framework supports:
 
-Federated Learning addresses these challenges by enabling collaborative model training without exposing local datasets.
+* Federated Learning with Flower
+* Deepfake Image Classification
+* Vision Transformers
+* CNN Architectures
+* Hybrid CNN-Transformer Models
+* Artifact-Aware Learning
+* Frequency Domain Feature Extraction
+* Prototype Memory Aggregation
+* Adversarial Client Simulation
+* GPU Accelerated Training
+
+---
+
+# Research Motivation
+
+Deepfake generation technologies have become increasingly sophisticated, posing significant threats to digital media authenticity, cybersecurity, and public trust.
+
+Traditional deepfake detection approaches require centralized access to large datasets, creating challenges related to:
+
+* Data privacy
+* Data ownership
+* Regulatory compliance
+* Communication overhead
+
+Federated Learning offers a privacy-preserving alternative by allowing multiple clients to collaboratively train a global model without sharing raw data.
 
 This project explores the intersection of:
 
-- Federated Learning
-- Computer Vision
-- Deepfake Detection
-- Privacy-Preserving Artificial Intelligence
-- Distributed Machine Learning
-- Adversarial Robustness
+* Federated Learning
+* Deepfake Detection
+* Computer Vision
+* Transformer Architectures
+* Privacy-Preserving AI
+* Adversarial Robustness
 
 ---
 
-## Dataset
+# Proposed FAFT Architecture
 
-### 140K Real and Fake Faces Dataset
+The proposed **Federated Artifact-Guided Frequency-Aware Transformer (FAFT)** introduces three complementary components:
 
-Dataset Source:
+## 1. Spatial Artifact Extraction
 
-https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
+A ResNet18 backbone extracts forensic spatial features from facial images.
 
-Dataset Characteristics:
+## 2. Frequency Artifact Analysis
 
-| Property     | Value                 |
-| ------------ | --------------------- |
-| Total Images | ~140,000              |
-| Classes      | Real, Fake            |
-| Task         | Binary Classification |
-| Image Type   | Human Faces           |
-| Format       | JPG/PNG               |
-| Labels       | Real / Fake           |
+A dedicated frequency branch processes FFT-transformed images to capture manipulation traces that may be invisible in the spatial domain.
 
-The dataset is partitioned across multiple federated clients to simulate decentralized data ownership.
+## 3. Artifact-Guided Transformer Learning
+
+Artifact representations are converted into transformer attention biases, guiding the model toward forensic regions relevant for deepfake detection.
 
 ---
 
-## Project Architecture
+# Federated Prototype Memory Aggregation
+
+Each client generates an artifact prototype representation during local training.
+
+The server aggregates these prototypes into a global forensic memory representation and redistributes it to all participating clients.
+
+Benefits include:
+
+* Improved global feature consistency
+* Better knowledge sharing across clients
+* Reduced client drift
+* Faster convergence
+* Enhanced generalization
+
+---
+
+# System Architecture
 
 ```text
-                    Global Server
-                           |
-        ---------------------------------------
-        |                 |                  |
-     Client 1          Client 2          Client 3
-        |                 |                  |
-   Local Dataset     Local Dataset     Local Dataset
-        |                 |                  |
-   Local Training    Local Training    Local Training
-        |                 |                  |
-        -------- Model Aggregation ----------
-                           |
-                   Updated Global Model
+                          Flower Server
+                                  │
+                    Prototype Memory Aggregation
+                                  │
+        ┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+        │              │              │              │              │
+     Client 1       Client 2       Client 3       Client 4       Client 5
+        │              │              │              │              │
+   Local Data     Local Data     Local Data     Local Data     Local Data
+        │              │              │              │              │
+     FAFT Model     FAFT Model     FAFT Model     FAFT Model     FAFT Model
+        │              │              │              │              │
+        └──────────────── Federated Averaging ────────────────┘
+                                  │
+                          Updated Global Model
 ```
 
 ---
 
-## Features
+# Key Features
 
-### Federated Learning
+## Federated Learning
 
-- Flower-based federated architecture
-- Federated Averaging (FedAvg)
-- Multi-client simulation
-- Distributed model training
-- Configurable communication rounds
+* Flower-based federated architecture
+* Federated Averaging (FedAvg)
+* Multi-client simulation
+* Configurable communication rounds
+* GPU support
+* Client heterogeneity support
 
-### Deepfake Detection
+## Deepfake Detection
 
-- Binary classification:
-  - Real Faces
-  - Fake Faces
+Binary classification:
 
-### Multiple Model Support
+* Real Faces
+* Fake Faces
 
-The framework currently supports:
+## Artifact-Aware Learning
 
-| Model                         | Type        |
-| ----------------------------- | ----------- |
-| Vision Transformer (ViT-B/16) | Transformer |
-| ResNet18                      | CNN         |
-| EfficientNet-B0               | CNN         |
+* Frequency-domain analysis
+* Spatial artifact extraction
+* Attention-guided transformer learning
+* Prototype memory aggregation
 
-Model selection can be configured through:
+## Security Research
 
-```toml
-model-name = "vit"
-```
-
-Available options:
-
-```toml
-model-name = "vit"
-model-name = "resnet18"
-model-name = "efficientnet"
-```
+* Malicious client simulation
+* Model poisoning attacks
+* Federated robustness experiments
 
 ---
 
-## Adversarial Federated Learning
+# Supported Models
 
-The framework supports malicious client simulation.
-
-Example:
-
-```python
-MALICIOUS_CLIENTS = {3}
-```
-
-A malicious client performs parameter poisoning before sending updates to the server.
-
-Current attack implementation:
-
-- Gaussian Noise Injection
-- Parameter Perturbation
-
-Purpose:
-
-- Study robustness of federated learning
-- Evaluate impact of poisoned updates
-- Investigate secure aggregation techniques
+| Model                         | Category              |
+| ----------------------------- | --------------------- |
+| FAFT                          | Proposed Architecture |
+| Artifact-Guided Deepfake Net  | Artifact-Aware Hybrid |
+| Vision Transformer (ViT-B/16) | Transformer           |
+| Swin Transformer              | Transformer           |
+| ResNet18                      | CNN                   |
+| EfficientNet-B0               | CNN                   |
+| ResNet18 + ViT                | Hybrid                |
+| ResNet18 + Swin               | Hybrid                |
 
 ---
 
-## Repository Structure
+# Repository Structure
 
 ```text
-rishikrishnah-fl/
+FL/
 │
 ├── README.md
+├── requirements.txt
 ├── ingest.py
-├── split.py
 ├── project_prompt.txt
 │
 └── quickstart-pytorch/
     │
     ├── pyproject.toml
-    ├── LICENSE
-    ├── README.md
+    ├── split.py
+    ├── evaluate_saved_model.py
     │
-    ├── data/
+    ├── dataset/
+    │   ├── client1/
+    │   ├── client2/
+    │   ├── client3/
+    │   ├── client4/
+    │   └── client5/
+    │
+    ├── saved_models/
     │
     └── pytorchexample/
-        ├── __init__.py
         ├── client_app.py
         ├── server_app.py
         ├── model.py
@@ -195,158 +197,36 @@ rishikrishnah-fl/
 
 ---
 
-## Component Description
+# Dataset
 
-### client_app.py
+## 140K Real and Fake Faces Dataset
 
-Responsible for:
+Dataset Source:
 
-- Loading local client datasets
-- Training local models
-- Performing local evaluation
-- Returning model updates
-- Simulating malicious client behavior
+https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
 
----
+### Dataset Statistics
 
-### server_app.py
-
-Responsible for:
-
-- Initializing global models
-- Aggregating client updates
-- Federated Averaging (FedAvg)
-- Saving global checkpoints
-- Managing communication rounds
+| Property     | Value                 |
+| ------------ | --------------------- |
+| Total Images | ~140,000              |
+| Classes      | Real / Fake           |
+| Task         | Binary Classification |
+| Domain       | Deepfake Detection    |
 
 ---
 
-### model.py
+# Dataset Partitioning
 
-Contains:
-
-- Vision Transformer implementation
-- ResNet18 implementation
-- EfficientNet implementation
-- Transfer learning setup
-
----
-
-### task.py
-
-Responsible for:
-
-- Dataset loading
-- Image preprocessing
-- Training loops
-- Evaluation logic
-- Metric computation
-- Checkpoint generation
-
----
-
-### utils.py
-
-Contains:
-
-- Parameter poisoning functions
-- Experimental attack utilities
-- Helper functions
-
----
-
-### split.py
-
-Dataset partitioning utility.
-
-Responsible for:
-
-- Splitting dataset among clients
-- Creating train/validation/test partitions
-- Simulating federated client ownership
-
----
-
-## Installation
-
-### Clone Repository
-
-```bash
-git clone https://github.com/<your-username>/rishikrishnah-fl.git
-
-cd rishikrishnah-fl
-```
-
----
-
-### Create Virtual Environment
-
-Windows:
-
-```bash
-python -m venv venv
-
-venv\Scripts\activate
-```
-
-Linux/macOS:
-
-```bash
-python3 -m venv venv
-
-source venv/bin/activate
-```
-
----
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-
-cd quickstart-pytorch
-
-pip install -e .
-```
-
----
-
-## Dependencies
-
-Core dependencies:
-
-```text
-Python 3.11.9
-Flower 1.13.1
-Ray 2.10.0
-PyTorch 2.3.1
-TorchVision 0.18.1
-TorchAudio 2.3.1
-CUDA 12.1
-NumPy 1.26.4
-Scikit-Learn
-TQDM
-```
-
----
-
-## Dataset Preparation
-
-Download the dataset from Kaggle.
-
-Organize the dataset and run:
-
-```bash
-python split.py
-```
-
-This creates client partitions:
+The dataset is partitioned into five federated clients.
 
 ```text
 dataset/
 ├── client1/
 ├── client2/
-└── client3/
+├── client3/
+├── client4/
+└── client5/
 ```
 
 Each client contains:
@@ -357,7 +237,7 @@ val/
 test/
 ```
 
-with:
+Each split contains:
 
 ```text
 real/
@@ -368,9 +248,74 @@ subdirectories.
 
 ---
 
-## Running Federated Learning
+# Installation
 
-Default execution:
+## Clone Repository
+
+```bash
+git clone https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>.git
+
+cd FL
+```
+
+## Create Virtual Environment
+
+### Linux / macOS
+
+```bash
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
+
+### Windows
+
+```bash
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+---
+
+## Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Install the Flower application:
+
+```bash
+cd quickstart-pytorch
+
+pip install -e .
+```
+
+---
+
+# Configuration
+
+Default configuration located in:
+
+```text
+quickstart-pytorch/pyproject.toml
+```
+
+Current defaults:
+
+```toml
+num-server-rounds = 5
+local-epochs = 5
+model-name = "faft"
+options.num-supernodes = 5
+```
+
+---
+
+# Running Federated Training
+
+## Default FAFT Training
 
 ```bash
 cd quickstart-pytorch
@@ -380,185 +325,181 @@ flwr run . --stream
 
 ---
 
-### Custom Configuration
-
-Example:
+## Train Vision Transformer
 
 ```bash
 flwr run . \
---run-config \
-"num-server-rounds=10 local-epochs=5 model-name=resnet18" \
+--run-config "model-name=vit" \
 --stream
 ```
 
 ---
 
-## Training Configuration
+## Train ResNet18
 
-Current default configuration:
-
-```toml
-num-server-rounds = 3
-
-local-epochs = 3
-
-model-name = "vit"
-```
-
-Simulation settings:
-
-```toml
-options.num-supernodes = 3
+```bash
+flwr run . \
+--run-config "model-name=resnet18" \
+--stream
 ```
 
 ---
 
-## Output
+## Train EfficientNet-B0
 
-After each communication round:
+```bash
+flwr run . \
+--run-config "model-name=efficientnet" \
+--stream
+```
+
+---
+
+## Train Swin Transformer
+
+```bash
+flwr run . \
+--run-config "model-name=swin" \
+--stream
+```
+
+---
+
+## Train Hybrid ResNet + ViT
+
+```bash
+flwr run . \
+--run-config "model-name=hybrid" \
+--stream
+```
+
+---
+
+## Train Hybrid ResNet + Swin
+
+```bash
+flwr run . \
+--run-config "model-name=hybrid_swin" \
+--stream
+```
+
+---
+
+# Model Evaluation
+
+Evaluate a saved global model checkpoint:
+
+```bash
+python evaluate_saved_model.py
+```
+
+The evaluation script automatically detects the model architecture and reports:
+
+* Accuracy
+* Precision
+* Recall
+* F1 Score
+* ROC-AUC
+* Confusion Matrix
+* Classification Report
+
+---
+
+# Saved Models
+
+Global checkpoints are automatically stored after each federated round.
 
 ```text
 saved_models/
 ├── global_model_round_1.pth
 ├── global_model_round_2.pth
 ├── global_model_round_3.pth
-```
-
-These checkpoints contain the aggregated global model.
-
----
-
-## Evaluation Metrics
-
-The framework supports:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- Loss
-
-These metrics can be extended for future experiments.
-
----
-
-## Experimental Objectives
-
-The project investigates:
-
-### Model Comparison
-
-- Vision Transformer vs ResNet18
-- Vision Transformer vs EfficientNet
-- CNN vs Transformer architectures
-
-### Federated Learning Performance
-
-- Accuracy across communication rounds
-- Convergence behavior
-- Client heterogeneity impact
-
-### Security Evaluation
-
-- Model poisoning attacks
-- Malicious client behavior
-- Robust aggregation strategies
-
----
-
-## Future Work
-
-Planned extensions include:
-
-### Federated Learning
-
-- FedProx
-- FedNova
-- SCAFFOLD
-- Secure Aggregation
-- Differential Privacy
-
-### Deepfake Detection
-
-- Video Deepfake Detection
-- Multi-class Manipulation Detection
-- Temporal Analysis
-
-### Robustness
-
-- Byzantine-resilient aggregation
-- Backdoor attack detection
-- Adversarial defense mechanisms
-
-### Deployment
-
-- Edge-device federated learning
-- Docker deployment
-- Kubernetes orchestration
-- Cross-device federated systems
-
----
-
-## Sample Training Output
-
-```text
-INFO : Starting Flower ServerApp
-
-INFO : Federated Round 1
-
-Client 1 starting training...
-
-Client 2 starting training...
-
-Client 3 is malicious!
-
-INFO : Aggregating updates
-
-Saved: saved_models/global_model_round_1.pth
+├── global_model_round_4.pth
+└── global_model_round_5.pth
 ```
 
 ---
 
-## References
+# Adversarial Client Simulation
 
-### Flower Framework
+The framework supports malicious client experiments.
 
-https://flower.ai/
+Inside `client_app.py`:
 
-### PyTorch
+```python
+MALICIOUS_CLIENTS = {3}
+```
 
-https://pytorch.org/
+Supported attack:
 
-### Vision Transformer Paper
+* Gaussian Noise Parameter Poisoning
 
-Dosovitskiy et al.
+Research applications:
 
-"An Image is Worth 16x16 Words:
-Transformers for Image Recognition at Scale"
-
-### Federated Learning Paper
-
-McMahan et al.
-
-"Communication-Efficient Learning of Deep Networks from Decentralized Data"
-
-### Dataset
-
-140K Real and Fake Faces Dataset
-
-https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
+* Byzantine Client Analysis
+* Robust Federated Aggregation
+* Federated Security Evaluation
 
 ---
 
-## License
+# Experimental Research Directions
 
-This project is licensed under the Apache License 2.0.
+This framework can be extended for:
 
-See the LICENSE file for additional details.
+## Federated Learning
+
+* FedProx
+* FedNova
+* SCAFFOLD
+* FedOpt
+* Personalized Federated Learning
+
+## Privacy
+
+* Differential Privacy
+* Secure Aggregation
+* Homomorphic Encryption
+
+## Deepfake Detection
+
+* Video Deepfake Detection
+* Multi-Class Manipulation Detection
+* Temporal Forensics
+
+## Security
+
+* Backdoor Attack Detection
+* Byzantine-Resilient Aggregation
+* Adversarial Defense Mechanisms
 
 ---
 
-## Author
+# Results
+
+The framework enables:
+
+* Federated multi-client training
+* Prototype memory aggregation
+* Artifact-aware transformer learning
+* Deepfake detection benchmarking
+* CNN vs Transformer comparisons
+* Security and robustness experimentation
+
+---
+
+# Citation
+
+```bibtex
+@misc{krishna2026faft,
+  title={Federated Artifact-Guided Frequency-Aware Transformer for Deepfake Detection},
+  author={Rishi Krishna},
+  year={2026}
+}
+```
+
+---
+
+# Author
 
 **Rishi Krishna**
 
@@ -568,11 +509,19 @@ Vellore Institute of Technology (VIT), Chennai
 
 ---
 
-## Acknowledgements
+# Acknowledgements
 
-- Flower Framework Team
-- PyTorch Community
-- Kaggle Dataset Contributors
-- VIT Chennai
-- Federated Learning Research Community
-- Open Source AI Community
+* Flower Framework
+* PyTorch
+* TorchVision
+* Kaggle Community
+* Open Source AI Community
+* VIT Chennai
+
+---
+
+# License
+
+This project is licensed under the Apache License 2.0.
+
+See the LICENSE file for details.
