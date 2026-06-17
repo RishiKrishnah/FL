@@ -69,9 +69,7 @@ class SaveModelStrategy(FedAvg):
             return aggregated
 
         ndarrays = parameters_to_ndarrays(parameters)
-
         model = load_model(self.model_name)
-
         model_ndarrays = ndarrays[: len(model.state_dict())]
 
         params_dict = zip(
@@ -80,9 +78,7 @@ class SaveModelStrategy(FedAvg):
         )
 
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-
         model.load_state_dict(state_dict, strict=True)
-
         save_model(model, server_round)
 
         print(f"Round {server_round}: model saved successfully")
@@ -196,13 +192,9 @@ class FAFTStrategy(SaveModelStrategy):
                 )
 
             model_weights = ndarrays[:-1]
-
             prototype = ndarrays[-1]
-
             weight_sets.append(model_weights)
-
             prototypes.append(prototype)
-
             example_counts.append(fit_res.num_examples)
         # --------------------------------------------------
         # FedAvg for model weights
@@ -235,9 +227,7 @@ class FAFTStrategy(SaveModelStrategy):
             print("Updated global memory")
 
         print(f"\nRound {server_round} Prototype Aggregated")
-
         print(f"Memory Shape: {self.global_memory.shape}")
-
         print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
 
         # --------------------------------------------------

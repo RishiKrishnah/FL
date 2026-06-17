@@ -2,11 +2,8 @@ import flwr as fl
 import torch
 
 from flwr.client import NumPyClient
-
 from .model import load_model
-
 from .task import load_data, train, test, DEVICE
-
 from .utils import poison_parameters
 
 MALICIOUS_CLIENTS = {}
@@ -43,7 +40,6 @@ class FlowerClient(NumPyClient):
     ):
 
         num_model_params = len(self.model.state_dict())
-
         model_params = parameters[:num_model_params]
 
         params_dict = zip(
@@ -111,8 +107,8 @@ class FlowerClient(NumPyClient):
 
             print(f"Client {self.client_id} poisoning complete")
 
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        # if torch.cuda.is_available():
+        #     torch.cuda.empty_cache()
 
         print(f"Client {self.client_id} returning results")
 

@@ -54,9 +54,7 @@ def load_data(client_id):
     test_path = f"dataset/client{client_id}/test"
 
     trainset = datasets.ImageFolder(train_path, transform=transform)
-
     valset = datasets.ImageFolder(val_path, transform=transform)
-
     testset = datasets.ImageFolder(test_path, transform=transform)
 
     # DEBUG MODE
@@ -65,20 +63,16 @@ def load_data(client_id):
 
         random.seed(client_id)
 
-        train_limit = min(7000, len(trainset))
-        val_limit = min(1500, len(valset))
-        test_limit = min(1500, len(testset))
+        train_limit = min(1000, len(trainset))
+        val_limit = min(100, len(valset))
+        test_limit = min(100, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
-
         val_indices = random.sample(range(len(valset)), val_limit)
-
         test_indices = random.sample(range(len(testset)), test_limit)
 
         trainset = Subset(trainset, train_indices)
-
         valset = Subset(valset, val_indices)
-
         testset = Subset(testset, test_indices)
 
         print(
@@ -103,24 +97,18 @@ def load_data(client_id):
     print("Test :", get_distribution(testset))
 
     trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
-
     valloader = DataLoader(valset, batch_size=128, shuffle=False)
-
     testloader = DataLoader(testset, batch_size=128, shuffle=False)
 
     print(f"Client {client_id}")
-
     print(f"Train Images: {len(trainset)}")
-
     print(f"Test Images : {len(testset)}")
     print(f"Validate Images : {len(valset)}")
     return trainloader, valloader, testloader
 
 
 def train(model, trainloader, epochs=1):
-
     criterion = nn.CrossEntropyLoss()
-
     optimizer = optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
@@ -132,46 +120,31 @@ def train(model, trainloader, epochs=1):
 
     for epoch in range(epochs):
         running_loss = 0.0
-
         correct = 0
         total = 0
 
         start_time = time.time()
-
         progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
             images = images.to(DEVICE, non_blocking=True)
-
             labels = labels.to(DEVICE, non_blocking=True)
-
             optimizer.zero_grad()
 
             with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
                 outputs = model(images)
-
                 loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
-
             scaler.step(optimizer)
-
             scaler.update()
-
             running_loss += loss.item()
-
             _, predicted = torch.max(outputs, 1)
-
             correct += (predicted == labels).sum().item()
-
             total += labels.size(0)
-
             accuracy = 100.0 * correct / total
-
             elapsed = time.time() - start_time
-
             images_processed = (batch_idx + 1) * images.size(0)
-
             img_per_sec = images_processed / elapsed
 
             eta_seconds = (elapsed / (batch_idx + 1)) * (
@@ -190,42 +163,28 @@ def train(model, trainloader, epochs=1):
             if batch_idx % 100 == 0:
                 if torch.cuda.is_available():
                     allocated = torch.cuda.memory_allocated() / 1024**3
-
                     reserved = torch.cuda.memory_reserved() / 1024**3
 
                     print(f"\nBatch {batch_idx}/{len(trainloader)}")
-
                     print(f"GPU Allocated: {allocated:.2f} GB")
-
                     print(f"GPU Reserved : {reserved:.2f} GB")
 
         epoch_time = time.time() - start_time
-
         avg_loss = running_loss / len(trainloader)
-
         final_acc = 100.0 * correct / total
 
         print("\n" + "=" * 50)
-
         print(f"Epoch {epoch + 1} Complete")
-
         print(f"Average Loss : {avg_loss:.4f}")
-
         print(f"Accuracy     : {final_acc:.2f}%")
-
         print(f"Time         : {epoch_time:.2f}s")
-
         print(f"Images       : {total}")
-
         print(f"Images/sec   : {total / epoch_time:.2f}")
 
         if torch.cuda.is_available():
             allocated = torch.cuda.memory_allocated() / 1024**3
-
             reserved = torch.cuda.memory_reserved() / 1024**3
-
             print(f"GPU Allocated: {allocated:.2f} GB")
-
             print(f"GPU Reserved : {reserved:.2f} GB")
 
         print("=" * 50)
@@ -233,7 +192,6 @@ def train(model, trainloader, epochs=1):
 
 
 def test(model, testloader):
-
     criterion = nn.CrossEntropyLoss()
 
     correct = 0
@@ -248,13 +206,9 @@ def test(model, testloader):
             labels = labels.to(DEVICE)
 
             outputs = model(images)
-
             loss += criterion(outputs, labels).item()
-
             _, predicted = torch.max(outputs, 1)
-
             total += labels.size(0)
-
             correct += (predicted == labels).sum().item()
 
     accuracy = correct / total
@@ -265,11 +219,7 @@ def test(model, testloader):
 
 
 def save_model(model, round_num):
-
     os.makedirs("saved_models", exist_ok=True)
-
     path = f"saved_models/global_model_round_{round_num}.pth"
-
     torch.save(model.state_dict(), path)
-
     print(f"Saved: {path}")

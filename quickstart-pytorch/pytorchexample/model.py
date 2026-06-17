@@ -519,7 +519,6 @@ class HybridResNetViT(nn.Module):
     def forward(self, x):
 
         resnet_features = self.resnet(x)
-
         vit_features = self.vit(x)
 
         combined = torch.cat(
@@ -564,7 +563,6 @@ class HybridResNetSwin(nn.Module):
     def forward(self, x):
 
         resnet_features = self.resnet(x)
-
         swin_features = self.swin(x)
 
         combined = torch.cat(

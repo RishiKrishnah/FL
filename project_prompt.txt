@@ -589,9 +589,7 @@ CLIENTS = 5
 def split_images(images, clients):
 
     random.shuffle(images)
-
     size = len(images) // clients
-
     splits = []
 
     for i in range(clients):
@@ -610,7 +608,6 @@ def split_images(images, clients):
 for split in ["train", "valid", "test"]:
     for label in ["real", "fake"]:
         images = list((SOURCE / split / label).glob("*"))
-
         client_splits = split_images(images, CLIENTS)
 
         for client_id, subset in enumerate(client_splits, start=1):
@@ -678,8 +675,13 @@ num-gpus = 0.25
 packages = ["pytorchexample"]
 
 === FILE: quickstart-pytorch/evaluate_saved_model.py ===
+import time
+from collections import Counter
+
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from sklearn.metrics import (
     accuracy_score,
@@ -694,58 +696,75 @@ from sklearn.metrics import (
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data, DEVICE
 
+# ==================================================
+# SETTINGS
+# ==================================================
 NUM_CLIENTS = 5
 MODEL_PATH = "saved_models/global_model_round_5.pth"
 
+# H100 can easily handle this
+EVAL_BATCH_SIZE = 256
 
+torch.backends.cudnn.benchmark = True
+torch.set_float32_matmul_precision("high")
+
+if torch.cuda.is_available():
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+
+
+# ==================================================
+# MODEL DETECTION
+# ==================================================
 def detect_model_type(state_dict):
 
     keys = list(state_dict.keys())
 
-    # FAFT
     if any(k.startswith("patch_embed") for k in keys):
         return "faft"
 
-    # Artifact ViT
     if any(k.startswith("frequency_branch") for k in keys):
         return "artifact_vit"
 
-    # Hybrid ResNet + Swin
     if any(k.startswith("resnet.") for k in keys) and any(
         k.startswith("swin.") for k in keys
     ):
         return "hybrid_swin"
 
-    # Hybrid ResNet + ViT
     if any(k.startswith("resnet.") for k in keys) and any(
         k.startswith("vit.") for k in keys
     ):
         return "hybrid"
 
-    # ViT
     if "class_token" in keys:
         return "vit"
 
-    # Swin
     if "head.weight" in keys and any(k.startswith("features.") for k in keys):
         return "swin"
 
-    # ResNet18
     if "conv1.weight" in keys:
         return "resnet18"
 
-    # EfficientNet
     if "features.0.0.weight" in keys and "classifier.1.weight" in keys:
         return "efficientnet"
 
-    raise ValueError("Unable to determine model type.")
+    raise ValueError("Unable to determine model type")
 
 
+# ==================================================
+# EVALUATION
+# ==================================================
 def evaluate():
+
+    overall_start = time.time()
 
     print("\nLoading checkpoint...")
 
-    checkpoint = torch.load(MODEL_PATH, map_location="cpu")
+    checkpoint = torch.load(
+        MODEL_PATH,
+        map_location="cpu",
+        weights_only=True,
+    )
 
     model_name = detect_model_type(checkpoint)
 
@@ -756,9 +775,34 @@ def evaluate():
     model.load_state_dict(checkpoint)
 
     model = model.to(DEVICE)
+    model = model.to(memory_format=torch.channels_last)
 
     model.eval()
+    print("\nWarming up GPU...")
 
+    dummy = torch.randn(
+        32,
+        3,
+        224,
+        224,
+        dtype=torch.float32,
+        device=DEVICE,
+    )
+
+    dummy = dummy.to(memory_format=torch.channels_last)
+
+    with torch.inference_mode():
+        with torch.amp.autocast(
+            "cuda",
+            enabled=(DEVICE.type == "cuda"),
+        ):
+            for _ in range(5):
+                _ = model(dummy)
+
+    if DEVICE.type == "cuda":
+        torch.cuda.synchronize()
+
+    print("Warmup complete.\n")
     criterion = nn.CrossEntropyLoss()
 
     all_labels = []
@@ -768,87 +812,181 @@ def evaluate():
     total_loss = 0.0
     total_samples = 0
 
-    print("\nStarting evaluation...")
+    client_bar = tqdm(
+        range(1, NUM_CLIENTS + 1),
+        desc="Clients",
+    )
+    peak_gpu_reserved = 0
+    with torch.inference_mode():
+        for client_id in client_bar:
+            print(f"\nEvaluating Client {client_id}")
 
-    for client_id in range(1, NUM_CLIENTS + 1):
-        print(f"\nEvaluating Client {client_id}")
+            _, _, old_loader = load_data(client_id)
 
-        _, _, testloader = load_data(client_id)
+            # -----------------------------------
+            # REBUILD TESTLOADER
+            # -----------------------------------
+            testloader = DataLoader(
+                old_loader.dataset,
+                batch_size=EVAL_BATCH_SIZE,
+                shuffle=False,
+                num_workers=0,
+                pin_memory=True,
+            )
 
-        with torch.no_grad():
-            for images, labels in testloader:
-                images = images.to(DEVICE)
+            print("Batch size:", testloader.batch_size)
+            print("Batches:", len(testloader))
 
-                labels = labels.to(DEVICE)
+            processed = 0
+            client_start = time.time()
+            num_batches = len(testloader)
+            batch_bar = tqdm(
+                testloader,
+                desc=f"Client {client_id}",
+                leave=False,
+            )
 
-                outputs = model(images)
+            for images, labels in batch_bar:
+                batch_start = time.time()
+                images = images.to(
+                    DEVICE,
+                    dtype=torch.float32,
+                    non_blocking=True,
+                    memory_format=torch.channels_last,
+                )
 
-                loss = criterion(outputs, labels)
+                labels = labels.to(
+                    DEVICE,
+                    non_blocking=True,
+                )
 
+                with torch.amp.autocast(
+                    "cuda",
+                    enabled=(DEVICE.type == "cuda"),
+                ):
+                    outputs = model(images)
+
+                    loss = criterion(outputs, labels)
+                if DEVICE.type == "cuda":
+                    torch.cuda.synchronize()
+
+                batch_time = time.time() - batch_start
+
+                predictions = outputs.detach().argmax(dim=1).cpu().numpy()
+
+                probabilities = (
+                    torch.softmax(outputs.float(), dim=1)[:, 1].detach().cpu().numpy()
+                )
+
+                all_labels.extend(labels.detach().cpu().numpy())
+                all_predictions.extend(predictions)
+                all_probabilities.extend(probabilities)
                 total_loss += loss.item() * labels.size(0)
-
                 total_samples += labels.size(0)
 
-                probabilities = torch.softmax(outputs, dim=1)[:, 1]
+                processed += labels.size(0)
 
-                predictions = outputs.argmax(dim=1)
+                elapsed = time.time() - client_start
+                img_s = processed / elapsed
 
-                all_labels.extend(labels.cpu().numpy())
+                gpu_alloc = (
+                    torch.cuda.memory_allocated() / 1024**3
+                    if torch.cuda.is_available()
+                    else 0
+                )
 
-                all_predictions.extend(predictions.cpu().numpy())
+                gpu_reserved = (
+                    torch.cuda.memory_reserved() / 1024**3
+                    if torch.cuda.is_available()
+                    else 0
+                )
+                peak_gpu_reserved = max(
+                    peak_gpu_reserved,
+                    gpu_reserved,
+                )
+                eta = (num_batches - batch_bar.n - 1) * batch_time
+                batch_bar.set_postfix(
+                    loss=f"{loss.item():.4f}",
+                    img_s=f"{img_s:.1f}",
+                    batch_s=f"{batch_time:.2f}",
+                    eta=f"{eta:.1f}s",
+                    alloc=f"{gpu_alloc:.1f}GB",
+                    reserv=f"{gpu_reserved:.1f}GB",
+                )
 
-                all_probabilities.extend(probabilities.cpu().numpy())
+            client_time = time.time() - client_start
 
-    from collections import Counter
-
-    print("\nGround Truth Distribution:")
-    print(Counter(all_labels))
-
-    print("\nPrediction Distribution:")
-    print(Counter(all_predictions))
+            print(
+                f"Client {client_id}: "
+                f"{processed} images "
+                f"in {client_time:.2f}s "
+                f"({processed / client_time:.1f} img/s)"
+            )
+            torch.cuda.empty_cache()
 
     avg_loss = total_loss / total_samples
 
-    accuracy = accuracy_score(all_labels, all_predictions)
+    accuracy = accuracy_score(
+        all_labels,
+        all_predictions,
+    )
 
     precision = precision_score(
-        all_labels, all_predictions, average="binary", zero_division=0
+        all_labels,
+        all_predictions,
+        zero_division=0,
     )
 
     recall = recall_score(
-        all_labels, all_predictions, average="binary", zero_division=0
+        all_labels,
+        all_predictions,
+        zero_division=0,
     )
 
-    f1 = f1_score(all_labels, all_predictions, average="binary", zero_division=0)
+    f1 = f1_score(
+        all_labels,
+        all_predictions,
+        zero_division=0,
+    )
 
-    if len(set(all_labels)) > 1:
-        auc = roc_auc_score(all_labels, all_probabilities)
-    else:
-        auc = float("nan")
+    auc = roc_auc_score(
+        all_labels,
+        all_probabilities,
+    )
 
-    cm = confusion_matrix(all_labels, all_predictions)
+    cm = confusion_matrix(
+        all_labels,
+        all_predictions,
+    )
 
-    print("\n")
-    print("=" * 70)
+    total_time = time.time() - overall_start
+
+    print("\nGround Truth Distribution")
+    print(Counter(all_labels))
+
+    print("\nPrediction Distribution")
+    print(Counter(all_predictions))
+
+    print("\n" + "=" * 80)
     print("FINAL EVALUATION RESULTS")
-    print("=" * 70)
+    print("=" * 80)
 
     print(f"Model      : {model_name}")
-
     print(f"Loss       : {avg_loss:.6f}")
-
     print(f"Accuracy   : {accuracy:.6f}")
-
     print(f"Precision  : {precision:.6f}")
-
     print(f"Recall     : {recall:.6f}")
-
     print(f"F1 Score   : {f1:.6f}")
-
     print(f"ROC-AUC    : {auc:.6f}")
 
-    print("\nConfusion Matrix")
+    print("\nPerformance")
+    print(f"Images     : {total_samples}")
+    print(f"Time       : {total_time:.2f} sec")
+    print(f"Throughput : {total_samples / total_time:.1f} img/s")
 
+    print(f"Peak GPU memory : {peak_gpu_reserved:.2f} GB")
+
+    print("\nConfusion Matrix")
     print(cm)
 
     print("\nClassification Report")
@@ -863,7 +1001,7 @@ def evaluate():
         )
     )
 
-    print("=" * 70)
+    print("=" * 80)
 
 
 if __name__ == "__main__":
@@ -1009,9 +1147,7 @@ def load_data(client_id):
     test_path = f"dataset/client{client_id}/test"
 
     trainset = datasets.ImageFolder(train_path, transform=transform)
-
     valset = datasets.ImageFolder(val_path, transform=transform)
-
     testset = datasets.ImageFolder(test_path, transform=transform)
 
     # DEBUG MODE
@@ -1020,20 +1156,16 @@ def load_data(client_id):
 
         random.seed(client_id)
 
-        train_limit = min(7000, len(trainset))
-        val_limit = min(1500, len(valset))
-        test_limit = min(1500, len(testset))
+        train_limit = min(1000, len(trainset))
+        val_limit = min(100, len(valset))
+        test_limit = min(100, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
-
         val_indices = random.sample(range(len(valset)), val_limit)
-
         test_indices = random.sample(range(len(testset)), test_limit)
 
         trainset = Subset(trainset, train_indices)
-
         valset = Subset(valset, val_indices)
-
         testset = Subset(testset, test_indices)
 
         print(
@@ -1058,24 +1190,18 @@ def load_data(client_id):
     print("Test :", get_distribution(testset))
 
     trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
-
     valloader = DataLoader(valset, batch_size=128, shuffle=False)
-
     testloader = DataLoader(testset, batch_size=128, shuffle=False)
 
     print(f"Client {client_id}")
-
     print(f"Train Images: {len(trainset)}")
-
     print(f"Test Images : {len(testset)}")
     print(f"Validate Images : {len(valset)}")
     return trainloader, valloader, testloader
 
 
 def train(model, trainloader, epochs=1):
-
     criterion = nn.CrossEntropyLoss()
-
     optimizer = optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
@@ -1087,46 +1213,31 @@ def train(model, trainloader, epochs=1):
 
     for epoch in range(epochs):
         running_loss = 0.0
-
         correct = 0
         total = 0
 
         start_time = time.time()
-
         progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
             images = images.to(DEVICE, non_blocking=True)
-
             labels = labels.to(DEVICE, non_blocking=True)
-
             optimizer.zero_grad()
 
             with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
                 outputs = model(images)
-
                 loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
-
             scaler.step(optimizer)
-
             scaler.update()
-
             running_loss += loss.item()
-
             _, predicted = torch.max(outputs, 1)
-
             correct += (predicted == labels).sum().item()
-
             total += labels.size(0)
-
             accuracy = 100.0 * correct / total
-
             elapsed = time.time() - start_time
-
             images_processed = (batch_idx + 1) * images.size(0)
-
             img_per_sec = images_processed / elapsed
 
             eta_seconds = (elapsed / (batch_idx + 1)) * (
@@ -1145,42 +1256,28 @@ def train(model, trainloader, epochs=1):
             if batch_idx % 100 == 0:
                 if torch.cuda.is_available():
                     allocated = torch.cuda.memory_allocated() / 1024**3
-
                     reserved = torch.cuda.memory_reserved() / 1024**3
 
                     print(f"\nBatch {batch_idx}/{len(trainloader)}")
-
                     print(f"GPU Allocated: {allocated:.2f} GB")
-
                     print(f"GPU Reserved : {reserved:.2f} GB")
 
         epoch_time = time.time() - start_time
-
         avg_loss = running_loss / len(trainloader)
-
         final_acc = 100.0 * correct / total
 
         print("\n" + "=" * 50)
-
         print(f"Epoch {epoch + 1} Complete")
-
         print(f"Average Loss : {avg_loss:.4f}")
-
         print(f"Accuracy     : {final_acc:.2f}%")
-
         print(f"Time         : {epoch_time:.2f}s")
-
         print(f"Images       : {total}")
-
         print(f"Images/sec   : {total / epoch_time:.2f}")
 
         if torch.cuda.is_available():
             allocated = torch.cuda.memory_allocated() / 1024**3
-
             reserved = torch.cuda.memory_reserved() / 1024**3
-
             print(f"GPU Allocated: {allocated:.2f} GB")
-
             print(f"GPU Reserved : {reserved:.2f} GB")
 
         print("=" * 50)
@@ -1188,7 +1285,6 @@ def train(model, trainloader, epochs=1):
 
 
 def test(model, testloader):
-
     criterion = nn.CrossEntropyLoss()
 
     correct = 0
@@ -1203,13 +1299,9 @@ def test(model, testloader):
             labels = labels.to(DEVICE)
 
             outputs = model(images)
-
             loss += criterion(outputs, labels).item()
-
             _, predicted = torch.max(outputs, 1)
-
             total += labels.size(0)
-
             correct += (predicted == labels).sum().item()
 
     accuracy = correct / total
@@ -1220,13 +1312,9 @@ def test(model, testloader):
 
 
 def save_model(model, round_num):
-
     os.makedirs("saved_models", exist_ok=True)
-
     path = f"saved_models/global_model_round_{round_num}.pth"
-
     torch.save(model.state_dict(), path)
-
     print(f"Saved: {path}")
 
 
@@ -1235,11 +1323,8 @@ import flwr as fl
 import torch
 
 from flwr.client import NumPyClient
-
 from .model import load_model
-
 from .task import load_data, train, test, DEVICE
-
 from .utils import poison_parameters
 
 MALICIOUS_CLIENTS = {}
@@ -1276,7 +1361,6 @@ class FlowerClient(NumPyClient):
     ):
 
         num_model_params = len(self.model.state_dict())
-
         model_params = parameters[:num_model_params]
 
         params_dict = zip(
@@ -1344,8 +1428,8 @@ class FlowerClient(NumPyClient):
 
             print(f"Client {self.client_id} poisoning complete")
 
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        # if torch.cuda.is_available():
+        #     torch.cuda.empty_cache()
 
         print(f"Client {self.client_id} returning results")
 
@@ -1910,7 +1994,6 @@ class HybridResNetViT(nn.Module):
     def forward(self, x):
 
         resnet_features = self.resnet(x)
-
         vit_features = self.vit(x)
 
         combined = torch.cat(
@@ -1955,7 +2038,6 @@ class HybridResNetSwin(nn.Module):
     def forward(self, x):
 
         resnet_features = self.resnet(x)
-
         swin_features = self.swin(x)
 
         combined = torch.cat(
@@ -2114,9 +2196,7 @@ class SaveModelStrategy(FedAvg):
             return aggregated
 
         ndarrays = parameters_to_ndarrays(parameters)
-
         model = load_model(self.model_name)
-
         model_ndarrays = ndarrays[: len(model.state_dict())]
 
         params_dict = zip(
@@ -2125,9 +2205,7 @@ class SaveModelStrategy(FedAvg):
         )
 
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-
         model.load_state_dict(state_dict, strict=True)
-
         save_model(model, server_round)
 
         print(f"Round {server_round}: model saved successfully")
@@ -2241,13 +2319,9 @@ class FAFTStrategy(SaveModelStrategy):
                 )
 
             model_weights = ndarrays[:-1]
-
             prototype = ndarrays[-1]
-
             weight_sets.append(model_weights)
-
             prototypes.append(prototype)
-
             example_counts.append(fit_res.num_examples)
         # --------------------------------------------------
         # FedAvg for model weights
@@ -2280,9 +2354,7 @@ class FAFTStrategy(SaveModelStrategy):
             print("Updated global memory")
 
         print(f"\nRound {server_round} Prototype Aggregated")
-
         print(f"Memory Shape: {self.global_memory.shape}")
-
         print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
 
         # --------------------------------------------------
@@ -2334,14 +2406,10 @@ import numpy as np
 
 
 def poison_parameters(parameters):
-
     print("\nPOISONING STARTED")
-
     for i, param in enumerate(parameters):
         before = np.mean(param)
-
         param += np.random.normal(0, 0.05, param.shape).astype(param.dtype)
-
         after = np.mean(param)
 
         print(f"Layer {i}: {before:.6f} -> {after:.6f}")

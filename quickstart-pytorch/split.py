@@ -14,9 +14,7 @@ CLIENTS = 5
 def split_images(images, clients):
 
     random.shuffle(images)
-
     size = len(images) // clients
-
     splits = []
 
     for i in range(clients):
@@ -35,7 +33,6 @@ def split_images(images, clients):
 for split in ["train", "valid", "test"]:
     for label in ["real", "fake"]:
         images = list((SOURCE / split / label).glob("*"))
-
         client_splits = split_images(images, CLIENTS)
 
         for client_id, subset in enumerate(client_splits, start=1):
