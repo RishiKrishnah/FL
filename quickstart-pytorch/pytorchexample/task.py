@@ -28,7 +28,7 @@ try:
 except Exception as e:
     print(f"GPU info unavailable: {e}")
 
-DEBUG = False
+DEBUG = True
 
 
 def convert_rgb(img):
@@ -47,11 +47,19 @@ transform = transforms.Compose(
 )
 
 
-def load_data(client_id):
+DATASET_ROOTS = {
+    "140k": "dataset",
+    "ffpp": "dataset_ffpp",
+}
 
-    train_path = f"dataset/client{client_id}/train"
-    val_path = f"dataset/client{client_id}/val"
-    test_path = f"dataset/client{client_id}/test"
+
+def load_data(client_id, dataset_name="140k"):
+
+    dataset_root = DATASET_ROOTS[dataset_name]
+
+    train_path = f"{dataset_root}/client{client_id}/train"
+    val_path = f"{dataset_root}/client{client_id}/val"
+    test_path = f"{dataset_root}/client{client_id}/test"
 
     trainset = datasets.ImageFolder(train_path, transform=transform)
     valset = datasets.ImageFolder(val_path, transform=transform)

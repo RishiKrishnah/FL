@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 
 quickstart-pytorch/dataset/
+quickstart-pytorch/dataset_ffpp/
 saved_models/
 quickstart-pytorch/saved_models/
 

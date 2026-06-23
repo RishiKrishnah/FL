@@ -11,7 +11,12 @@ MALICIOUS_CLIENTS = {}
 
 
 class FlowerClient(NumPyClient):
-    def __init__(self, client_id, model_name):
+    def __init__(
+        self,
+        client_id,
+        model_name,
+        dataset_name,
+    ):
 
         self.client_id = client_id
         self.gpu_manager = GPUManager()
@@ -24,7 +29,10 @@ class FlowerClient(NumPyClient):
             self.trainloader,
             self.valloader,
             self.testloader,
-        ) = load_data(client_id)
+        ) = load_data(
+            client_id,
+            dataset_name,
+        )
 
     def get_parameters(self, config):
 
@@ -176,9 +184,18 @@ class FlowerClient(NumPyClient):
 
 
 def client_fn(context):
+
     client_id = context.node_config["partition-id"] + 1
+
     model_name = context.run_config["model-name"]
-    return FlowerClient(client_id, model_name).to_client()
+
+    dataset_name = context.run_config["dataset-name"]
+
+    return FlowerClient(
+        client_id,
+        model_name,
+        dataset_name,
+    ).to_client()
 
 
 app = fl.client.ClientApp(client_fn=client_fn)
