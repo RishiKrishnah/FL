@@ -3,7 +3,12 @@ import os
 import fcntl
 
 import torch
-from pynvml import *
+from pynvml import (
+    nvmlInit,
+    nvmlDeviceGetCount,
+    nvmlDeviceGetHandleByIndex,
+    nvmlDeviceGetMemoryInfo,
+)
 
 LOCK_FILE = "/tmp/fl_gpu_lock.json"
 
@@ -17,6 +22,7 @@ class GPUManager:
 
         # optional manual override
         self.forced_gpu = os.getenv("FORCE_GPU")
+        self.assigned_gpu = None
         nvmlInit()
 
         if not os.path.exists(LOCK_FILE):
@@ -30,10 +36,10 @@ class GPUManager:
 
             try:
                 data = json.load(f)
-            except:
+            except json.JSONDecodeError:
                 data = {}
-
-            fcntl.flock(f, fcntl.LOCK_UN)
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
 
         return data
 
@@ -41,8 +47,11 @@ class GPUManager:
 
         with open(LOCK_FILE, "w") as f:
             fcntl.flock(f, fcntl.LOCK_EX)
-            json.dump(state, f)
-            fcntl.flock(f, fcntl.LOCK_UN)
+
+            try:
+                json.dump(state, f)
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
 
     def get_best_gpu(self):
         # manual override
@@ -73,8 +82,8 @@ class GPUManager:
                     )
 
             return torch.device(f"cuda:{self.forced_gpu}")
-        state = self._read_state()
 
+        state = self._read_state()
         best_gpu = None
         best_score = -1
         physical_count = nvmlDeviceGetCount()
@@ -108,6 +117,7 @@ class GPUManager:
 
         state[str(best_gpu)] = state.get(str(best_gpu), 0) + 1
         self._write_state(state)
+        self.assigned_gpu = best_gpu
         visible = os.environ.get("CUDA_VISIBLE_DEVICES")
 
         if visible:
@@ -132,13 +142,17 @@ class GPUManager:
 
     def release_gpu(self):
 
+        if self.assigned_gpu is None:
+            return
+
         gpu_id = str(self.assigned_gpu)
         state = self._read_state()
 
         if gpu_id in state:
-            state[gpu_id] -= 1
+            state[gpu_id] = max(0, state[gpu_id] - 1)
 
-            if state[gpu_id] <= 0:
+            if state[gpu_id] == 0:
                 del state[gpu_id]
 
         self._write_state(state)
+        self.assigned_gpu = None

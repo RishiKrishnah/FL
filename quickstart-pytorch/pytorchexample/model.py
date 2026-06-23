@@ -141,7 +141,6 @@ class ArtifactBiasGenerator(nn.Module):
     def forward(self, artifact_embedding):
 
         B = artifact_embedding.size(0)
-
         Q = self.query_proj(artifact_embedding)
         Q = Q.view(
             B,
