@@ -17,7 +17,11 @@ from sklearn.metrics import (
 )
 
 from pytorchexample.model import load_model
-from pytorchexample.task import load_data, DEVICE
+from pytorchexample.task import load_data
+from pytorchexample.gpu_manager import GPUManager
+
+DEVICE = GPUManager().get_best_gpu()
+print(f"Using device: {DEVICE}")
 
 # ==================================================
 # SETTINGS
@@ -79,8 +83,6 @@ def detect_model_type(state_dict):
 # ==================================================
 def evaluate():
 
-    overall_start = time.time()
-
     print("\nLoading checkpoint...")
 
     checkpoint = torch.load(
@@ -94,13 +96,18 @@ def evaluate():
     print(f"Detected model: {model_name}")
 
     model = load_model(model_name)
-
     model.load_state_dict(checkpoint)
 
     model = model.to(DEVICE)
     model = model.to(memory_format=torch.channels_last)
 
     model.eval()
+
+    # Compile model (PyTorch 2.x)
+    if DEVICE.type == "cuda":
+        print("Compiling model...")
+        model = torch.compile(model)
+
     print("\nWarming up GPU...")
 
     dummy = torch.randn(
@@ -123,9 +130,12 @@ def evaluate():
                 _ = model(dummy)
 
     if DEVICE.type == "cuda":
-        torch.cuda.synchronize()
+        torch.cuda.synchronize(DEVICE)
 
     print("Warmup complete.\n")
+    if DEVICE.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(DEVICE)
+    overall_start = time.time()
     criterion = nn.CrossEntropyLoss()
 
     all_labels = []
@@ -139,7 +149,6 @@ def evaluate():
         range(1, NUM_CLIENTS + 1),
         desc="Clients",
     )
-    peak_gpu_reserved = 0
     with torch.inference_mode():
         for client_id in client_bar:
             print(f"\nEvaluating Client {client_id}")
@@ -170,7 +179,6 @@ def evaluate():
             )
 
             for images, labels in batch_bar:
-                batch_start = time.time()
                 images = images.to(
                     DEVICE,
                     dtype=torch.float32,
@@ -183,18 +191,19 @@ def evaluate():
                     non_blocking=True,
                 )
 
+                infer_start = time.perf_counter()
+
                 with torch.amp.autocast(
                     "cuda",
                     enabled=(DEVICE.type == "cuda"),
                 ):
                     outputs = model(images)
-
                     loss = criterion(outputs, labels)
+
                 if DEVICE.type == "cuda":
-                    torch.cuda.synchronize()
+                    torch.cuda.synchronize(DEVICE)
 
-                batch_time = time.time() - batch_start
-
+                infer_time = time.perf_counter() - infer_start
                 predictions = outputs.detach().argmax(dim=1).cpu().numpy()
 
                 probabilities = (
@@ -206,32 +215,27 @@ def evaluate():
                 all_probabilities.extend(probabilities)
                 total_loss += loss.item() * labels.size(0)
                 total_samples += labels.size(0)
-
                 processed += labels.size(0)
-
                 elapsed = time.time() - client_start
                 img_s = processed / elapsed
 
                 gpu_alloc = (
-                    torch.cuda.memory_allocated() / 1024**3
-                    if torch.cuda.is_available()
+                    torch.cuda.memory_allocated(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
                     else 0
                 )
 
                 gpu_reserved = (
-                    torch.cuda.memory_reserved() / 1024**3
-                    if torch.cuda.is_available()
+                    torch.cuda.memory_reserved(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
                     else 0
                 )
-                peak_gpu_reserved = max(
-                    peak_gpu_reserved,
-                    gpu_reserved,
-                )
-                eta = (num_batches - batch_bar.n - 1) * batch_time
+
+                eta = (num_batches - batch_bar.n - 1) * infer_time
                 batch_bar.set_postfix(
                     loss=f"{loss.item():.4f}",
                     img_s=f"{img_s:.1f}",
-                    batch_s=f"{batch_time:.2f}",
+                    infer_ms=f"{infer_time * 1000:.1f}",
                     eta=f"{eta:.1f}s",
                     alloc=f"{gpu_alloc:.1f}GB",
                     reserv=f"{gpu_reserved:.1f}GB",
@@ -245,7 +249,8 @@ def evaluate():
                 f"in {client_time:.2f}s "
                 f"({processed / client_time:.1f} img/s)"
             )
-            torch.cuda.empty_cache()
+    if DEVICE.type == "cuda":
+        torch.cuda.empty_cache()
 
     avg_loss = total_loss / total_samples
 
@@ -284,6 +289,11 @@ def evaluate():
 
     total_time = time.time() - overall_start
 
+    if DEVICE.type == "cuda":
+        peak_gpu_alloc = torch.cuda.max_memory_allocated(DEVICE) / 1024**3
+
+        peak_gpu_reserved = torch.cuda.max_memory_reserved(DEVICE) / 1024**3
+
     print("\nGround Truth Distribution")
     print(Counter(all_labels))
 
@@ -307,7 +317,8 @@ def evaluate():
     print(f"Time       : {total_time:.2f} sec")
     print(f"Throughput : {total_samples / total_time:.1f} img/s")
 
-    print(f"Peak GPU memory : {peak_gpu_reserved:.2f} GB")
+    print(f"Peak GPU allocated : {peak_gpu_alloc:.2f} GB")
+    print(f"Peak GPU reserved  : {peak_gpu_reserved:.2f} GB")
 
     print("\nConfusion Matrix")
     print(cm)

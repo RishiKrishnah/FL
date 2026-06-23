@@ -669,7 +669,7 @@ options.num-supernodes = 5
 
 [tool.flwr.federations.local-simulation.options.backend.client-resources]
 num-cpus = 4
-num-gpus = 0.25
+num-gpus = 0.5
 
 [tool.hatch.build.targets.wheel]
 packages = ["pytorchexample"]
@@ -694,7 +694,11 @@ from sklearn.metrics import (
 )
 
 from pytorchexample.model import load_model
-from pytorchexample.task import load_data, DEVICE
+from pytorchexample.task import load_data
+from pytorchexample.gpu_manager import GPUManager
+
+DEVICE = GPUManager().get_best_gpu()
+print(f"Using device: {DEVICE}")
 
 # ==================================================
 # SETTINGS
@@ -756,8 +760,6 @@ def detect_model_type(state_dict):
 # ==================================================
 def evaluate():
 
-    overall_start = time.time()
-
     print("\nLoading checkpoint...")
 
     checkpoint = torch.load(
@@ -771,13 +773,18 @@ def evaluate():
     print(f"Detected model: {model_name}")
 
     model = load_model(model_name)
-
     model.load_state_dict(checkpoint)
 
     model = model.to(DEVICE)
     model = model.to(memory_format=torch.channels_last)
 
     model.eval()
+
+    # Compile model (PyTorch 2.x)
+    if DEVICE.type == "cuda":
+        print("Compiling model...")
+        model = torch.compile(model)
+
     print("\nWarming up GPU...")
 
     dummy = torch.randn(
@@ -800,9 +807,12 @@ def evaluate():
                 _ = model(dummy)
 
     if DEVICE.type == "cuda":
-        torch.cuda.synchronize()
+        torch.cuda.synchronize(DEVICE)
 
     print("Warmup complete.\n")
+    if DEVICE.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(DEVICE)
+    overall_start = time.time()
     criterion = nn.CrossEntropyLoss()
 
     all_labels = []
@@ -816,7 +826,6 @@ def evaluate():
         range(1, NUM_CLIENTS + 1),
         desc="Clients",
     )
-    peak_gpu_reserved = 0
     with torch.inference_mode():
         for client_id in client_bar:
             print(f"\nEvaluating Client {client_id}")
@@ -847,7 +856,6 @@ def evaluate():
             )
 
             for images, labels in batch_bar:
-                batch_start = time.time()
                 images = images.to(
                     DEVICE,
                     dtype=torch.float32,
@@ -860,18 +868,19 @@ def evaluate():
                     non_blocking=True,
                 )
 
+                infer_start = time.perf_counter()
+
                 with torch.amp.autocast(
                     "cuda",
                     enabled=(DEVICE.type == "cuda"),
                 ):
                     outputs = model(images)
-
                     loss = criterion(outputs, labels)
+
                 if DEVICE.type == "cuda":
-                    torch.cuda.synchronize()
+                    torch.cuda.synchronize(DEVICE)
 
-                batch_time = time.time() - batch_start
-
+                infer_time = time.perf_counter() - infer_start
                 predictions = outputs.detach().argmax(dim=1).cpu().numpy()
 
                 probabilities = (
@@ -883,32 +892,27 @@ def evaluate():
                 all_probabilities.extend(probabilities)
                 total_loss += loss.item() * labels.size(0)
                 total_samples += labels.size(0)
-
                 processed += labels.size(0)
-
                 elapsed = time.time() - client_start
                 img_s = processed / elapsed
 
                 gpu_alloc = (
-                    torch.cuda.memory_allocated() / 1024**3
-                    if torch.cuda.is_available()
+                    torch.cuda.memory_allocated(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
                     else 0
                 )
 
                 gpu_reserved = (
-                    torch.cuda.memory_reserved() / 1024**3
-                    if torch.cuda.is_available()
+                    torch.cuda.memory_reserved(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
                     else 0
                 )
-                peak_gpu_reserved = max(
-                    peak_gpu_reserved,
-                    gpu_reserved,
-                )
-                eta = (num_batches - batch_bar.n - 1) * batch_time
+
+                eta = (num_batches - batch_bar.n - 1) * infer_time
                 batch_bar.set_postfix(
                     loss=f"{loss.item():.4f}",
                     img_s=f"{img_s:.1f}",
-                    batch_s=f"{batch_time:.2f}",
+                    infer_ms=f"{infer_time * 1000:.1f}",
                     eta=f"{eta:.1f}s",
                     alloc=f"{gpu_alloc:.1f}GB",
                     reserv=f"{gpu_reserved:.1f}GB",
@@ -922,7 +926,8 @@ def evaluate():
                 f"in {client_time:.2f}s "
                 f"({processed / client_time:.1f} img/s)"
             )
-            torch.cuda.empty_cache()
+    if DEVICE.type == "cuda":
+        torch.cuda.empty_cache()
 
     avg_loss = total_loss / total_samples
 
@@ -961,6 +966,11 @@ def evaluate():
 
     total_time = time.time() - overall_start
 
+    if DEVICE.type == "cuda":
+        peak_gpu_alloc = torch.cuda.max_memory_allocated(DEVICE) / 1024**3
+
+        peak_gpu_reserved = torch.cuda.max_memory_reserved(DEVICE) / 1024**3
+
     print("\nGround Truth Distribution")
     print(Counter(all_labels))
 
@@ -984,7 +994,8 @@ def evaluate():
     print(f"Time       : {total_time:.2f} sec")
     print(f"Throughput : {total_samples / total_time:.1f} img/s")
 
-    print(f"Peak GPU memory : {peak_gpu_reserved:.2f} GB")
+    print(f"Peak GPU allocated : {peak_gpu_alloc:.2f} GB")
+    print(f"Peak GPU reserved  : {peak_gpu_reserved:.2f} GB")
 
     print("\nConfusion Matrix")
     print(cm)
@@ -1106,12 +1117,12 @@ from collections import Counter
 
 torch.backends.cudnn.benchmark = True
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(f"Using device: {DEVICE}")
+print(f"Using device: {device}")
 
 try:
-    if DEVICE.type == "cuda":
+    if device.type == "cuda":
         print("GPU Enabled")
         print(f"GPU Count: {torch.cuda.device_count()}")
 
@@ -1121,7 +1132,7 @@ try:
 except Exception as e:
     print(f"GPU info unavailable: {e}")
 
-DEBUG = True
+DEBUG = False
 
 
 def convert_rgb(img):
@@ -1150,6 +1161,7 @@ def load_data(client_id):
     valset = datasets.ImageFolder(val_path, transform=transform)
     testset = datasets.ImageFolder(test_path, transform=transform)
 
+    print(trainset.class_to_idx)
     # DEBUG MODE
     if DEBUG:
         import random
@@ -1200,14 +1212,14 @@ def load_data(client_id):
     return trainloader, valloader, testloader
 
 
-def train(model, trainloader, epochs=1):
+def train(model, trainloader, device, epochs=1):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
 
     print("START classifier norm:", model.classifier[0].weight.norm().item())
-    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
+    scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda"))
 
     model.train()
 
@@ -1220,17 +1232,34 @@ def train(model, trainloader, epochs=1):
         progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
-            images = images.to(DEVICE, non_blocking=True)
-            labels = labels.to(DEVICE, non_blocking=True)
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()
 
-            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
+            with torch.amp.autocast(
+                "cuda",
+                enabled=(device.type == "cuda"),
+            ):
                 outputs = model(images)
                 loss = criterion(outputs, labels)
+
+            artifact_embedding = None
+            with torch.no_grad():
+                if hasattr(model, "extract_artifact_embedding"):
+                    artifact_embedding = model.last_artifact_embedding
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
+
+            if (
+                hasattr(model, "extract_artifact_embedding")
+                and artifact_embedding is not None
+            ):
+                model.update_prototypes(
+                    artifact_embedding,
+                    labels,
+                )
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
             correct += (predicted == labels).sum().item()
@@ -1284,7 +1313,7 @@ def train(model, trainloader, epochs=1):
     print("END classifier norm:", model.classifier[0].weight.norm().item())
 
 
-def test(model, testloader):
+def test(model, testloader, device):
     criterion = nn.CrossEntropyLoss()
 
     correct = 0
@@ -1295,9 +1324,8 @@ def test(model, testloader):
 
     with torch.no_grad():
         for images, labels in tqdm(testloader, desc="Testing", leave=True):
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
-
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             loss += criterion(outputs, labels).item()
             _, predicted = torch.max(outputs, 1)
@@ -1324,8 +1352,9 @@ import torch
 
 from flwr.client import NumPyClient
 from .model import load_model
-from .task import load_data, train, test, DEVICE
+from .task import load_data, train, test
 from .utils import poison_parameters
+from .gpu_manager import GPUManager
 
 MALICIOUS_CLIENTS = {}
 
@@ -1334,24 +1363,42 @@ class FlowerClient(NumPyClient):
     def __init__(self, client_id, model_name):
 
         self.client_id = client_id
-        print(f"Client {client_id} using model: {model_name}")
-        self.model = load_model(model_name).to(DEVICE)
-        (self.trainloader, self.valloader, self.testloader) = load_data(client_id)
+        self.gpu_manager = GPUManager()
+        self.device = self.gpu_manager.get_best_gpu()
+
+        print(f"Client {client_id} using {self.device}")
+        self.model = load_model(model_name).to(self.device)
+
+        (
+            self.trainloader,
+            self.valloader,
+            self.testloader,
+        ) = load_data(client_id)
 
     def get_parameters(self, config):
 
         params = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-        if hasattr(self.model, "get_prototype"):
-            prototype = self.model.get_prototype()
+        if hasattr(self.model, "get_prototypes"):
+            prototypes = self.model.get_prototypes()
 
-            if prototype is None:
-                prototype = torch.zeros(
+            real_proto = prototypes["real"]
+            fake_proto = prototypes["fake"]
+
+            if real_proto is None:
+                real_proto = torch.zeros(
                     768,
                     dtype=torch.float32,
                 )
 
-            params.append(prototype.detach().cpu().numpy().astype("float32"))
+            if fake_proto is None:
+                fake_proto = torch.zeros(
+                    768,
+                    dtype=torch.float32,
+                )
+
+            params.append(real_proto.detach().cpu().numpy().astype("float32"))
+            params.append(fake_proto.detach().cpu().numpy().astype("float32"))
 
         return params
 
@@ -1368,7 +1415,7 @@ class FlowerClient(NumPyClient):
             model_params,
         )
 
-        state_dict = {k: torch.tensor(v).to(DEVICE) for k, v in params_dict}
+        state_dict = {k: torch.tensor(v).to(self.device) for k, v in params_dict}
 
         self.model.load_state_dict(
             state_dict,
@@ -1379,24 +1426,29 @@ class FlowerClient(NumPyClient):
         # Extract global memory if present
         # ----------------------------------
 
-        if len(parameters) == num_model_params + 1 and hasattr(
-            self.model,
-            "set_global_memory",
+        if len(parameters) == num_model_params + 2 and hasattr(
+            self.model, "set_global_memory"
         ):
-            memory = torch.tensor(
+            real_memory = torch.tensor(
+                parameters[-2],
+                dtype=torch.float32,
+                device=self.device,
+            )
+
+            fake_memory = torch.tensor(
                 parameters[-1],
                 dtype=torch.float32,
-                device=DEVICE,
+                device=self.device,
             )
 
-            self.model.set_global_memory(memory)
-
-            print(
-                f"Client {self.client_id} "
-                f"received global memory "
-                f"shape={memory.shape}, "
-                f"norm={memory.norm().item():.4f}"
+            self.model.set_global_memory(
+                real_memory,
+                fake_memory,
             )
+
+            print(f"Client {self.client_id} received class memories")
+            print(f"Real memory norm={real_memory.norm().item():.4f}")
+            print(f"Fake memory norm={fake_memory.norm().item():.4f}")
 
     def fit(self, parameters, config):
 
@@ -1406,7 +1458,12 @@ class FlowerClient(NumPyClient):
         print(f"Client {self.client_id} starting training...")
         local_epochs = config["local_epochs"]
 
-        train(self.model, self.trainloader, epochs=local_epochs)
+        train(
+            self.model,
+            self.trainloader,
+            self.device,
+            epochs=local_epochs,
+        )
         print(f"Client {self.client_id} finished training")
         print(f"Client {self.client_id} extracting parameters...")
         updated_params = self.get_parameters({})
@@ -1416,15 +1473,15 @@ class FlowerClient(NumPyClient):
         if self.client_id in MALICIOUS_CLIENTS:
             print(f"Client {self.client_id} is malicious!")
 
-            # Last element is the prototype
-            weights = updated_params[:-1]
-            prototype = updated_params[-1]
+            if hasattr(self.model, "get_prototypes") and len(updated_params) >= 2:
+                weights = updated_params[:-2]
+                real_proto = updated_params[-2]
+                fake_proto = updated_params[-1]
+                weights = poison_parameters(weights)
+                updated_params = weights + [real_proto] + [fake_proto]
 
-            # Poison only model weights
-            weights = poison_parameters(weights)
-
-            # Reassemble update
-            updated_params = weights + [prototype]
+            else:
+                updated_params = poison_parameters(updated_params)
 
             print(f"Client {self.client_id} poisoning complete")
 
@@ -1448,7 +1505,11 @@ class FlowerClient(NumPyClient):
         try:
             print(f"\nCLIENT {self.client_id} STARTING EVALUATION")
             self.set_parameters(parameters)
-            loss, accuracy = test(self.model, self.testloader)
+            loss, accuracy = test(
+                self.model,
+                self.testloader,
+                self.device,
+            )
             print(f"\nCLIENT {self.client_id} EVALUATION COMPLETE")
 
             return (
@@ -1755,7 +1816,6 @@ class ArtifactGuidedDeepfakeNet(nn.Module):
         # Artifact Attention
         # -----------------------------------------------------
         attention_map = self.attention(artifact_features)
-
         guided_artifacts = artifact_features * attention_map
 
         # -----------------------------------------------------
@@ -1877,32 +1937,24 @@ class FAFTNet(nn.Module):
             nn.Linear(512, 2),
         )
 
-        self.current_prototype = None
-        self.global_memory = None
+        self.register_buffer("real_prototype", torch.zeros(768))
+        self.register_buffer("fake_prototype", torch.zeros(768))
+        self.register_buffer("global_real_memory", torch.zeros(768))
+        self.register_buffer("global_fake_memory", torch.zeros(768))
+
+        # initialization flags
+        self.real_initialized = False
+        self.fake_initialized = False
+        self.global_memory_initialized = False
+        self.gamma = nn.Parameter(torch.tensor(0.3))
 
     def forward(self, x):
 
         # ----------------------------------
-        # Spatial Features
+        # Extract artifact embedding
         # ----------------------------------
-        Fs = self.resnet(x)
-
-        # ----------------------------------
-        # Frequency Features
-        # ----------------------------------
-        Ff = self.frequency_branch(x)
-
-        # ----------------------------------
-        # Fusion
-        # ----------------------------------
-        artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
-
-        # ----------------------------------
-        # Artifact Attention
-        # ----------------------------------
-        guided_artifacts, _ = self.artifact_attention(artifact_features)
-        artifact_embedding = self.artifact_projection(guided_artifacts)
-        self.current_prototype = artifact_embedding.detach().mean(dim=0)
+        artifact_embedding = self.extract_artifact_embedding(x)
+        self.last_artifact_embedding = artifact_embedding.detach()
 
         # ----------------------------------
         # Generate Bias
@@ -1916,11 +1968,8 @@ class FAFTNet(nn.Module):
         # Patch Embedding
         # ----------------------------------
         patches = self.patch_embed(x)
-
         patches = patches.flatten(2)
-
         patches = patches.transpose(1, 2)
-
         B = patches.size(0)
 
         cls_tokens = self.cls_token.expand(
@@ -1940,14 +1989,34 @@ class FAFTNet(nn.Module):
         tokens = tokens + self.pos_embed
 
         # ----------------------------------
-        # Global Memory Bias
+        # Adaptive Class Memory Bias
         # ----------------------------------
-        if self.global_memory is not None:
-            memory_bias = self.bias_generator(
-                self.global_memory.unsqueeze(0).expand(B, -1)
+        if self.global_memory_initialized:
+            real_memory = self.global_real_memory
+            fake_memory = self.global_fake_memory
+
+            # cosine similarity with each class memory
+            sim_real = torch.nn.functional.cosine_similarity(
+                artifact_embedding,
+                real_memory.unsqueeze(0),
+                dim=1,
             )
 
-            artifact_bias = artifact_bias + memory_bias
+            sim_fake = torch.nn.functional.cosine_similarity(
+                artifact_embedding,
+                fake_memory.unsqueeze(0),
+                dim=1,
+            )
+
+            sims = torch.stack([sim_real, sim_fake], dim=1)
+            weights = torch.softmax(sims, dim=1)
+            real_weight = weights[:, 0].view(B, 1, 1, 1)
+            fake_weight = weights[:, 1].view(B, 1, 1, 1)
+            real_bias = self.bias_generator(real_memory.unsqueeze(0).expand(B, -1))
+            fake_bias = self.bias_generator(fake_memory.unsqueeze(0).expand(B, -1))
+            memory_bias = real_weight * real_bias + fake_weight * fake_bias
+            gamma = torch.sigmoid(self.gamma)
+            artifact_bias = artifact_bias + gamma * memory_bias
 
         # ----------------------------------
         # Transformer
@@ -1959,18 +2028,95 @@ class FAFTNet(nn.Module):
             )
 
         tokens = self.norm(tokens)
-
         cls_feature = tokens[:, 0]
-
         logits = self.classifier(cls_feature)
 
         return logits
 
-    def get_prototype(self):
-        return self.current_prototype
+    def get_prototypes(self):
 
-    def set_global_memory(self, memory):
-        self.global_memory = memory
+        return {
+            "real": self.real_prototype,
+            "fake": self.fake_prototype,
+        }
+
+    def set_global_memory(self, real_memory, fake_memory):
+
+        self.global_real_memory.copy_(torch.nn.functional.normalize(real_memory, dim=0))
+        self.global_fake_memory.copy_(torch.nn.functional.normalize(fake_memory, dim=0))
+        self.global_memory_initialized = True
+
+    def extract_artifact_embedding(self, x):
+
+        # Spatial branch
+        Fs = self.resnet(x)
+
+        # Frequency branch
+        Ff = self.frequency_branch(x)
+
+        # Fusion
+        artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
+
+        # Artifact attention
+        guided_artifacts, _ = self.artifact_attention(artifact_features)
+
+        # Projection
+        artifact_embedding = self.artifact_projection(guided_artifacts)
+
+        artifact_embedding = torch.nn.functional.normalize(
+            artifact_embedding,
+            dim=1,
+        )
+
+        return artifact_embedding
+
+    def update_prototypes(self, artifact_embedding, labels):
+
+        with torch.no_grad():
+            real_mask = labels == 1
+            fake_mask = labels == 0
+
+            if real_mask.any():
+                current_real = artifact_embedding[real_mask].mean(dim=0)
+
+                current_real = torch.nn.functional.normalize(
+                    current_real,
+                    dim=0,
+                )
+
+                if not self.real_initialized:
+                    self.real_prototype.copy_(current_real)
+                    self.real_initialized = True
+                else:
+                    self.real_prototype.mul_(0.9).add_(0.1 * current_real)
+
+                    self.real_prototype.copy_(
+                        torch.nn.functional.normalize(
+                            self.real_prototype,
+                            dim=0,
+                        )
+                    )
+
+            if fake_mask.any():
+                current_fake = artifact_embedding[fake_mask].mean(dim=0)
+
+                current_fake = torch.nn.functional.normalize(
+                    current_fake,
+                    dim=0,
+                )
+
+                if not self.fake_initialized:
+                    self.fake_prototype.copy_(current_fake)
+                    self.fake_initialized = True
+                else:
+                    self.fake_prototype.mul_(0.9).add_(0.1 * current_fake)
+
+                    self.fake_prototype.copy_(
+                        torch.nn.functional.normalize(
+                            self.fake_prototype,
+                            dim=0,
+                        )
+                    )
 
 
 # ==========================================================
@@ -2137,6 +2283,153 @@ def load_model(model_name):
     return model
 
 
+=== FILE: quickstart-pytorch/pytorchexample/gpu_manager.py ===
+import json
+import os
+import fcntl
+
+import torch
+from pynvml import *
+
+LOCK_FILE = "/tmp/fl_gpu_lock.json"
+
+
+class GPUManager:
+    def __init__(
+        self,
+        min_free_gb=10,
+    ):
+        self.min_free_gb = min_free_gb
+
+        # optional manual override
+        self.forced_gpu = os.getenv("FORCE_GPU")
+        nvmlInit()
+
+        if not os.path.exists(LOCK_FILE):
+            with open(LOCK_FILE, "w") as f:
+                json.dump({}, f)
+
+    def _read_state(self):
+
+        with open(LOCK_FILE, "r") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+
+            try:
+                data = json.load(f)
+            except:
+                data = {}
+
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+        return data
+
+    def _write_state(self, state):
+
+        with open(LOCK_FILE, "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            json.dump(state, f)
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+    def get_best_gpu(self):
+        # manual override
+        if self.forced_gpu is not None:
+            visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+
+            print(f"[GPUManager] Forced physical GPU={self.forced_gpu}")
+            print(f"[GPUManager] CUDA_VISIBLE_DEVICES={visible}")
+
+            if visible is not None:
+                visible_list = [x.strip() for x in visible.split(",")]
+
+                if self.forced_gpu in visible_list:
+                    local_id = visible_list.index(self.forced_gpu)
+
+                    print(
+                        f"[GPUManager] Physical GPU {self.forced_gpu} "
+                        f"mapped to local cuda:{local_id}"
+                    )
+
+                    return torch.device(f"cuda:{local_id}")
+
+                else:
+                    raise RuntimeError(
+                        f"Physical GPU {self.forced_gpu} "
+                        f"is not visible to this Ray actor.\n"
+                        f"Visible GPUs = {visible}"
+                    )
+
+            return torch.device(f"cuda:{self.forced_gpu}")
+        state = self._read_state()
+
+        best_gpu = None
+        best_score = -1
+        physical_count = nvmlDeviceGetCount()
+        visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+
+        if visible:
+            gpu_indices = [int(x) for x in visible.split(",")]
+        else:
+            gpu_indices = list(range(physical_count))
+
+        for i in gpu_indices:
+            handle = nvmlDeviceGetHandleByIndex(i)
+            info = nvmlDeviceGetMemoryInfo(handle)
+            free_gb = info.free / 1024**3
+            num_clients = state.get(str(i), 0)
+            score = free_gb - 5 * num_clients
+
+            print(f"GPU{i}: free={free_gb:.1f}GB clients={num_clients}")
+
+            if free_gb > self.min_free_gb and score > best_score:
+                best_score = score
+                best_gpu = i
+
+        if best_gpu is None:
+            best_gpu = max(
+                gpu_indices,
+                key=lambda i: (
+                    nvmlDeviceGetMemoryInfo(nvmlDeviceGetHandleByIndex(i)).free
+                ),
+            )
+
+        state[str(best_gpu)] = state.get(str(best_gpu), 0) + 1
+        self._write_state(state)
+        visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+
+        if visible:
+            visible_list = [int(x) for x in visible.split(",")]
+
+            if best_gpu in visible_list:
+                local_gpu = visible_list.index(best_gpu)
+
+                print(f"[GPUManager] Physical GPU {best_gpu} -> local cuda:{local_gpu}")
+
+                return torch.device(f"cuda:{local_gpu}")
+
+            else:
+                print(
+                    f"[GPUManager] GPU {best_gpu} not visible "
+                    f"inside this actor. Using cuda:0"
+                )
+
+                return torch.device("cuda:0")
+
+        return torch.device(f"cuda:{best_gpu}")
+
+    def release_gpu(self):
+
+        gpu_id = str(self.assigned_gpu)
+        state = self._read_state()
+
+        if gpu_id in state:
+            state[gpu_id] -= 1
+
+            if state[gpu_id] <= 0:
+                del state[gpu_id]
+
+        self._write_state(state)
+
+
 === FILE: quickstart-pytorch/pytorchexample/server_app.py ===
 from collections import OrderedDict
 import numpy as np
@@ -2168,7 +2461,6 @@ def weighted_average(metrics):
 def fedavg_weights(weight_sets, num_examples):
 
     total_examples = sum(num_examples)
-
     aggregated = []
 
     for layer_idx in range(len(weight_sets[0])):
@@ -2280,7 +2572,11 @@ class FAFTStrategy(SaveModelStrategy):
             **kwargs,
         )
 
-        self.global_memory = None
+        # -----------------------------------
+        # Global class memories
+        # -----------------------------------
+        self.global_real_memory = None
+        self.global_fake_memory = None
 
         model = load_model(model_name)
         self.num_model_tensors = len(model.state_dict())
@@ -2317,10 +2613,10 @@ class FAFTStrategy(SaveModelStrategy):
         # Separate model weights and prototypes
         # --------------------------------------------------
 
-        expected_tensors = self.num_model_tensors + 1
-
+        expected_tensors = self.num_model_tensors + 2
         weight_sets = []
-        prototypes = []
+        real_prototypes = []
+        fake_prototypes = []
         example_counts = []
 
         for _, fit_res in results:
@@ -2331,10 +2627,12 @@ class FAFTStrategy(SaveModelStrategy):
                     f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
                 )
 
-            model_weights = ndarrays[:-1]
-            prototype = ndarrays[-1]
+            model_weights = ndarrays[:-2]
+            real_proto = ndarrays[-2]
+            fake_proto = ndarrays[-1]
             weight_sets.append(model_weights)
-            prototypes.append(prototype)
+            real_prototypes.append(real_proto)
+            fake_prototypes.append(fake_proto)
             example_counts.append(fit_res.num_examples)
         # --------------------------------------------------
         # FedAvg for model weights
@@ -2347,28 +2645,44 @@ class FAFTStrategy(SaveModelStrategy):
         # --------------------------------------------------
         # Prototype aggregation
         # --------------------------------------------------
-        global_proto = np.average(
-            prototypes,
+        global_real_proto = np.average(
+            real_prototypes,
             axis=0,
             weights=example_counts,
         )
 
-        # --------------------------------------------------
-        # Update global memory
-        # --------------------------------------------------
-        if self.global_memory is None:
-            self.global_memory = global_proto
+        global_fake_proto = np.average(
+            fake_prototypes,
+            axis=0,
+            weights=example_counts,
+        )
 
-            print("Initialized global memory")
+        # -------------------------
+        # Real memory
+        # -------------------------
+        if self.global_real_memory is None:
+            self.global_real_memory = global_real_proto
 
         else:
-            self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+            self.global_real_memory = (
+                0.9 * self.global_real_memory + 0.1 * global_real_proto
+            )
 
-            print("Updated global memory")
+        # -------------------------
+        # Fake memory
+        # -------------------------
+        if self.global_fake_memory is None:
+            self.global_fake_memory = global_fake_proto
+
+        else:
+            self.global_fake_memory = (
+                0.9 * self.global_fake_memory + 0.1 * global_fake_proto
+            )
 
         print(f"\nRound {server_round} Prototype Aggregated")
-        print(f"Memory Shape: {self.global_memory.shape}")
-        print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
+        print()
+        print(f"Real memory norm = {np.linalg.norm(self.global_real_memory):.4f}")
+        print(f"Fake memory norm = {np.linalg.norm(self.global_fake_memory):.4f}")
 
         # --------------------------------------------------
         # Save aggregated global model
@@ -2397,7 +2711,11 @@ class FAFTStrategy(SaveModelStrategy):
         # Broadcast:
         #   global model weights
         #   global memory vector
-        combined_parameters = global_weights + [self.global_memory.astype(np.float32)]
+        combined_parameters = (
+            global_weights
+            + [self.global_real_memory.astype(np.float32)]
+            + [self.global_fake_memory.astype(np.float32)]
+        )
         print(
             f"Broadcasting "
             f"{len(combined_parameters)} tensors "
@@ -2407,7 +2725,10 @@ class FAFTStrategy(SaveModelStrategy):
 
         return (
             parameters,
-            {"memory_norm": float(np.linalg.norm(self.global_memory))},
+            {
+                "real_memory_norm": float(np.linalg.norm(self.global_real_memory)),
+                "fake_memory_norm": float(np.linalg.norm(self.global_fake_memory)),
+            },
         )
 
 

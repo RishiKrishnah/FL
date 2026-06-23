@@ -13,12 +13,12 @@ from collections import Counter
 
 torch.backends.cudnn.benchmark = True
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print(f"Using device: {DEVICE}")
+print(f"Using device: {device}")
 
 try:
-    if DEVICE.type == "cuda":
+    if device.type == "cuda":
         print("GPU Enabled")
         print(f"GPU Count: {torch.cuda.device_count()}")
 
@@ -28,7 +28,7 @@ try:
 except Exception as e:
     print(f"GPU info unavailable: {e}")
 
-DEBUG = True
+DEBUG = False
 
 
 def convert_rgb(img):
@@ -57,6 +57,7 @@ def load_data(client_id):
     valset = datasets.ImageFolder(val_path, transform=transform)
     testset = datasets.ImageFolder(test_path, transform=transform)
 
+    print(trainset.class_to_idx)
     # DEBUG MODE
     if DEBUG:
         import random
@@ -107,14 +108,14 @@ def load_data(client_id):
     return trainloader, valloader, testloader
 
 
-def train(model, trainloader, epochs=1):
+def train(model, trainloader, device, epochs=1):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(
         filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
 
     print("START classifier norm:", model.classifier[0].weight.norm().item())
-    scaler = torch.amp.GradScaler("cuda", enabled=(DEVICE.type == "cuda"))
+    scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda"))
 
     model.train()
 
@@ -127,17 +128,34 @@ def train(model, trainloader, epochs=1):
         progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
-            images = images.to(DEVICE, non_blocking=True)
-            labels = labels.to(DEVICE, non_blocking=True)
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()
 
-            with torch.amp.autocast("cuda", enabled=(DEVICE.type == "cuda")):
+            with torch.amp.autocast(
+                "cuda",
+                enabled=(device.type == "cuda"),
+            ):
                 outputs = model(images)
                 loss = criterion(outputs, labels)
+
+            artifact_embedding = None
+            with torch.no_grad():
+                if hasattr(model, "extract_artifact_embedding"):
+                    artifact_embedding = model.last_artifact_embedding
 
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
+
+            if (
+                hasattr(model, "extract_artifact_embedding")
+                and artifact_embedding is not None
+            ):
+                model.update_prototypes(
+                    artifact_embedding,
+                    labels,
+                )
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
             correct += (predicted == labels).sum().item()
@@ -191,7 +209,7 @@ def train(model, trainloader, epochs=1):
     print("END classifier norm:", model.classifier[0].weight.norm().item())
 
 
-def test(model, testloader):
+def test(model, testloader, device):
     criterion = nn.CrossEntropyLoss()
 
     correct = 0
@@ -202,9 +220,8 @@ def test(model, testloader):
 
     with torch.no_grad():
         for images, labels in tqdm(testloader, desc="Testing", leave=True):
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
-
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             loss += criterion(outputs, labels).item()
             _, predicted = torch.max(outputs, 1)

@@ -280,7 +280,6 @@ class ArtifactGuidedDeepfakeNet(nn.Module):
         # Artifact Attention
         # -----------------------------------------------------
         attention_map = self.attention(artifact_features)
-
         guided_artifacts = artifact_features * attention_map
 
         # -----------------------------------------------------
@@ -402,32 +401,24 @@ class FAFTNet(nn.Module):
             nn.Linear(512, 2),
         )
 
-        self.current_prototype = None
-        self.global_memory = None
+        self.register_buffer("real_prototype", torch.zeros(768))
+        self.register_buffer("fake_prototype", torch.zeros(768))
+        self.register_buffer("global_real_memory", torch.zeros(768))
+        self.register_buffer("global_fake_memory", torch.zeros(768))
+
+        # initialization flags
+        self.real_initialized = False
+        self.fake_initialized = False
+        self.global_memory_initialized = False
+        self.gamma = nn.Parameter(torch.tensor(0.3))
 
     def forward(self, x):
 
         # ----------------------------------
-        # Spatial Features
+        # Extract artifact embedding
         # ----------------------------------
-        Fs = self.resnet(x)
-
-        # ----------------------------------
-        # Frequency Features
-        # ----------------------------------
-        Ff = self.frequency_branch(x)
-
-        # ----------------------------------
-        # Fusion
-        # ----------------------------------
-        artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
-
-        # ----------------------------------
-        # Artifact Attention
-        # ----------------------------------
-        guided_artifacts, _ = self.artifact_attention(artifact_features)
-        artifact_embedding = self.artifact_projection(guided_artifacts)
-        self.current_prototype = artifact_embedding.detach().mean(dim=0)
+        artifact_embedding = self.extract_artifact_embedding(x)
+        self.last_artifact_embedding = artifact_embedding.detach()
 
         # ----------------------------------
         # Generate Bias
@@ -441,11 +432,8 @@ class FAFTNet(nn.Module):
         # Patch Embedding
         # ----------------------------------
         patches = self.patch_embed(x)
-
         patches = patches.flatten(2)
-
         patches = patches.transpose(1, 2)
-
         B = patches.size(0)
 
         cls_tokens = self.cls_token.expand(
@@ -465,14 +453,34 @@ class FAFTNet(nn.Module):
         tokens = tokens + self.pos_embed
 
         # ----------------------------------
-        # Global Memory Bias
+        # Adaptive Class Memory Bias
         # ----------------------------------
-        if self.global_memory is not None:
-            memory_bias = self.bias_generator(
-                self.global_memory.unsqueeze(0).expand(B, -1)
+        if self.global_memory_initialized:
+            real_memory = self.global_real_memory
+            fake_memory = self.global_fake_memory
+
+            # cosine similarity with each class memory
+            sim_real = torch.nn.functional.cosine_similarity(
+                artifact_embedding,
+                real_memory.unsqueeze(0),
+                dim=1,
             )
 
-            artifact_bias = artifact_bias + memory_bias
+            sim_fake = torch.nn.functional.cosine_similarity(
+                artifact_embedding,
+                fake_memory.unsqueeze(0),
+                dim=1,
+            )
+
+            sims = torch.stack([sim_real, sim_fake], dim=1)
+            weights = torch.softmax(sims, dim=1)
+            real_weight = weights[:, 0].view(B, 1, 1, 1)
+            fake_weight = weights[:, 1].view(B, 1, 1, 1)
+            real_bias = self.bias_generator(real_memory.unsqueeze(0).expand(B, -1))
+            fake_bias = self.bias_generator(fake_memory.unsqueeze(0).expand(B, -1))
+            memory_bias = real_weight * real_bias + fake_weight * fake_bias
+            gamma = torch.sigmoid(self.gamma)
+            artifact_bias = artifact_bias + gamma * memory_bias
 
         # ----------------------------------
         # Transformer
@@ -484,18 +492,95 @@ class FAFTNet(nn.Module):
             )
 
         tokens = self.norm(tokens)
-
         cls_feature = tokens[:, 0]
-
         logits = self.classifier(cls_feature)
 
         return logits
 
-    def get_prototype(self):
-        return self.current_prototype
+    def get_prototypes(self):
 
-    def set_global_memory(self, memory):
-        self.global_memory = memory
+        return {
+            "real": self.real_prototype,
+            "fake": self.fake_prototype,
+        }
+
+    def set_global_memory(self, real_memory, fake_memory):
+
+        self.global_real_memory.copy_(torch.nn.functional.normalize(real_memory, dim=0))
+        self.global_fake_memory.copy_(torch.nn.functional.normalize(fake_memory, dim=0))
+        self.global_memory_initialized = True
+
+    def extract_artifact_embedding(self, x):
+
+        # Spatial branch
+        Fs = self.resnet(x)
+
+        # Frequency branch
+        Ff = self.frequency_branch(x)
+
+        # Fusion
+        artifact_features = self.fusion(torch.cat([Fs, Ff], dim=1))
+
+        # Artifact attention
+        guided_artifacts, _ = self.artifact_attention(artifact_features)
+
+        # Projection
+        artifact_embedding = self.artifact_projection(guided_artifacts)
+
+        artifact_embedding = torch.nn.functional.normalize(
+            artifact_embedding,
+            dim=1,
+        )
+
+        return artifact_embedding
+
+    def update_prototypes(self, artifact_embedding, labels):
+
+        with torch.no_grad():
+            real_mask = labels == 1
+            fake_mask = labels == 0
+
+            if real_mask.any():
+                current_real = artifact_embedding[real_mask].mean(dim=0)
+
+                current_real = torch.nn.functional.normalize(
+                    current_real,
+                    dim=0,
+                )
+
+                if not self.real_initialized:
+                    self.real_prototype.copy_(current_real)
+                    self.real_initialized = True
+                else:
+                    self.real_prototype.mul_(0.9).add_(0.1 * current_real)
+
+                    self.real_prototype.copy_(
+                        torch.nn.functional.normalize(
+                            self.real_prototype,
+                            dim=0,
+                        )
+                    )
+
+            if fake_mask.any():
+                current_fake = artifact_embedding[fake_mask].mean(dim=0)
+
+                current_fake = torch.nn.functional.normalize(
+                    current_fake,
+                    dim=0,
+                )
+
+                if not self.fake_initialized:
+                    self.fake_prototype.copy_(current_fake)
+                    self.fake_initialized = True
+                else:
+                    self.fake_prototype.mul_(0.9).add_(0.1 * current_fake)
+
+                    self.fake_prototype.copy_(
+                        torch.nn.functional.normalize(
+                            self.fake_prototype,
+                            dim=0,
+                        )
+                    )
 
 
 # ==========================================================

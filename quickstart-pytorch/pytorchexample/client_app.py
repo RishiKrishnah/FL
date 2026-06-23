@@ -3,8 +3,9 @@ import torch
 
 from flwr.client import NumPyClient
 from .model import load_model
-from .task import load_data, train, test, DEVICE
+from .task import load_data, train, test
 from .utils import poison_parameters
+from .gpu_manager import GPUManager
 
 MALICIOUS_CLIENTS = {}
 
@@ -13,24 +14,42 @@ class FlowerClient(NumPyClient):
     def __init__(self, client_id, model_name):
 
         self.client_id = client_id
-        print(f"Client {client_id} using model: {model_name}")
-        self.model = load_model(model_name).to(DEVICE)
-        (self.trainloader, self.valloader, self.testloader) = load_data(client_id)
+        self.gpu_manager = GPUManager()
+        self.device = self.gpu_manager.get_best_gpu()
+
+        print(f"Client {client_id} using {self.device}")
+        self.model = load_model(model_name).to(self.device)
+
+        (
+            self.trainloader,
+            self.valloader,
+            self.testloader,
+        ) = load_data(client_id)
 
     def get_parameters(self, config):
 
         params = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-        if hasattr(self.model, "get_prototype"):
-            prototype = self.model.get_prototype()
+        if hasattr(self.model, "get_prototypes"):
+            prototypes = self.model.get_prototypes()
 
-            if prototype is None:
-                prototype = torch.zeros(
+            real_proto = prototypes["real"]
+            fake_proto = prototypes["fake"]
+
+            if real_proto is None:
+                real_proto = torch.zeros(
                     768,
                     dtype=torch.float32,
                 )
 
-            params.append(prototype.detach().cpu().numpy().astype("float32"))
+            if fake_proto is None:
+                fake_proto = torch.zeros(
+                    768,
+                    dtype=torch.float32,
+                )
+
+            params.append(real_proto.detach().cpu().numpy().astype("float32"))
+            params.append(fake_proto.detach().cpu().numpy().astype("float32"))
 
         return params
 
@@ -47,7 +66,7 @@ class FlowerClient(NumPyClient):
             model_params,
         )
 
-        state_dict = {k: torch.tensor(v).to(DEVICE) for k, v in params_dict}
+        state_dict = {k: torch.tensor(v).to(self.device) for k, v in params_dict}
 
         self.model.load_state_dict(
             state_dict,
@@ -58,24 +77,29 @@ class FlowerClient(NumPyClient):
         # Extract global memory if present
         # ----------------------------------
 
-        if len(parameters) == num_model_params + 1 and hasattr(
-            self.model,
-            "set_global_memory",
+        if len(parameters) == num_model_params + 2 and hasattr(
+            self.model, "set_global_memory"
         ):
-            memory = torch.tensor(
+            real_memory = torch.tensor(
+                parameters[-2],
+                dtype=torch.float32,
+                device=self.device,
+            )
+
+            fake_memory = torch.tensor(
                 parameters[-1],
                 dtype=torch.float32,
-                device=DEVICE,
+                device=self.device,
             )
 
-            self.model.set_global_memory(memory)
-
-            print(
-                f"Client {self.client_id} "
-                f"received global memory "
-                f"shape={memory.shape}, "
-                f"norm={memory.norm().item():.4f}"
+            self.model.set_global_memory(
+                real_memory,
+                fake_memory,
             )
+
+            print(f"Client {self.client_id} received class memories")
+            print(f"Real memory norm={real_memory.norm().item():.4f}")
+            print(f"Fake memory norm={fake_memory.norm().item():.4f}")
 
     def fit(self, parameters, config):
 
@@ -85,7 +109,12 @@ class FlowerClient(NumPyClient):
         print(f"Client {self.client_id} starting training...")
         local_epochs = config["local_epochs"]
 
-        train(self.model, self.trainloader, epochs=local_epochs)
+        train(
+            self.model,
+            self.trainloader,
+            self.device,
+            epochs=local_epochs,
+        )
         print(f"Client {self.client_id} finished training")
         print(f"Client {self.client_id} extracting parameters...")
         updated_params = self.get_parameters({})
@@ -95,15 +124,15 @@ class FlowerClient(NumPyClient):
         if self.client_id in MALICIOUS_CLIENTS:
             print(f"Client {self.client_id} is malicious!")
 
-            # Last element is the prototype
-            weights = updated_params[:-1]
-            prototype = updated_params[-1]
+            if hasattr(self.model, "get_prototypes") and len(updated_params) >= 2:
+                weights = updated_params[:-2]
+                real_proto = updated_params[-2]
+                fake_proto = updated_params[-1]
+                weights = poison_parameters(weights)
+                updated_params = weights + [real_proto] + [fake_proto]
 
-            # Poison only model weights
-            weights = poison_parameters(weights)
-
-            # Reassemble update
-            updated_params = weights + [prototype]
+            else:
+                updated_params = poison_parameters(updated_params)
 
             print(f"Client {self.client_id} poisoning complete")
 
@@ -127,7 +156,11 @@ class FlowerClient(NumPyClient):
         try:
             print(f"\nCLIENT {self.client_id} STARTING EVALUATION")
             self.set_parameters(parameters)
-            loss, accuracy = test(self.model, self.testloader)
+            loss, accuracy = test(
+                self.model,
+                self.testloader,
+                self.device,
+            )
             print(f"\nCLIENT {self.client_id} EVALUATION COMPLETE")
 
             return (

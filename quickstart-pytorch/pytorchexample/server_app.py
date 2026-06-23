@@ -28,7 +28,6 @@ def weighted_average(metrics):
 def fedavg_weights(weight_sets, num_examples):
 
     total_examples = sum(num_examples)
-
     aggregated = []
 
     for layer_idx in range(len(weight_sets[0])):
@@ -140,7 +139,11 @@ class FAFTStrategy(SaveModelStrategy):
             **kwargs,
         )
 
-        self.global_memory = None
+        # -----------------------------------
+        # Global class memories
+        # -----------------------------------
+        self.global_real_memory = None
+        self.global_fake_memory = None
 
         model = load_model(model_name)
         self.num_model_tensors = len(model.state_dict())
@@ -177,10 +180,10 @@ class FAFTStrategy(SaveModelStrategy):
         # Separate model weights and prototypes
         # --------------------------------------------------
 
-        expected_tensors = self.num_model_tensors + 1
-
+        expected_tensors = self.num_model_tensors + 2
         weight_sets = []
-        prototypes = []
+        real_prototypes = []
+        fake_prototypes = []
         example_counts = []
 
         for _, fit_res in results:
@@ -191,10 +194,12 @@ class FAFTStrategy(SaveModelStrategy):
                     f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
                 )
 
-            model_weights = ndarrays[:-1]
-            prototype = ndarrays[-1]
+            model_weights = ndarrays[:-2]
+            real_proto = ndarrays[-2]
+            fake_proto = ndarrays[-1]
             weight_sets.append(model_weights)
-            prototypes.append(prototype)
+            real_prototypes.append(real_proto)
+            fake_prototypes.append(fake_proto)
             example_counts.append(fit_res.num_examples)
         # --------------------------------------------------
         # FedAvg for model weights
@@ -207,28 +212,44 @@ class FAFTStrategy(SaveModelStrategy):
         # --------------------------------------------------
         # Prototype aggregation
         # --------------------------------------------------
-        global_proto = np.average(
-            prototypes,
+        global_real_proto = np.average(
+            real_prototypes,
             axis=0,
             weights=example_counts,
         )
 
-        # --------------------------------------------------
-        # Update global memory
-        # --------------------------------------------------
-        if self.global_memory is None:
-            self.global_memory = global_proto
+        global_fake_proto = np.average(
+            fake_prototypes,
+            axis=0,
+            weights=example_counts,
+        )
 
-            print("Initialized global memory")
+        # -------------------------
+        # Real memory
+        # -------------------------
+        if self.global_real_memory is None:
+            self.global_real_memory = global_real_proto
 
         else:
-            self.global_memory = 0.9 * self.global_memory + 0.1 * global_proto
+            self.global_real_memory = (
+                0.9 * self.global_real_memory + 0.1 * global_real_proto
+            )
 
-            print("Updated global memory")
+        # -------------------------
+        # Fake memory
+        # -------------------------
+        if self.global_fake_memory is None:
+            self.global_fake_memory = global_fake_proto
+
+        else:
+            self.global_fake_memory = (
+                0.9 * self.global_fake_memory + 0.1 * global_fake_proto
+            )
 
         print(f"\nRound {server_round} Prototype Aggregated")
-        print(f"Memory Shape: {self.global_memory.shape}")
-        print(f"Memory Norm: {np.linalg.norm(self.global_memory):.4f}")
+        print()
+        print(f"Real memory norm = {np.linalg.norm(self.global_real_memory):.4f}")
+        print(f"Fake memory norm = {np.linalg.norm(self.global_fake_memory):.4f}")
 
         # --------------------------------------------------
         # Save aggregated global model
@@ -257,7 +278,11 @@ class FAFTStrategy(SaveModelStrategy):
         # Broadcast:
         #   global model weights
         #   global memory vector
-        combined_parameters = global_weights + [self.global_memory.astype(np.float32)]
+        combined_parameters = (
+            global_weights
+            + [self.global_real_memory.astype(np.float32)]
+            + [self.global_fake_memory.astype(np.float32)]
+        )
         print(
             f"Broadcasting "
             f"{len(combined_parameters)} tensors "
@@ -267,7 +292,10 @@ class FAFTStrategy(SaveModelStrategy):
 
         return (
             parameters,
-            {"memory_norm": float(np.linalg.norm(self.global_memory))},
+            {
+                "real_memory_norm": float(np.linalg.norm(self.global_real_memory)),
+                "fake_memory_norm": float(np.linalg.norm(self.global_fake_memory)),
+            },
         )
 
 
