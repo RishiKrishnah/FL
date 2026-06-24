@@ -5,7 +5,6 @@ from flwr.client import NumPyClient
 from .model import load_model
 from .task import load_data, train, test
 from .utils import poison_parameters
-from .gpu_manager import GPUManager
 
 MALICIOUS_CLIENTS = {}
 
@@ -19,10 +18,10 @@ class FlowerClient(NumPyClient):
     ):
 
         self.client_id = client_id
-        self.gpu_manager = GPUManager()
-        self.device = self.gpu_manager.get_best_gpu()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Client {client_id} using {self.device}")
+
         self.model = load_model(model_name).to(self.device)
 
         (

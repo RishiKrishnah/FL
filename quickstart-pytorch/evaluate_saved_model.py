@@ -18,10 +18,78 @@ from sklearn.metrics import (
 
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data
-from pytorchexample.gpu_manager import GPUManager
 
-DEVICE = GPUManager().get_best_gpu()
+import subprocess
+
+
+def get_best_gpu():
+
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    best_gpu = 0
+    best_free = -1
+
+    for line in result.strip().split("\n"):
+        gpu_id, mem_used, mem_total = line.split(",")
+
+        gpu_id = int(gpu_id.strip())
+        mem_used = float(mem_used.strip())
+        mem_total = float(mem_total.strip())
+
+        free_mem = mem_total - mem_used
+
+        print(
+            f"GPU {gpu_id}: used={mem_used / 1024:.1f}GB free={free_mem / 1024:.1f}GB"
+        )
+
+        if free_mem > best_free:
+            best_free = free_mem
+            best_gpu = gpu_id
+
+    print(f"\nUsing GPU {best_gpu}")
+
+    return torch.device(f"cuda:{best_gpu}")
+
+
+DEVICE = get_best_gpu()
 print(f"Using device: {DEVICE}")
+if DEVICE.type == "cuda":
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    gpu_id = int(str(DEVICE).split(":")[1])
+
+    for line in result.strip().split("\n"):
+        idx, mem_used, mem_total = line.split(",")
+
+        idx = int(idx.strip())
+
+        if idx == gpu_id:
+            mem_used = float(mem_used.strip())
+            mem_total = float(mem_total.strip())
+
+            free_gb = (mem_total - mem_used) / 1024
+
+            print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
+
+            if free_gb < 8:
+                raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
 
 # ==================================================
 # SETTINGS
@@ -106,7 +174,11 @@ def evaluate():
     # Compile model (PyTorch 2.x)
     if DEVICE.type == "cuda":
         print("Compiling model...")
-        model = torch.compile(model)
+
+        try:
+            model = torch.compile(model)
+        except Exception as e:
+            print(f"Compile failed: {e}")
 
     print("\nWarming up GPU...")
 
