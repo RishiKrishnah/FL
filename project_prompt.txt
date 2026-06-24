@@ -1930,7 +1930,7 @@ import torch.nn as nn
 
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -1942,7 +1942,7 @@ from sklearn.metrics import (
 )
 
 from pytorchexample.model import load_model
-from pytorchexample.gpu_manager import GPUManager
+import subprocess
 
 # ==================================================
 # SETTINGS
@@ -1952,11 +1952,78 @@ MODEL_PATH = "saved_models/global_model_round_5.pth"
 
 HOLDOUT_ROOT = "dataset_ffpp/holdout_eval"
 
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 
-DEVICE = GPUManager().get_best_gpu()
+
+def get_best_gpu():
+
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    best_gpu = 0
+    best_free = -1
+
+    for line in result.strip().split("\n"):
+        gpu_id, mem_used, mem_total = line.split(",")
+
+        gpu_id = int(gpu_id.strip())
+        mem_used = float(mem_used.strip())
+        mem_total = float(mem_total.strip())
+
+        free_mem = mem_total - mem_used
+
+        print(
+            f"GPU {gpu_id}: used={mem_used / 1024:.1f}GB free={free_mem / 1024:.1f}GB"
+        )
+
+        if free_mem > best_free:
+            best_free = free_mem
+            best_gpu = gpu_id
+
+    print(f"\nUsing GPU {best_gpu}")
+
+    return torch.device(f"cuda:{best_gpu}")
+
+
+DEVICE = get_best_gpu()
 
 print(f"Using device: {DEVICE}")
+if DEVICE.type == "cuda":
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    gpu_id = int(str(DEVICE).split(":")[1])
+
+    for line in result.strip().split("\n"):
+        idx, mem_used, mem_total = line.split(",")
+
+        idx = int(idx.strip())
+
+        if idx == gpu_id:
+            mem_used = float(mem_used.strip())
+            mem_total = float(mem_total.strip())
+
+            free_gb = (mem_total - mem_used) / 1024
+
+            print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
+
+            if free_gb < 8:
+                raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
 
 torch.backends.cudnn.benchmark = True
 torch.set_float32_matmul_precision("high")
@@ -2055,10 +2122,12 @@ model.load_state_dict(
 
 model = model.to(DEVICE)
 model.eval()
-
 if DEVICE.type == "cuda":
-    print("Compiling model...")
-    model = torch.compile(model)
+    torch.cuda.synchronize()
+
+    print(f"Model memory: {torch.cuda.memory_allocated(DEVICE) / 1024**3:.2f} GB")
+if DEVICE.type == "cuda":
+    print("Skipping torch.compile for FAFT")
 
 
 # ==================================================
@@ -2078,14 +2147,17 @@ def evaluate_dataset(dataset_name):
         root=dataset_path,
         transform=transform,
     )
+    print(f"Dataset size : {len(dataset):,} images")
 
     loader = DataLoader(
         dataset,
         batch_size=BATCH_SIZE,
         shuffle=False,
-        num_workers=4,
+        num_workers=0,
         pin_memory=True,
     )
+    print(f"Batches      : {len(loader):,}")
+    print(f"Batch size   : {BATCH_SIZE}")
 
     criterion = nn.CrossEntropyLoss()
 
@@ -2099,7 +2171,13 @@ def evaluate_dataset(dataset_name):
     start_time = time.time()
 
     with torch.inference_mode():
-        for images, labels in loader:
+        pbar = tqdm(
+            loader,
+            desc=dataset_name,
+            unit="batch",
+        )
+
+        for batch_idx, (images, labels) in enumerate(pbar):
             images = images.to(
                 DEVICE,
                 non_blocking=True,
@@ -2109,7 +2187,7 @@ def evaluate_dataset(dataset_name):
                 DEVICE,
                 non_blocking=True,
             )
-
+            batch_start = time.time()
             with torch.amp.autocast(
                 "cuda",
                 enabled=(DEVICE.type == "cuda"),
@@ -2134,6 +2212,41 @@ def evaluate_dataset(dataset_name):
             total_loss += loss.item() * labels.size(0)
 
             total_samples += labels.size(0)
+            if DEVICE.type == "cuda":
+                torch.cuda.synchronize(DEVICE)
+
+            batch_time = time.time() - batch_start
+
+            gpu_mem = (
+                torch.cuda.memory_allocated(DEVICE) / 1024**3
+                if DEVICE.type == "cuda"
+                else 0
+            )
+
+            throughput = labels.size(0) / max(batch_time, 1e-6)
+
+            percent = 100.0 * total_samples / len(dataset)
+
+            pbar.set_postfix(
+                done=f"{percent:.1f}%",
+                processed=f"{total_samples:,}",
+                gpu=f"{gpu_mem:.1f}GB",
+                img_s=f"{throughput:.1f}",
+            )
+            if batch_idx % 25 == 0:
+                elapsed_now = time.time() - start_time
+
+                eta = (len(dataset) - total_samples) / max(
+                    total_samples / elapsed_now, 1e-6
+                )
+
+                print(
+                    f"\n[{dataset_name}] "
+                    f"{total_samples:,}/{len(dataset):,} "
+                    f"({100 * total_samples / len(dataset):.2f}%) "
+                    f"| ETA: {eta / 60:.1f} min "
+                    f"| GPU: {gpu_mem:.1f} GB"
+                )
 
     elapsed = time.time() - start_time
 
@@ -2323,6 +2436,47 @@ for split in ["train", "valid", "test"]:
 print("Done.")
 
 
+=== FILE: quickstart-pytorch/recreate_holdout_eval.py ===
+from pathlib import Path
+import os
+
+ROOT = Path("dataset_ffpp")
+
+HOLDOUT_DIR = ROOT / "holdout"
+HOLDOUT_EVAL_DIR = ROOT / "holdout_eval"
+
+datasets = [
+    "DeepFakeDetection",
+    "FaceShifter",
+]
+
+for dataset_name in datasets:
+    source_dir = HOLDOUT_DIR / dataset_name
+
+    fake_dir = HOLDOUT_EVAL_DIR / dataset_name / "fake"
+    real_dir = HOLDOUT_EVAL_DIR / dataset_name / "real"
+
+    fake_dir.mkdir(parents=True, exist_ok=True)
+    real_dir.mkdir(parents=True, exist_ok=True)
+
+    for img_path in source_dir.glob("*.jpg"):
+        filename = img_path.name.lower()
+
+        if filename.startswith("original"):
+            target = real_dir / img_path.name
+        else:
+            target = fake_dir / img_path.name
+
+        os.symlink(
+            img_path.resolve(),  # ABSOLUTE PATH
+            target,
+        )
+
+    print(f"Finished: {dataset_name}")
+
+print("\nDone.")
+
+
 === FILE: quickstart-pytorch/pyproject.toml ===
 [build-system]
 requires = ["hatchling"]
@@ -2353,7 +2507,7 @@ publisher = "rishi"
 num-server-rounds = 5
 local-epochs = 5
 model-name = "faft"
-dataset-name = "140k"
+dataset-name = "ffpp"
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -2371,6 +2525,60 @@ num-gpus = 1.0
 
 [tool.hatch.build.targets.wheel]
 packages = ["pytorchexample"]
+
+=== FILE: quickstart-pytorch/fix_holdout_real.py ===
+from pathlib import Path
+import os
+import itertools
+
+ROOT = Path("dataset_ffpp")
+
+real_sources = []
+
+for p in ROOT.glob("client*/test/real/*.jpg"):
+    real_sources.append(p.resolve())
+
+print("Real images found:", len(real_sources))
+
+datasets = [
+    "DeepFakeDetection",
+    "FaceShifter",
+]
+
+for dataset_name in datasets:
+    real_dir = ROOT / "holdout_eval" / dataset_name / "real"
+
+    real_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    fake_count = len(
+        list((ROOT / "holdout_eval" / dataset_name / "fake").glob("*.jpg"))
+    )
+
+    print(f"\n{dataset_name}")
+    print("Fake images:", fake_count)
+
+    created = 0
+
+    for idx, src in enumerate(itertools.cycle(real_sources)):
+        if created >= fake_count:
+            break
+
+        target = real_dir / f"{src.stem}_{created:06d}.jpg"
+
+        if not target.exists():
+            os.symlink(
+                src,
+                target,
+            )
+            created += 1
+
+    print("Real images linked:", created)
+
+print("\nDone.")
+
 
 === FILE: quickstart-pytorch/evaluate_saved_model.py ===
 import time
@@ -2393,10 +2601,78 @@ from sklearn.metrics import (
 
 from pytorchexample.model import load_model
 from pytorchexample.task import load_data
-from pytorchexample.gpu_manager import GPUManager
 
-DEVICE = GPUManager().get_best_gpu()
+import subprocess
+
+
+def get_best_gpu():
+
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    best_gpu = 0
+    best_free = -1
+
+    for line in result.strip().split("\n"):
+        gpu_id, mem_used, mem_total = line.split(",")
+
+        gpu_id = int(gpu_id.strip())
+        mem_used = float(mem_used.strip())
+        mem_total = float(mem_total.strip())
+
+        free_mem = mem_total - mem_used
+
+        print(
+            f"GPU {gpu_id}: used={mem_used / 1024:.1f}GB free={free_mem / 1024:.1f}GB"
+        )
+
+        if free_mem > best_free:
+            best_free = free_mem
+            best_gpu = gpu_id
+
+    print(f"\nUsing GPU {best_gpu}")
+
+    return torch.device(f"cuda:{best_gpu}")
+
+
+DEVICE = get_best_gpu()
 print(f"Using device: {DEVICE}")
+if DEVICE.type == "cuda":
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    gpu_id = int(str(DEVICE).split(":")[1])
+
+    for line in result.strip().split("\n"):
+        idx, mem_used, mem_total = line.split(",")
+
+        idx = int(idx.strip())
+
+        if idx == gpu_id:
+            mem_used = float(mem_used.strip())
+            mem_total = float(mem_total.strip())
+
+            free_gb = (mem_total - mem_used) / 1024
+
+            print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
+
+            if free_gb < 8:
+                raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
 
 # ==================================================
 # SETTINGS
@@ -2481,7 +2757,11 @@ def evaluate():
     # Compile model (PyTorch 2.x)
     if DEVICE.type == "cuda":
         print("Compiling model...")
-        model = torch.compile(model)
+
+        try:
+            model = torch.compile(model)
+        except Exception as e:
+            print(f"Compile failed: {e}")
 
     print("\nWarming up GPU...")
 
@@ -2722,19 +3002,150 @@ from pathlib import Path
 from datetime import datetime
 import subprocess
 import sys
+import time
+
+# ==========================================================
+# USER SETTINGS (EDIT THESE ONLY)
+# ==========================================================
+
+# Wait for GPU before training/retries
+WAIT_FOR_GPU = True
+
+# Pipeline stages
+RUN_TRAINING = True
+RUN_EVALUATION = True
+RUN_HOLDOUT = False
+
+# GPU availability criteria
+MAX_GPU_UTILIZATION = 95  # %
+MAX_GPU_MEMORY_GB = 70  # GB used threshold
+
+# GPU stability checks
+CHECK_INTERVAL = 3  # seconds
+REQUIRED_STABLE_CHECKS = 3
+
+# Safety timeout
+MAX_WAIT_HOURS = 24
+
+# Retry settings
+MAX_TRAIN_RETRIES = 999999  # effectively infinite
+MAX_EVAL_RETRIES = 50
+MAX_HOLDOUT_RETRIES = 50
+
+RETRY_WAIT_SECONDS = 60
+
+# ==========================================================
+# GPU WAIT FUNCTION
+# ==========================================================
+
+
+def wait_for_gpu():
+
+    if not WAIT_FOR_GPU:
+        print("\n[INFO] GPU waiting disabled. Starting immediately.\n")
+        return
+
+    print("\n[INFO] Waiting for GPU availability...")
+
+    start_time = time.time()
+
+    stable_gpu = None
+    stable_count = 0
+
+    while True:
+        elapsed_hours = (time.time() - start_time) / 3600
+
+        if elapsed_hours > MAX_WAIT_HOURS:
+            raise RuntimeError(
+                f"Timed out after {MAX_WAIT_HOURS} hours waiting for GPU."
+            )
+
+        try:
+            result = subprocess.check_output(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=index,utilization.gpu,memory.used,memory.total",
+                    "--format=csv,noheader,nounits",
+                ],
+                text=True,
+            )
+
+            lines = result.strip().split("\n")
+
+            best_gpu = None
+            best_mem = float("inf")
+
+            print("\n" + "-" * 80)
+
+            for line in lines:
+                gpu_id, util, mem_used, mem_total = line.split(",")
+
+                gpu_id = int(gpu_id.strip())
+                util = float(util.strip())
+
+                mem_used = float(mem_used.strip()) / 1024.0
+                mem_total = float(mem_total.strip()) / 1024.0
+
+                print(
+                    f"GPU {gpu_id}: "
+                    f"util={util:5.1f}% | "
+                    f"mem={mem_used:6.1f}/{mem_total:.1f} GB"
+                )
+
+                if (
+                    util <= MAX_GPU_UTILIZATION
+                    and mem_used <= MAX_GPU_MEMORY_GB
+                    and mem_used < best_mem
+                ):
+                    best_mem = mem_used
+                    best_gpu = gpu_id
+
+            if best_gpu is not None:
+                if stable_gpu == best_gpu:
+                    stable_count += 1
+                else:
+                    stable_gpu = best_gpu
+                    stable_count = 1
+
+                print(
+                    f"[INFO] GPU {stable_gpu} stable "
+                    f"{stable_count}/{REQUIRED_STABLE_CHECKS}"
+                )
+
+                if stable_count >= REQUIRED_STABLE_CHECKS:
+                    print("\n" + "=" * 80)
+                    print(f"[READY] GPU {stable_gpu} selected")
+                    print("[READY] Starting stage")
+                    print("=" * 80 + "\n")
+
+                    return
+
+            else:
+                stable_gpu = None
+                stable_count = 0
+
+                print(f"[WAIT] No GPU below {MAX_GPU_MEMORY_GB} GB memory")
+
+            time.sleep(CHECK_INTERVAL)
+
+        except Exception as e:
+            print(f"[ERROR] GPU check failed: {e}")
+            time.sleep(CHECK_INTERVAL)
 
 
 # ==========================================================
-# RUN COMMAND + LOG TO TERMINAL AND FILE
+# RUN COMMAND + LOG
 # ==========================================================
+
+
 def run_and_log(command, logfile):
 
     print("\n" + "=" * 80)
-    print("RUNNING:", " ".join(command))
-    print("LOG:", logfile)
+    print("RUNNING :", " ".join(command))
+    print("LOG FILE:", logfile)
     print("=" * 80 + "\n")
 
-    with open(logfile, "w", encoding="utf-8") as f:
+    with open(logfile, "a", encoding="utf-8") as f:
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -2746,6 +3157,7 @@ def run_and_log(command, logfile):
         for line in process.stdout:
             print(line, end="")
             f.write(line)
+            f.flush()
 
         process.wait()
 
@@ -2768,75 +3180,194 @@ def run_and_log(command, logfile):
 
 
 # ==========================================================
+# STAGE EXECUTION WITH RETRIES
+# ==========================================================
+
+
+def run_stage_with_retries(
+    stage_name,
+    command,
+    logfile,
+    success_marker,
+    max_retries,
+    wait_for_resources=False,
+):
+
+    if success_marker.exists():
+        print(f"\n[SKIP] {stage_name} already completed ({success_marker.name})")
+        return
+
+    attempt = 1
+
+    while attempt <= max_retries:
+        print("\n" + "#" * 80)
+        print(f"{stage_name} - ATTEMPT {attempt}/{max_retries}")
+        print("#" * 80)
+
+        try:
+            if wait_for_resources:
+                wait_for_gpu()
+            with open(logfile, "a", encoding="utf-8") as f:
+                f.write("\n")
+                f.write("=" * 80 + "\n")
+                f.write(f"{stage_name} ATTEMPT {attempt}/{max_retries}\n")
+                f.write("=" * 80 + "\n")
+            run_and_log(command, logfile)
+
+            success_marker.touch()
+
+            print(f"\n[SUCCESS] {stage_name} completed.")
+
+            return
+
+        except Exception as e:
+            print(f"\n[FAILED] {stage_name} attempt {attempt}")
+
+            print(f"Reason: {e}")
+
+            attempt += 1
+
+            if attempt > max_retries:
+                raise RuntimeError(f"{stage_name} failed after {max_retries} attempts")
+
+            print(f"\n[RETRY] Waiting {RETRY_WAIT_SECONDS} seconds...")
+
+            time.sleep(RETRY_WAIT_SECONDS)
+
+
+# ==========================================================
 # MAIN
 # ==========================================================
+
+
 def main():
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     exp_dir = Path("experiment_logs") / timestamp
-    exp_dir.mkdir(parents=True, exist_ok=True)
+
+    exp_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     print("\n" + "=" * 80)
-    print("FAFT EXPERIMENT")
-    print("=" * 80)
-    print("Experiment Folder:", exp_dir)
+    print("FAFT EXPERIMENT MANAGER")
     print("=" * 80)
 
-    # ------------------------------------------------------
-    # TRAINING
-    # ------------------------------------------------------
+    print(f"Experiment Folder      : {exp_dir}")
+    print(f"WAIT_FOR_GPU          : {WAIT_FOR_GPU}")
+    print(f"RUN_TRAINING          : {RUN_TRAINING}")
+    print(f"RUN_EVALUATION        : {RUN_EVALUATION}")
+    print(f"RUN_HOLDOUT           : {RUN_HOLDOUT}")
+    print(f"MAX_GPU_MEMORY_GB     : {MAX_GPU_MEMORY_GB}")
+    print(f"MAX_GPU_UTILIZATION   : {MAX_GPU_UTILIZATION}")
+    print(f"CHECK_INTERVAL        : {CHECK_INTERVAL}")
+    print(f"REQUIRED_STABLE_CHECKS: {REQUIRED_STABLE_CHECKS}")
+    print(f"MAX_TRAIN_RETRIES     : {MAX_TRAIN_RETRIES}")
+    print(f"MAX_EVAL_RETRIES      : {MAX_EVAL_RETRIES}")
+    print(f"MAX_HOLDOUT_RETRIES   : {MAX_HOLDOUT_RETRIES}")
+
+    print("=" * 80)
 
     train_log = exp_dir / "training.log"
-
-    run_and_log(
-        ["flwr", "run", ".", "--stream"],
-        train_log,
-    )
-
-    # ------------------------------------------------------
-    # EVALUATE SAVED MODEL
-    # ------------------------------------------------------
-
     eval_log = exp_dir / "evaluation.log"
-
-    run_and_log(
-        [sys.executable, "evaluate_saved_model.py"],
-        eval_log,
-    )
-
-    # ------------------------------------------------------
-    # HOLDOUT EVALUATION
-    # ------------------------------------------------------
-
     holdout_log = exp_dir / "holdout.log"
 
-    run_and_log(
-        [sys.executable, "evaluate_holdout.py"],
-        holdout_log,
-    )
+    training_success = exp_dir / "TRAINING_SUCCESS"
 
-    # ------------------------------------------------------
-    # FINISHED
-    # ------------------------------------------------------
+    evaluation_success = exp_dir / "EVALUATION_SUCCESS"
+
+    holdout_success = exp_dir / "HOLDOUT_SUCCESS"
+
+    # ======================================================
+    # TRAINING
+    # ======================================================
+
+    if RUN_TRAINING:
+        run_stage_with_retries(
+            stage_name="TRAINING",
+            command=[
+                "flwr",
+                "run",
+                ".",
+                "--stream",
+            ],
+            logfile=train_log,
+            success_marker=training_success,
+            max_retries=MAX_TRAIN_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # EVALUATION
+    # ======================================================
+
+    if RUN_EVALUATION:
+        run_stage_with_retries(
+            stage_name="EVALUATION",
+            command=[
+                sys.executable,
+                "evaluate_saved_model.py",
+            ],
+            logfile=eval_log,
+            success_marker=evaluation_success,
+            max_retries=MAX_EVAL_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # HOLDOUT
+    # ======================================================
+
+    if RUN_HOLDOUT:
+        run_stage_with_retries(
+            stage_name="HOLDOUT",
+            command=[
+                sys.executable,
+                "evaluate_holdout.py",
+            ],
+            logfile=holdout_log,
+            success_marker=holdout_success,
+            max_retries=MAX_HOLDOUT_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # COMPLETE
+    # ======================================================
 
     print("\n" + "=" * 80)
     print("EXPERIMENT COMPLETE")
     print("=" * 80)
 
-    print("\nLogs:")
-    print(f"Training   : {train_log}")
-    print(f"Evaluation : {eval_log}")
-    print(f"Holdout    : {holdout_log}")
+    print(f"Experiment Folder : {exp_dir}")
 
-    print("\nFolder:")
-    print(exp_dir)
+    if RUN_TRAINING:
+        print(f"Training Log      : {train_log}")
 
-    print("\n" + "=" * 80)
+    if RUN_EVALUATION:
+        print(f"Evaluation Log    : {eval_log}")
+
+    if RUN_HOLDOUT:
+        print(f"Holdout Log       : {holdout_log}")
+
+    print("=" * 80)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        print("\n\n[INFO] Experiment cancelled by user.")
+
+        sys.exit(0)
+
+    except Exception as e:
+        print(f"\n\n[FATAL] {e}")
+
+        sys.exit(1)
 
 
 === FILE: quickstart-pytorch/README.md ===
@@ -3182,7 +3713,6 @@ from flwr.client import NumPyClient
 from .model import load_model
 from .task import load_data, train, test
 from .utils import poison_parameters
-from .gpu_manager import GPUManager
 
 MALICIOUS_CLIENTS = {}
 
@@ -3196,10 +3726,10 @@ class FlowerClient(NumPyClient):
     ):
 
         self.client_id = client_id
-        self.gpu_manager = GPUManager()
-        self.device = self.gpu_manager.get_best_gpu()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Client {client_id} using {self.device}")
+
         self.model = load_model(model_name).to(self.device)
 
         (
