@@ -1,0 +1,9 @@
+metric,value
+videos_processed,2191
+videos_skipped,0
+videos_corrupted,0
+frames_read,1054700
+frames_sampled,194337
+frames_saved,186808
+blur_rejected,7529
+duplicate_rejected,0
