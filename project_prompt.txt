@@ -2477,7 +2477,7 @@ publisher = "rishi"
 num-server-rounds = 5
 local-epochs = 5
 model-name = "faft"
-dataset-name = "ffpp"
+dataset-name = "openforensics"
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -2984,7 +2984,7 @@ WAIT_FOR_GPU = True
 # Pipeline stages
 RUN_TRAINING = True
 RUN_EVALUATION = True
-RUN_HOLDOUT = True
+RUN_HOLDOUT = False
 
 # GPU availability criteria
 MAX_GPU_UTILIZATION = 95  # %
@@ -3418,6 +3418,101 @@ Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-wi
 If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
 
 
+=== FILE: quickstart-pytorch/preprocess_openforensics.py ===
+import random
+from pathlib import Path
+from PIL import Image
+from tqdm import tqdm
+
+random.seed(42)
+
+# ======================================================
+# CONFIGURATION
+# ======================================================
+
+SOURCE = Path("/root/Rishi/datasets/openforensics/Dataset")
+DEST = Path("dataset_openforensic")
+
+CLIENTS = 5
+IMAGE_SIZE = (224, 224)
+
+split_map = {
+    "Train": "train",
+    "Validation": "val",
+    "Test": "test",
+}
+
+label_map = {
+    "Real": "real",
+    "Fake": "fake",
+}
+
+
+def split_images(images, clients):
+    random.shuffle(images)
+
+    size = len(images) // clients
+    splits = []
+
+    for i in range(clients):
+        start = i * size
+        end = len(images) if i == clients - 1 else (i + 1) * size
+        splits.append(images[start:end])
+
+    return splits
+
+
+for src_split, dst_split in split_map.items():
+
+    print(f"\n{'='*60}")
+    print(f"{src_split}")
+    print(f"{'='*60}")
+
+    for src_label, dst_label in label_map.items():
+
+        images = list((SOURCE / src_split / src_label).glob("*.jpg"))
+        client_splits = split_images(images, CLIENTS)
+
+        print(f"{src_label}: {len(images):,} images")
+
+        for client_id, subset in enumerate(client_splits, start=1):
+
+            target_dir = (
+                DEST
+                / f"client{client_id}"
+                / dst_split
+                / dst_label
+            )
+
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            progress = tqdm(
+                subset,
+                desc=f"Client {client_id} | {dst_split} | {dst_label}",
+                unit="img",
+                leave=True,
+            )
+
+            for img_path in progress:
+
+                try:
+                    img = Image.open(img_path).convert("RGB")
+                    img = img.resize(
+                        IMAGE_SIZE,
+                        Image.Resampling.LANCZOS,
+                    )
+
+                    img.save(
+                        target_dir / img_path.name,
+                        quality=95,
+                    )
+
+                except Exception as e:
+                    tqdm.write(f"Failed: {img_path}")
+                    tqdm.write(str(e))
+
+print("\nDataset preparation completed successfully!")
+
 === FILE: quickstart-pytorch/pytorchexample/__init__.py ===
 """pytorchexample."""
 
@@ -3453,7 +3548,7 @@ try:
 except Exception as e:
     print(f"GPU info unavailable: {e}")
 
-DEBUG = True
+DEBUG = False
 
 
 def convert_rgb(img):
@@ -3475,6 +3570,7 @@ transform = transforms.Compose(
 DATASET_ROOTS = {
     "140k": "dataset",
     "ffpp": "dataset_ffpp",
+    "openforensics": "dataset_openforensic",
 }
 
 

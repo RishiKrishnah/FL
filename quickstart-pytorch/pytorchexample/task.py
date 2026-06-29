@@ -28,7 +28,7 @@ try:
 except Exception as e:
     print(f"GPU info unavailable: {e}")
 
-DEBUG = True
+DEBUG = False
 
 
 def convert_rgb(img):
@@ -50,6 +50,7 @@ transform = transforms.Compose(
 DATASET_ROOTS = {
     "140k": "dataset",
     "ffpp": "dataset_ffpp",
+    "openforensics": "dataset_openforensic",
 }
 
 
