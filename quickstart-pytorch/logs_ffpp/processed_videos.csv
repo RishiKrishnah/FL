@@ -8,3 +8,4 @@ video,split,client,class,manipulation,frames_read,frames_saved,blur_removed,dupl
 667,train,1,real,original,469,8,0,62,43.43
 321,train,1,real,original,567,8,0,62,39.58
 869,train,1,real,original,333,12,0,58,196.08
+010,train,1,real,original,474,13,0,57,40.8
