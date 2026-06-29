@@ -14,7 +14,7 @@ WAIT_FOR_GPU = True
 # Pipeline stages
 RUN_TRAINING = True
 RUN_EVALUATION = True
-RUN_HOLDOUT = False
+RUN_HOLDOUT = True
 
 # GPU availability criteria
 MAX_GPU_UTILIZATION = 95  # %

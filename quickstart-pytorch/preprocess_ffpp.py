@@ -5,7 +5,7 @@
 #
 # Features:
 # - Identity-level splitting
-# - Cross-manipulation evaluation
+# - Six-manipulation FF++ training
 # - Multiprocessing
 # - Resume support
 # - Blur filtering
@@ -16,21 +16,56 @@
 # - CSV logging
 # ============================================================
 
+import os
+import site
+
+# ------------------------------------------------------------
+# CUDA libraries for ONNX Runtime / InsightFace
+# ------------------------------------------------------------
+site_pkg = site.getsitepackages()[0]
+cuda_root = os.path.join(site_pkg, "nvidia")
+
+libs = [
+    "cublas/lib",
+    "cuda_runtime/lib",
+    "cuda_nvrtc/lib",
+    "cudnn/lib",
+    "cufft/lib",
+    "curand/lib",
+    "cusolver/lib",
+    "cusparse/lib",
+]
+
+paths = [os.path.join(cuda_root, p) for p in libs]
+
+os.environ["LD_LIBRARY_PATH"] = (
+    ":".join(paths) + ":" + os.environ.get("LD_LIBRARY_PATH", "")
+)
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import (
+    ProcessPoolExecutor,
+    wait,
+    FIRST_COMPLETED,
+)
 from collections import defaultdict, Counter, deque
 from tqdm import tqdm
 import cv2
 import imagehash
 from PIL import Image
 import numpy as np
-import os
 import csv
 import random
 import time
 import traceback
 from datetime import timedelta
+import multiprocessing
 
+# Import InsightFace AFTER setting LD_LIBRARY_PATH
+from insightface.app import FaceAnalysis
 # ============================================================
 # RANDOM SEED
 # ============================================================
@@ -59,14 +94,12 @@ LOG_DIR.mkdir(exist_ok=True)
 
 REAL_DIR = SOURCE_ROOT / "original"
 
+
 TRAIN_MANIPULATIONS = [
     "Deepfakes",
     "Face2Face",
     "FaceSwap",
     "NeuralTextures",
-]
-
-HOLDOUT_MANIPULATIONS = [
     "FaceShifter",
     "DeepFakeDetection",
 ]
@@ -94,13 +127,15 @@ DIRICHLET_ALPHA = 0.5
 # FRAME EXTRACTION
 # ============================================================
 
-FRAME_INTERVAL = 10
-
 TARGET_SIZE = 224
 
 JPEG_QUALITY = 95
 
-MIN_FRAMES_PER_VIDEO = 20
+REAL_FRAMES_PER_VIDEO = 70
+
+FAKE_FRAMES_PER_VIDEO = 12
+
+MIN_FRAMES_PER_VIDEO = 8
 
 # ============================================================
 # FILTERS
@@ -108,9 +143,9 @@ MIN_FRAMES_PER_VIDEO = 20
 
 ENABLE_BLUR_FILTER = True
 
-BLUR_THRESHOLD = 100.0
+BLUR_THRESHOLD = 40.0
 
-ENABLE_DUPLICATE_FILTER = False
+ENABLE_DUPLICATE_FILTER = True
 
 HASH_DISTANCE_THRESHOLD = 5
 
@@ -121,6 +156,7 @@ HASH_DISTANCE_THRESHOLD = 5
 ENABLE_FACE_CROP = True
 
 FACE_MARGIN = 0.2
+MIN_FACE_SIZE = 80
 
 # RetinaFace will be used later
 
@@ -128,8 +164,7 @@ FACE_MARGIN = 0.2
 # MULTIPROCESSING
 # ============================================================
 
-NUM_WORKERS = os.cpu_count()
-
+NUM_WORKERS = 4
 # ============================================================
 # RESUME SUPPORT
 # ============================================================
@@ -158,6 +193,9 @@ stats["frames_saved"] = 0
 
 stats["blur_rejected"] = 0
 stats["duplicate_rejected"] = 0
+stats["face_detected"] = 0
+stats["face_failed"] = 0
+
 
 # ============================================================
 # TIMING
@@ -205,18 +243,12 @@ print("Training Manipulations")
 for m in TRAIN_MANIPULATIONS:
     print("  ", m)
 
-print()
-
-print("Holdout Manipulations")
-for m in HOLDOUT_MANIPULATIONS:
-    print("  ", m)
-
-print()
 
 print(f"Clients              : {NUM_CLIENTS}")
 print(f"Workers              : {NUM_WORKERS}")
 
-print(f"Frame Interval       : {FRAME_INTERVAL}")
+print(f"Real Frames / Video  : {REAL_FRAMES_PER_VIDEO}")
+print(f"Fake Frames / Video  : {FAKE_FRAMES_PER_VIDEO}")
 print(f"Target Size          : {TARGET_SIZE}")
 
 print(f"Blur Filter          : {ENABLE_BLUR_FILTER}")
@@ -262,6 +294,10 @@ def print_stats():
 
     print(f"Blur Rejected        : {stats['blur_rejected']}")
     print(f"Duplicate Rejected   : {stats['duplicate_rejected']}")
+    print()
+
+    print(f"Faces Detected       : {stats['face_detected']}")
+    print(f"Detection Failed     : {stats['face_failed']}")
 
     print()
 
@@ -512,20 +548,54 @@ def image_filename(
 
 
 # ============================================================
+# UNIFORM FRAME SAMPLING
+# ============================================================
+
+
+def get_sample_indices(total_frames, label):
+    """
+    Uniformly sample frames across the entire video.
+
+    Original videos : 70 frames
+    Fake videos     : 12 frames
+    """
+
+    target_frames = REAL_FRAMES_PER_VIDEO if label == "real" else FAKE_FRAMES_PER_VIDEO
+
+    # Handle very short videos
+    target_frames = min(target_frames, total_frames)
+
+    if target_frames <= 0:
+        return set()
+
+    indices = np.linspace(
+        0,
+        total_frames - 1,
+        target_frames,
+        dtype=int,
+    )
+
+    return set(indices.tolist())
+
+
+# ============================================================
 # FACE DETECTOR
 # ============================================================
 
-try:
-    from retinaface import RetinaFace
+FACE_DETECTOR = None
 
-    RETINAFACE_AVAILABLE = True
 
-except Exception:
-    RETINAFACE_AVAILABLE = False
+def init_worker():
+    global FACE_DETECTOR
 
-    print("\nWARNING")
-    print("RetinaFace not installed.")
-    print("Using center crop instead.\n")
+    FACE_DETECTOR = FaceAnalysis(
+        providers=["CUDAExecutionProvider", "CPUExecutionProvider"]
+    )
+
+    FACE_DETECTOR.prepare(
+        ctx_id=0,
+        det_size=(256, 256),
+    )
 
 
 # ============================================================
@@ -535,94 +605,52 @@ except Exception:
 
 def extract_face(frame):
 
-    h, w = frame.shape[:2]
+    faces = FACE_DETECTOR.get(frame)
 
-    if not ENABLE_FACE_CROP:
-        return cv2.resize(
-            frame,
-            (
-                TARGET_SIZE,
-                TARGET_SIZE,
-            ),
-        )
+    if len(faces) == 0:
+        return None
 
-    if RETINAFACE_AVAILABLE:
-        try:
-            detections = RetinaFace.detect_faces(frame)
-
-            if isinstance(detections, dict):
-                largest_area = 0
-                best_box = None
-
-                for _, det in detections.items():
-                    x1, y1, x2, y2 = det["facial_area"]
-
-                    area = (x2 - x1) * (y2 - y1)
-
-                    if area > largest_area:
-                        largest_area = area
-                        best_box = [x1, y1, x2, y2]
-
-                if best_box is not None:
-                    x1, y1, x2, y2 = best_box
-
-                    margin_x = int((x2 - x1) * FACE_MARGIN)
-                    margin_y = int((y2 - y1) * FACE_MARGIN)
-
-                    x1 = max(0, x1 - margin_x)
-                    y1 = max(0, y1 - margin_y)
-
-                    x2 = min(w, x2 + margin_x)
-                    y2 = min(h, y2 + margin_y)
-
-                    face = frame[y1:y2, x1:x2]
-
-                    return cv2.resize(
-                        face,
-                        (
-                            TARGET_SIZE,
-                            TARGET_SIZE,
-                        ),
-                    )
-
-        except Exception:
-            pass
-
-    # fallback center crop
-
-    size = min(h, w)
-
-    start_x = (w - size) // 2
-    start_y = (h - size) // 2
-
-    crop = frame[
-        start_y : start_y + size,
-        start_x : start_x + size,
-    ]
-
-    return cv2.resize(
-        crop,
-        (
-            TARGET_SIZE,
-            TARGET_SIZE,
-        ),
+    face = max(
+        faces,
+        key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]),
     )
 
+    x1, y1, x2, y2 = map(int, face.bbox)
 
-# ============================================================
-# ADAPTIVE SAMPLING
-# ============================================================
+    h, w = frame.shape[:2]
 
+    bw = x2 - x1
+    bh = y2 - y1
 
-def compute_interval(frame_count):
+    expand = 0.50
 
-    if frame_count < 300:
-        return 3
+    x1 -= int(bw * expand)
+    y1 -= int(bh * expand)
+    x2 += int(bw * expand)
+    y2 += int(bh * expand)
 
-    if frame_count < 700:
-        return 5
+    x1 = max(0, x1)
+    y1 = max(0, y1)
+    x2 = min(w, x2)
+    y2 = min(h, y2)
 
-    return 10
+    size = max(x2 - x1, y2 - y1)
+
+    cx = (x1 + x2) // 2
+    cy = (y1 + y2) // 2
+
+    x1 = max(0, cx - size // 2)
+    y1 = max(0, cy - size // 2)
+
+    x2 = min(w, x1 + size)
+    y2 = min(h, y1 + size)
+
+    crop = frame[y1:y2, x1:x2]
+
+    if crop.size == 0:
+        return None
+
+    return cv2.resize(crop, (224, 224))
 
 
 # ============================================================
@@ -664,7 +692,10 @@ def process_video(job):
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        frame_interval = compute_interval(total_frames)
+        sample_indices = get_sample_indices(
+            total_frames,
+            label,
+        )
 
         frame_idx = 0
         saved = 0
@@ -672,10 +703,10 @@ def process_video(job):
         duplicate_removed = 0
         frames_read = 0
         frames_sampled = 0
+        face_detected = 0
+        face_failed = 0
 
-        previous_hashes = deque(maxlen=20)
-        cached_face = None
-
+        previous_hashes = deque(maxlen=10)
         while True:
             ret, frame = cap.read()
 
@@ -683,39 +714,43 @@ def process_video(job):
                 break
             frames_read += 1
 
-            if frame_idx % frame_interval != 0:
+            if frame_idx not in sample_indices:
                 frame_idx += 1
                 continue
 
             frames_sampled += 1
 
-            if is_blurry(frame):
+            # --------------------------------------------------
+            # Face Detection
+            # --------------------------------------------------
+            try:
+                face = extract_face(frame)
+
+            except Exception:
+                face = None
+
+            if face is None:
+                face_failed += 1
+                frame_idx += 1
+                continue
+
+            face_detected += 1
+
+            # --------------------------------------------------
+            # Blur check on cropped face
+            # --------------------------------------------------
+            if is_blurry(face):
                 blur_removed += 1
-
                 frame_idx += 1
                 continue
 
-            if is_duplicate(
-                frame,
-                previous_hashes,
-            ):
+            # --------------------------------------------------
+            # Duplicate check on cropped face
+            # --------------------------------------------------
+            if is_duplicate(face, previous_hashes):
                 duplicate_removed += 1
-
                 frame_idx += 1
                 continue
-
-            if saved % 20 == 0 or cached_face is None:
-                try:
-                    cached_face = extract_face(frame)
-
-                except Exception:
-                    pass
-
-            if cached_face is None:
-                frame_idx += 1
-                continue
-
-            face = cached_face
 
             filename = image_filename(
                 manipulation,
@@ -737,9 +772,7 @@ def process_video(job):
         cap.release()
 
         if saved < MIN_FRAMES_PER_VIDEO:
-            print(f"Rejected {video_name} only {saved} frames")
-
-            return
+            return None
 
         elapsed_sec = time.time() - start
 
@@ -763,6 +796,8 @@ def process_video(job):
             "frames_saved": saved,
             "blur_rejected": blur_removed,
             "duplicate_rejected": duplicate_removed,
+            "face_detected": face_detected,
+            "face_failed": face_failed,
         }
 
     except Exception:
@@ -772,574 +807,509 @@ def process_video(job):
 # ============================================================
 # IDENTITY SPLIT
 # ============================================================
+def main():
 
-print("\nBuilding identity splits...")
+    print("\nBuilding identity splits...")
 
-real_videos = sorted(list(REAL_DIR.glob("*.mp4")))
+    real_videos = sorted(list(REAL_DIR.glob("*.mp4")))
 
-identities = [int(v.stem) for v in real_videos]
+    identities = [int(v.stem) for v in real_videos]
 
-random.shuffle(identities)
+    random.shuffle(identities)
 
-n_total = len(identities)
+    n_total = len(identities)
 
-n_train = int(TRAIN_RATIO * n_total)
-n_val = int(VAL_RATIO * n_total)
+    n_train = int(TRAIN_RATIO * n_total)
+    n_val = int(VAL_RATIO * n_total)
 
-train_ids = set(identities[:n_train])
+    train_ids = set(identities[:n_train])
 
-val_ids = set(identities[n_train : n_train + n_val])
+    val_ids = set(identities[n_train : n_train + n_val])
 
-test_ids = set(identities[n_train + n_val :])
+    test_ids = set(identities[n_train + n_val :])
 
-print(f"Train identities : {len(train_ids)}")
-print(f"Val identities   : {len(val_ids)}")
-print(f"Test identities  : {len(test_ids)}")
+    print(f"Train identities : {len(train_ids)}")
+    print(f"Val identities   : {len(val_ids)}")
+    print(f"Test identities  : {len(test_ids)}")
 
+    # ============================================================
+    # REAL VIDEOS
+    # ============================================================
 
-# ============================================================
-# REAL VIDEOS
-# ============================================================
+    real_split = {}
 
-real_split = {}
+    for video in real_videos:
+        identity = int(video.stem)
 
-for video in real_videos:
-    identity = int(video.stem)
-
-    if identity in train_ids:
-        split = "train"
-
-    elif identity in val_ids:
-        split = "val"
-
-    else:
-        split = "test"
-
-    real_split[video] = split
-
-
-# ============================================================
-# FAKE VIDEO SPLIT
-# ============================================================
-
-
-def parse_fake_identities(video_name):
-
-    stem = Path(video_name).stem
-
-    parts = stem.split("_")
-
-    try:
-        src = int(parts[0])
-        tgt = int(parts[1])
-
-        return src, tgt
-
-    except Exception:
-        return None, None
-
-
-fake_split = {}
-
-for manipulation in TRAIN_MANIPULATIONS:
-    folder = SOURCE_ROOT / manipulation
-
-    videos = sorted(list(folder.glob("*.mp4")))
-
-    print(f"{manipulation}: {len(videos)} videos")
-
-    for video in videos:
-        src, tgt = parse_fake_identities(video.name)
-
-        if src is None:
-            continue
-
-        # prevent identity leakage
-
-        if src in train_ids and tgt in train_ids:
+        if identity in train_ids:
             split = "train"
 
-        elif src in val_ids and tgt in val_ids:
+        elif identity in val_ids:
             split = "val"
 
-        elif src in test_ids and tgt in test_ids:
+        else:
             split = "test"
 
-        else:
-            # mixed identities
-            continue
+        real_split[video] = split
 
-        fake_split[video] = split
+    # ============================================================
+    # FAKE VIDEO SPLIT
+    # ============================================================
 
+    def parse_fake_identities(video_name):
 
-# ============================================================
-# HOLDOUT MANIPULATIONS
-# ============================================================
+        stem = Path(video_name).stem
 
-holdout_videos = []
+        parts = stem.split("_")
 
-for manipulation in HOLDOUT_MANIPULATIONS:
-    folder = SOURCE_ROOT / manipulation
+        try:
+            src = int(parts[0])
+            tgt = int(parts[1])
 
-    videos = sorted(list(folder.glob("*.mp4")))
+            return src, tgt
 
-    holdout_videos.extend(videos)
+        except Exception:
+            return None, None
 
-print()
-print("Holdout videos:", len(holdout_videos))
+    fake_split = {}
 
+    for manipulation in TRAIN_MANIPULATIONS:
+        folder = SOURCE_ROOT / manipulation
 
-# ============================================================
-# SUMMARY
-# ============================================================
+        videos = sorted(list(folder.glob("*.mp4")))
 
-real_count = Counter(real_split.values())
+        print(f"{manipulation}: {len(videos)} videos")
 
-fake_count = Counter(fake_split.values())
+        for video in videos:
+            src, tgt = parse_fake_identities(video.name)
 
-print("\nREAL")
+            if src is None:
+                continue
 
-print(real_count)
+            # prevent identity leakage
 
-print("\nFAKE")
+            if src in train_ids and tgt in train_ids:
+                split = "train"
 
-print(fake_count)
+            elif src in val_ids and tgt in val_ids:
+                split = "val"
 
+            elif src in test_ids and tgt in test_ids:
+                split = "test"
 
-# ============================================================
-# BUILD LISTS
-# ============================================================
+            else:
+                # mixed identities
+                continue
 
-train_real = [v for v, s in real_split.items() if s == "train"]
+            fake_split[video] = split
 
-val_real = [v for v, s in real_split.items() if s == "val"]
+    # ============================================================
+    # SUMMARY
+    # ============================================================
 
-test_real = [v for v, s in real_split.items() if s == "test"]
+    real_count = Counter(real_split.values())
 
-train_fake = [v for v, s in fake_split.items() if s == "train"]
+    fake_count = Counter(fake_split.values())
 
-val_fake = [v for v, s in fake_split.items() if s == "val"]
+    print("\nREAL")
 
-test_fake = [v for v, s in fake_split.items() if s == "test"]
+    print(real_count)
 
-print()
+    print("\nFAKE")
 
-print("Train real :", len(train_real))
-print("Val real   :", len(val_real))
-print("Test real  :", len(test_real))
+    print(fake_count)
 
-print()
+    # ============================================================
+    # BUILD LISTS
+    # ============================================================
 
-print("Train fake :", len(train_fake))
-print("Val fake   :", len(val_fake))
-print("Test fake  :", len(test_fake))
+    train_real = [v for v, s in real_split.items() if s == "train"]
 
-# ============================================================
-# FEDERATED PARTITIONING
-# ============================================================
+    val_real = [v for v, s in real_split.items() if s == "val"]
 
-print("\nBuilding federated partitions...")
+    test_real = [v for v, s in real_split.items() if s == "test"]
 
-client_jobs = defaultdict(list)
+    train_fake = [v for v, s in fake_split.items() if s == "train"]
 
+    val_fake = [v for v, s in fake_split.items() if s == "val"]
 
-# ============================================================
-# SPLIT INTO CLIENTS
-# ============================================================
-
-
-def split_clients(video_list):
-
-    shuffled = video_list.copy()
-
-    random.shuffle(shuffled)
-
-    size = len(shuffled) // NUM_CLIENTS
-
-    clients = []
-
-    for i in range(NUM_CLIENTS):
-        start = i * size
-
-        if i == NUM_CLIENTS - 1:
-            end = len(shuffled)
-        else:
-            end = (i + 1) * size
-
-        clients.append(shuffled[start:end])
-
-    return clients
-
-
-# ============================================================
-# MANIPULATION LABEL
-# ============================================================
-
-
-def manipulation_name(video_path):
-
-    return video_path.parent.name
-
-
-# ============================================================
-# BUILD JOBS
-# ============================================================
-
-
-def build_jobs(
-    videos,
-    split_name,
-    label,
-):
-
-    partitions = split_clients(videos)
-
-    for client_id, subset in enumerate(
-        partitions,
-        start=1,
-    ):
-        for video in subset:
-            client_jobs[client_id].append(
-                (
-                    video,
-                    split_name,
-                    client_id,
-                    label,
-                    manipulation_name(video),
-                )
-            )
-
-
-# ============================================================
-# REAL
-# ============================================================
-
-build_jobs(
-    train_real,
-    "train",
-    "real",
-)
-
-build_jobs(
-    val_real,
-    "val",
-    "real",
-)
-
-build_jobs(
-    test_real,
-    "test",
-    "real",
-)
-
-
-# ============================================================
-# FAKE
-# ============================================================
-
-build_jobs(
-    train_fake,
-    "train",
-    "fake",
-)
-
-build_jobs(
-    val_fake,
-    "val",
-    "fake",
-)
-
-build_jobs(
-    test_fake,
-    "test",
-    "fake",
-)
-
-
-# ============================================================
-# CLIENT STATISTICS
-# ============================================================
-
-print("\nClient Statistics")
-
-for client_id in range(
-    1,
-    NUM_CLIENTS + 1,
-):
-    jobs = client_jobs[client_id]
-
-    train_jobs = [x for x in jobs if x[1] == "train"]
-
-    val_jobs = [x for x in jobs if x[1] == "val"]
-
-    test_jobs = [x for x in jobs if x[1] == "test"]
-
-    train_real_count = len([x for x in train_jobs if x[3] == "real"])
-
-    train_fake_count = len([x for x in train_jobs if x[3] == "fake"])
-
-    val_real_count = len([x for x in val_jobs if x[3] == "real"])
-
-    val_fake_count = len([x for x in val_jobs if x[3] == "fake"])
-
-    test_real_count = len([x for x in test_jobs if x[3] == "real"])
-
-    test_fake_count = len([x for x in test_jobs if x[3] == "fake"])
+    test_fake = [v for v, s in fake_split.items() if s == "test"]
 
     print()
 
-    print(f"Client {client_id}")
+    print("Train real :", len(train_real))
+    print("Val real   :", len(val_real))
+    print("Test real  :", len(test_real))
 
-    print(f"Train : R={train_real_count} F={train_fake_count}")
+    print()
 
-    print(f"Val   : R={val_real_count} F={val_fake_count}")
+    print("Train fake :", len(train_fake))
+    print("Val fake   :", len(val_fake))
+    print("Test fake  :", len(test_fake))
 
-    print(f"Test  : R={test_real_count} F={test_fake_count}")
+    # ============================================================
+    # FEDERATED PARTITIONING
+    # ============================================================
 
+    print("\nBuilding federated partitions...")
 
-# ============================================================
-# FLATTEN JOBS
-# ============================================================
+    client_jobs = defaultdict(list)
 
-all_jobs = []
+    # ============================================================
+    # SPLIT INTO CLIENTS
+    # ============================================================
 
-for client_id in range(
-    1,
-    NUM_CLIENTS + 1,
-):
-    all_jobs.extend(client_jobs[client_id])
+    def split_clients_balanced(video_list):
+        """
+        Evenly distribute a list of videos across clients.
+        """
 
-print()
+        shuffled = video_list.copy()
+        random.shuffle(shuffled)
 
-print("Total jobs:", len(all_jobs))
+        client_lists = [[] for _ in range(NUM_CLIENTS)]
 
+        for i, video in enumerate(shuffled):
+            client_lists[i % NUM_CLIENTS].append(video)
 
-# ============================================================
-# HOLDOUT JOBS
-# ============================================================
+        return client_lists
 
-holdout_jobs = []
+    # ============================================================
+    # MANIPULATION LABEL
+    # ============================================================
 
-for video in holdout_videos:
-    holdout_jobs.append(
-        (
-            video,
-            "holdout",
-            0,
-            "fake",
-            video.parent.name,
-        )
+    def manipulation_name(video_path):
+
+        return video_path.parent.name
+
+    # ============================================================
+    # BUILD JOBS
+    # ============================================================
+
+    def build_jobs(videos, split_name, label):
+        """
+        Build federated jobs while preserving manipulation balance.
+        """
+
+        if label == "real":
+            partitions = split_clients_balanced(videos)
+
+            for client_id, subset in enumerate(partitions, start=1):
+                for video in subset:
+                    client_jobs[client_id].append(
+                        (
+                            video,
+                            split_name,
+                            client_id,
+                            label,
+                            "original",
+                        )
+                    )
+
+            return
+
+        # --------------------------------------------------
+        # Fake videos
+        # --------------------------------------------------
+
+        by_manipulation = defaultdict(list)
+
+        for video in videos:
+            by_manipulation[video.parent.name].append(video)
+
+        for manipulation, manipulation_videos in by_manipulation.items():
+            partitions = split_clients_balanced(manipulation_videos)
+
+            for client_id, subset in enumerate(partitions, start=1):
+                for video in subset:
+                    client_jobs[client_id].append(
+                        (
+                            video,
+                            split_name,
+                            client_id,
+                            label,
+                            manipulation,
+                        )
+                    )
+
+    # ============================================================
+    # REAL
+    # ============================================================
+
+    build_jobs(
+        train_real,
+        "train",
+        "real",
     )
 
-print("Holdout jobs:", len(holdout_jobs))
+    build_jobs(
+        val_real,
+        "val",
+        "real",
+    )
 
+    build_jobs(
+        test_real,
+        "test",
+        "real",
+    )
 
-# ============================================================
-# PROGRESS BAR INFO
-# ============================================================
+    # ============================================================
+    # FAKE
+    # ============================================================
 
-TOTAL_VIDEOS = len(all_jobs)
+    build_jobs(
+        train_fake,
+        "train",
+        "fake",
+    )
 
-print()
+    build_jobs(
+        val_fake,
+        "val",
+        "fake",
+    )
 
-print("=" * 80)
+    build_jobs(
+        test_fake,
+        "test",
+        "fake",
+    )
 
-print(f"Videos to process : {TOTAL_VIDEOS}")
+    # ============================================================
+    # CLIENT STATISTICS
+    # ============================================================
 
-print(f"Workers           : {NUM_WORKERS}")
+    print("\nClient Statistics")
 
-print(f"Expected clients  : {NUM_CLIENTS}")
+    for client_id in range(1, NUM_CLIENTS + 1):
+        print("\n" + "=" * 60)
+        print(f"Client {client_id}")
+        print("=" * 60)
 
-print("=" * 80)
+        jobs = client_jobs[client_id]
 
-# ============================================================
-# MAIN PROCESSING
-# ============================================================
+        for split_name in ["train", "val", "test"]:
+            print(f"\n{split_name.upper()}")
 
-print("\nStarting preprocessing...\n")
+            split_jobs = [j for j in jobs if j[1] == split_name]
 
-overall_start = time.time()
+            counts = Counter()
 
-processed = 0
+            for _, _, _, label, manipulation in split_jobs:
+                if label == "real":
+                    counts["Original"] += 1
+                else:
+                    counts[manipulation] += 1
 
-pbar = tqdm(
-    total=TOTAL_VIDEOS,
-    desc="Videos",
-    dynamic_ncols=True,
-)
+            for key in [
+                "Original",
+                "Deepfakes",
+                "Face2Face",
+                "FaceSwap",
+                "NeuralTextures",
+                "FaceShifter",
+                "DeepFakeDetection",
+            ]:
+                print(f"{key:<20}: {counts[key]}")
 
-# ============================================================
-# MULTIPROCESSING
-# ============================================================
+    # ============================================================
+    # FLATTEN JOBS
+    # ============================================================
 
-with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
-    for result in executor.map(
-        process_video,
-        all_jobs,
-        chunksize=8,
+    all_jobs = []
+
+    for client_id in range(
+        1,
+        NUM_CLIENTS + 1,
     ):
-        if result is not None:
-            for k, v in result.items():
-                stats[k] += v
+        all_jobs.extend(client_jobs[client_id])
 
-        processed += 1
+    print()
 
-        elapsed = time.time() - overall_start
+    print("Total jobs:", len(all_jobs))
 
-        video_per_sec = processed / elapsed if elapsed > 0 else 0
+    # ============================================================
+    # PROGRESS BAR INFO
+    # ============================================================
 
-        eta = compute_eta(
-            processed,
-            TOTAL_VIDEOS,
-            overall_start,
-        )
+    TOTAL_VIDEOS = len(all_jobs)
 
-        pbar.set_postfix(
-            {
-                "done": processed,
-                "v/s": f"{video_per_sec:.2f}",
-                "ETA": eta,
-            }
-        )
+    print()
 
-        pbar.update(1)
+    print("=" * 80)
 
-        if processed % 100 == 0:
-            print_stats()
+    print(f"Videos to process : {TOTAL_VIDEOS}")
 
-pbar.close()
+    print(f"Workers           : {NUM_WORKERS}")
 
+    print(f"Expected clients  : {NUM_CLIENTS}")
 
-# ============================================================
-# HOLDOUT DATASET
-# ============================================================
+    print("=" * 80)
 
-print("\nProcessing holdout manipulations...\n")
+    # ============================================================
+    # MAIN PROCESSING
+    # ============================================================
 
-holdout_root = DEST_ROOT / "holdout"
+    print("\nStarting preprocessing...\n")
 
-for manipulation in HOLDOUT_MANIPULATIONS:
-    (holdout_root / manipulation).mkdir(
-        parents=True,
-        exist_ok=True,
+    overall_start = time.time()
+
+    processed = 0
+
+    pbar = tqdm(
+        total=TOTAL_VIDEOS,
+        desc="Videos",
+        dynamic_ncols=True,
     )
 
-holdout_bar = tqdm(
-    holdout_jobs,
-    desc="Holdout",
-)
+    # ============================================================
+    # MULTIPROCESSING
+    # ============================================================
 
-for (
-    video_path,
-    split,
-    client,
-    label,
-    manipulation,
-) in holdout_bar:
-    try:
-        cap = cv2.VideoCapture(str(video_path))
+    from multiprocessing import get_context
 
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    from concurrent.futures import wait, FIRST_COMPLETED
 
-        interval = compute_interval(frame_count)
+    with ProcessPoolExecutor(
+        max_workers=NUM_WORKERS,
+        mp_context=get_context("fork"),
+        initializer=init_worker,
+    ) as executor:
+        job_iter = iter(all_jobs)
+        futures = set()
 
-        idx = 0
-        saved = 0
-        frames_read = 0
-        frames_sampled = 0
-
-        while True:
-            ret, frame = cap.read()
-
-            if not ret:
+        # Start a few initial jobs
+        for _ in range(NUM_WORKERS * 2):
+            try:
+                futures.add(executor.submit(process_video, next(job_iter)))
+            except StopIteration:
                 break
 
-            frames_read += 1
-
-            if idx % interval != 0:
-                idx += 1
-                continue
-
-            face = extract_face(frame)
-
-            filename = f"{manipulation}_{video_path.stem}_{saved:05d}.jpg"
-
-            save_image(
-                face,
-                holdout_root / manipulation / filename,
+        while futures:
+            done, futures = wait(
+                futures,
+                return_when=FIRST_COMPLETED,
             )
 
-            saved += 1
+            for future in done:
+                result = future.result()
 
-            idx += 1
+                if result is not None:
+                    for k, v in result.items():
+                        stats[k] += v
 
-        cap.release()
+                processed += 1
 
-    except Exception:
-        log_error(traceback.format_exc())
+                elapsed = time.time() - overall_start
+
+                video_per_sec = processed / elapsed if elapsed > 0 else 0
+
+                eta = compute_eta(
+                    processed,
+                    TOTAL_VIDEOS,
+                    overall_start,
+                )
+
+                pbar.set_postfix(
+                    {
+                        "done": processed,
+                        "v/s": f"{video_per_sec:.2f}",
+                        "ETA": eta,
+                    }
+                )
+
+                pbar.update(1)
+
+                if processed % 100 == 0:
+                    print_stats()
+
+                try:
+                    futures.add(
+                        executor.submit(
+                            process_video,
+                            next(job_iter),
+                        )
+                    )
+                except StopIteration:
+                    pass
+
+    pbar.close()
+
+    # ============================================================
+    # SAVE SUMMARY
+    # ============================================================
+
+    save_summary()
+
+    # ============================================================
+    # FINAL REPORT
+    # ============================================================
+
+    elapsed_total = time.time() - START_TIME
+
+    print("\n")
+    print("=" * 80)
+    print("PREPROCESSING COMPLETE")
+    print("=" * 80)
+
+    print()
+
+    print(f"Videos processed     : {stats['videos_processed']}")
+
+    print(f"Videos skipped       : {stats['videos_skipped']}")
+
+    print(f"Corrupted videos     : {stats['videos_corrupted']}")
+
+    print()
+
+    print(f"Frames read          : {stats['frames_read']}")
+
+    print(f"Frames sampled       : {stats['frames_sampled']}")
+
+    print(f"Frames saved         : {stats['frames_saved']}")
+
+    print()
+
+    print(f"Blur rejected        : {stats['blur_rejected']}")
+
+    print(f"Duplicate rejected   : {stats['duplicate_rejected']}")
+    print()
+
+    print(f"Faces detected       : {stats['face_detected']}")
+    print(f"Face detection failed: {stats['face_failed']}")
+    total_attempts = stats["face_detected"] + stats["face_failed"]
+
+    if total_attempts > 0:
+        detection_rate = 100.0 * stats["face_detected"] / total_attempts
+
+        print(f"Detection rate       : {detection_rate:.2f}%")
+
+    print()
+
+    print(f"Elapsed              : {format_time(elapsed_total)}")
+
+    print()
+
+    print("Logs")
+
+    print(f"Video log    : {VIDEO_LOG}")
+
+    print(f"Summary log  : {SUMMARY_LOG}")
+
+    print(f"Error log    : {ERROR_LOG}")
+
+    print()
+
+    print(f"Dataset root : {DEST_ROOT}")
+
+    print()
+
+    print("=" * 80)
+    print("DONE")
+    print("=" * 80)
 
 
-# ============================================================
-# SAVE SUMMARY
-# ============================================================
-
-save_summary()
-
-# ============================================================
-# FINAL REPORT
-# ============================================================
-
-elapsed_total = time.time() - START_TIME
-
-print("\n")
-print("=" * 80)
-print("PREPROCESSING COMPLETE")
-print("=" * 80)
-
-print()
-
-print(f"Videos processed     : {stats['videos_processed']}")
-
-print(f"Videos skipped       : {stats['videos_skipped']}")
-
-print(f"Corrupted videos     : {stats['videos_corrupted']}")
-
-print()
-
-print(f"Frames read          : {stats['frames_read']}")
-
-print(f"Frames sampled       : {stats['frames_sampled']}")
-
-print(f"Frames saved         : {stats['frames_saved']}")
-
-print()
-
-print(f"Blur rejected        : {stats['blur_rejected']}")
-
-print(f"Duplicate rejected   : {stats['duplicate_rejected']}")
-
-print()
-
-print(f"Elapsed              : {format_time(elapsed_total)}")
-
-print()
-
-print("Logs")
-
-print(f"Video log    : {VIDEO_LOG}")
-
-print(f"Summary log  : {SUMMARY_LOG}")
-
-print(f"Error log    : {ERROR_LOG}")
-
-print()
-
-print(f"Dataset root : {DEST_ROOT}")
-
-print(f"Holdout root : {holdout_root}")
-
-print()
-
-print("=" * 80)
-print("DONE")
-print("=" * 80)
+if __name__ == "__main__":
+    multiprocessing.set_start_method("fork", force=True)
+    main()
