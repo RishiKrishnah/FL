@@ -1,5 +1,13 @@
 # FAFT — Federated Artifact-Guided Frequency-Aware Transformer
 
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.3-red)
+![Flower](https://img.shields.io/badge/Flower-1.13-orange)
+![Federated Learning](https://img.shields.io/badge/Federated-Learning-green)
+![Deepfake Detection](https://img.shields.io/badge/Deepfake-Detection-purple)
+![License](https://img.shields.io/badge/License-Apache%202.0-success)
+
+
 **Privacy-preserving deepfake detection trained across decentralized clients with Flower, PyTorch, and prototype-memory federated aggregation.**
 
 FAFT combines a ResNet18 spatial branch, an FFT-based frequency branch, and an artifact-guided transformer to detect real vs. fake faces. Instead of exchanging raw images, clients exchange model weights and compact class **prototype embeddings**, which the server aggregates into a global forensic memory and redistributes every round — on top of standard federated averaging.
