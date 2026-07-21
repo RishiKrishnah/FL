@@ -73,9 +73,9 @@ def load_data(client_id, dataset_name="140k"):
 
         random.seed(client_id)
 
-        train_limit = min(1000, len(trainset))
-        val_limit = min(100, len(valset))
-        test_limit = min(100, len(testset))
+        train_limit = min(100, len(trainset))
+        val_limit = min(10, len(valset))
+        test_limit = min(10, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
         val_indices = random.sample(range(len(valset)), val_limit)
@@ -106,9 +106,9 @@ def load_data(client_id, dataset_name="140k"):
     print("Val  :", get_distribution(valset))
     print("Test :", get_distribution(testset))
 
-    trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
-    valloader = DataLoader(valset, batch_size=128, shuffle=False)
-    testloader = DataLoader(testset, batch_size=128, shuffle=False)
+    trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
+    valloader = DataLoader(valset, batch_size=32, shuffle=False)
+    testloader = DataLoader(testset, batch_size=32, shuffle=False)
 
     print(f"Client {client_id}")
     print(f"Train Images: {len(trainset)}")

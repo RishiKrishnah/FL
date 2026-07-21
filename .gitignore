@@ -6,7 +6,6 @@ __pycache__/
 quickstart-pytorch/dataset/
 quickstart-pytorch/dataset_ffpp/
 quickstart-pytorch/dataset_openforensic/
-quickstart-pytorch/experiment_logs/
 saved_models/
 quickstart-pytorch/saved_models/
 

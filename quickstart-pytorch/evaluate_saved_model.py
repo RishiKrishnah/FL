@@ -88,7 +88,7 @@ if DEVICE.type == "cuda":
 
             print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
 
-            if free_gb < 8:
+            if free_gb < 4:
                 raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
 
 # ==================================================
@@ -98,7 +98,7 @@ NUM_CLIENTS = 5
 MODEL_PATH = "saved_models/global_model_round_5.pth"
 
 # H100 can easily handle this
-EVAL_BATCH_SIZE = 256
+EVAL_BATCH_SIZE = 32
 
 torch.backends.cudnn.benchmark = True
 torch.set_float32_matmul_precision("high")
@@ -171,19 +171,23 @@ def evaluate():
 
     model.eval()
 
-    # Compile model (PyTorch 2.x)
-    if DEVICE.type == "cuda":
+    USE_COMPILE = False
+
+    # Compile model (optional)
+    if DEVICE.type == "cuda" and USE_COMPILE:
         print("Compiling model...")
 
         try:
+            
             model = torch.compile(model)
         except Exception as e:
             print(f"Compile failed: {e}")
+            print("Using eager mode.")
 
     print("\nWarming up GPU...")
 
     dummy = torch.randn(
-        32,
+        8,
         3,
         224,
         224,

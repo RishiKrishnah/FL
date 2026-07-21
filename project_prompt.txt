@@ -1,4 +1,534 @@
 
+=== FILE: README.md ===
+# Federated Artifact-Guided Frequency-Aware Transformer (FAFT) for Deepfake Detection
+
+### Privacy-Preserving Deepfake Detection using Federated Learning, Artifact-Aware Transformers, and Prototype Memory Aggregation
+
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.3-red)
+![Flower](https://img.shields.io/badge/Flower-1.13-orange)
+![Federated Learning](https://img.shields.io/badge/Federated-Learning-green)
+![Deepfake Detection](https://img.shields.io/badge/Deepfake-Detection-purple)
+![License](https://img.shields.io/badge/License-Apache%202.0-success)
+
+---
+
+# Overview
+
+This repository presents a complete Federated Learning framework for Deepfake Detection using PyTorch and Flower.
+
+The project investigates how deepfake detection models can be trained collaboratively across multiple decentralized clients without sharing raw image data.
+
+Unlike traditional centralized approaches, only model parameters and prototype representations are exchanged, preserving data privacy while enabling collaborative learning.
+
+The framework supports:
+
+* Federated Learning with Flower
+* Deepfake Image Classification
+* Vision Transformers
+* CNN Architectures
+* Hybrid CNN-Transformer Models
+* Artifact-Aware Learning
+* Frequency Domain Feature Extraction
+* Prototype Memory Aggregation
+* Adversarial Client Simulation
+* GPU Accelerated Training
+
+---
+
+# Research Motivation
+
+Deepfake generation technologies have become increasingly sophisticated, posing significant threats to digital media authenticity, cybersecurity, and public trust.
+
+Traditional deepfake detection approaches require centralized access to large datasets, creating challenges related to:
+
+* Data privacy
+* Data ownership
+* Regulatory compliance
+* Communication overhead
+
+Federated Learning offers a privacy-preserving alternative by allowing multiple clients to collaboratively train a global model without sharing raw data.
+
+This project explores the intersection of:
+
+* Federated Learning
+* Deepfake Detection
+* Computer Vision
+* Transformer Architectures
+* Privacy-Preserving AI
+* Adversarial Robustness
+
+---
+
+# Proposed FAFT Architecture
+
+The proposed **Federated Artifact-Guided Frequency-Aware Transformer (FAFT)** introduces three complementary components:
+
+## 1. Spatial Artifact Extraction
+
+A ResNet18 backbone extracts forensic spatial features from facial images.
+
+## 2. Frequency Artifact Analysis
+
+A dedicated frequency branch processes FFT-transformed images to capture manipulation traces that may be invisible in the spatial domain.
+
+## 3. Artifact-Guided Transformer Learning
+
+Artifact representations are converted into transformer attention biases, guiding the model toward forensic regions relevant for deepfake detection.
+
+---
+
+# Federated Prototype Memory Aggregation
+
+Each client generates an artifact prototype representation during local training.
+
+The server aggregates these prototypes into a global forensic memory representation and redistributes it to all participating clients.
+
+Benefits include:
+
+* Improved global feature consistency
+* Better knowledge sharing across clients
+* Reduced client drift
+* Faster convergence
+* Enhanced generalization
+
+---
+
+# System Architecture
+
+```text
+                          Flower Server
+                                  │
+                    Prototype Memory Aggregation
+                                  │
+        ┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+        │              │              │              │              │
+     Client 1       Client 2       Client 3       Client 4       Client 5
+        │              │              │              │              │
+   Local Data     Local Data     Local Data     Local Data     Local Data
+        │              │              │              │              │
+     FAFT Model     FAFT Model     FAFT Model     FAFT Model     FAFT Model
+        │              │              │              │              │
+        └──────────────── Federated Averaging ────────────────┘
+                                  │
+                          Updated Global Model
+```
+
+---
+
+# Key Features
+
+## Federated Learning
+
+* Flower-based federated architecture
+* Federated Averaging (FedAvg)
+* Multi-client simulation
+* Configurable communication rounds
+* GPU support
+* Client heterogeneity support
+
+## Deepfake Detection
+
+Binary classification:
+
+* Real Faces
+* Fake Faces
+
+## Artifact-Aware Learning
+
+* Frequency-domain analysis
+* Spatial artifact extraction
+* Attention-guided transformer learning
+* Prototype memory aggregation
+
+## Security Research
+
+* Malicious client simulation
+* Model poisoning attacks
+* Federated robustness experiments
+
+---
+
+# Supported Models
+
+| Model                         | Category              |
+| ----------------------------- | --------------------- |
+| FAFT                          | Proposed Architecture |
+| Artifact-Guided Deepfake Net  | Artifact-Aware Hybrid |
+| Vision Transformer (ViT-B/16) | Transformer           |
+| Swin Transformer              | Transformer           |
+| ResNet18                      | CNN                   |
+| EfficientNet-B0               | CNN                   |
+| ResNet18 + ViT                | Hybrid                |
+| ResNet18 + Swin               | Hybrid                |
+
+---
+
+# Repository Structure
+
+```text
+FL/
+│
+├── README.md
+├── requirements.txt
+├── ingest.py
+├── project_prompt.txt
+│
+└── quickstart-pytorch/
+    │
+    ├── pyproject.toml
+    ├── split.py
+    ├── evaluate_saved_model.py
+    │
+    ├── dataset/
+    │   ├── client1/
+    │   ├── client2/
+    │   ├── client3/
+    │   ├── client4/
+    │   └── client5/
+    │
+    ├── saved_models/
+    │
+    └── pytorchexample/
+        ├── client_app.py
+        ├── server_app.py
+        ├── model.py
+        ├── task.py
+        └── utils.py
+```
+
+---
+
+# Dataset
+
+## 140K Real and Fake Faces Dataset
+
+Dataset Source:
+
+https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces
+
+### Dataset Statistics
+
+| Property     | Value                 |
+| ------------ | --------------------- |
+| Total Images | ~140,000              |
+| Classes      | Real / Fake           |
+| Task         | Binary Classification |
+| Domain       | Deepfake Detection    |
+
+---
+
+# Dataset Partitioning
+
+The dataset is partitioned into five federated clients.
+
+```text
+dataset/
+├── client1/
+├── client2/
+├── client3/
+├── client4/
+└── client5/
+```
+
+Each client contains:
+
+```text
+train/
+val/
+test/
+```
+
+Each split contains:
+
+```text
+real/
+fake/
+```
+
+subdirectories.
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>.git
+
+cd FL
+```
+
+## Create Virtual Environment
+
+### Linux / macOS
+
+```bash
+python3 -m venv .venv
+
+source .venv/bin/activate
+```
+
+### Windows
+
+```bash
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+---
+
+## Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Install the Flower application:
+
+```bash
+cd quickstart-pytorch
+
+pip install -e .
+```
+
+---
+
+# Configuration
+
+Default configuration located in:
+
+```text
+quickstart-pytorch/pyproject.toml
+```
+
+Current defaults:
+
+```toml
+num-server-rounds = 5
+local-epochs = 5
+model-name = "faft"
+options.num-supernodes = 5
+```
+
+---
+
+# Running Federated Training
+
+## Default FAFT Training
+
+```bash
+cd quickstart-pytorch
+
+flwr run . --stream
+```
+
+---
+
+## Train Vision Transformer
+
+```bash
+flwr run . \
+--run-config "model-name=vit" \
+--stream
+```
+
+---
+
+## Train ResNet18
+
+```bash
+flwr run . \
+--run-config "model-name=resnet18" \
+--stream
+```
+
+---
+
+## Train EfficientNet-B0
+
+```bash
+flwr run . \
+--run-config "model-name=efficientnet" \
+--stream
+```
+
+---
+
+## Train Swin Transformer
+
+```bash
+flwr run . \
+--run-config "model-name=swin" \
+--stream
+```
+
+---
+
+## Train Hybrid ResNet + ViT
+
+```bash
+flwr run . \
+--run-config "model-name=hybrid" \
+--stream
+```
+
+---
+
+## Train Hybrid ResNet + Swin
+
+```bash
+flwr run . \
+--run-config "model-name=hybrid_swin" \
+--stream
+```
+
+---
+
+# Model Evaluation
+
+Evaluate a saved global model checkpoint:
+
+```bash
+python evaluate_saved_model.py
+```
+
+The evaluation script automatically detects the model architecture and reports:
+
+* Accuracy
+* Precision
+* Recall
+* F1 Score
+* ROC-AUC
+* Confusion Matrix
+* Classification Report
+
+---
+
+# Saved Models
+
+Global checkpoints are automatically stored after each federated round.
+
+```text
+saved_models/
+├── global_model_round_1.pth
+├── global_model_round_2.pth
+├── global_model_round_3.pth
+├── global_model_round_4.pth
+└── global_model_round_5.pth
+```
+
+---
+
+# Adversarial Client Simulation
+
+The framework supports malicious client experiments.
+
+Inside `client_app.py`:
+
+```python
+MALICIOUS_CLIENTS = {3}
+```
+
+Supported attack:
+
+* Gaussian Noise Parameter Poisoning
+
+Research applications:
+
+* Byzantine Client Analysis
+* Robust Federated Aggregation
+* Federated Security Evaluation
+
+---
+
+# Experimental Research Directions
+
+This framework can be extended for:
+
+## Federated Learning
+
+* FedProx
+* FedNova
+* SCAFFOLD
+* FedOpt
+* Personalized Federated Learning
+
+## Privacy
+
+* Differential Privacy
+* Secure Aggregation
+* Homomorphic Encryption
+
+## Deepfake Detection
+
+* Video Deepfake Detection
+* Multi-Class Manipulation Detection
+* Temporal Forensics
+
+## Security
+
+* Backdoor Attack Detection
+* Byzantine-Resilient Aggregation
+* Adversarial Defense Mechanisms
+
+---
+
+# Results
+
+The framework enables:
+
+* Federated multi-client training
+* Prototype memory aggregation
+* Artifact-aware transformer learning
+* Deepfake detection benchmarking
+* CNN vs Transformer comparisons
+* Security and robustness experimentation
+
+---
+
+# Citation
+
+```bibtex
+@misc{krishna2026faft,
+  title={Federated Artifact-Guided Frequency-Aware Transformer for Deepfake Detection},
+  author={Rishi Krishna},
+  year={2026}
+}
+```
+
+---
+
+# Author
+
+**Rishi Krishna**
+
+B.Tech Computer Science and Engineering (AI & Robotics)
+
+Vellore Institute of Technology (VIT), Chennai
+
+---
+
+# Acknowledgements
+
+* Flower Framework
+* PyTorch
+* TorchVision
+* Kaggle Community
+* Open Source AI Community
+* VIT Chennai
+
+---
+
+# License
+
+This project is licensed under the Apache License 2.0.
+
+See the LICENSE file for details.
+
+
 === FILE: ingest.py ===
 from pathlib import Path
 
@@ -40,7 +570,6 @@ print("Generated project_prompt.txt")
 
 
 === FILE: project_prompt.txt ===
-
 
 === FILE: README.md ===
 # Federated Artifact-Guided Frequency-Aware Transformer (FAFT) for Deepfake Detection
@@ -570,6 +1099,600 @@ Vellore Institute of Technology (VIT), Chennai
 This project is licensed under the Apache License 2.0.
 
 See the LICENSE file for details.
+
+
+=== FILE: quickstart-pytorch/README.md ===
+---
+tags: [quickstart, vision, fds]
+dataset: [CIFAR-10]
+framework: [torch, torchvision]
+---
+
+# Federated Learning with PyTorch and Flower (Quickstart Example)
+
+This introductory example to Flower uses PyTorch, but deep knowledge of PyTorch is not necessarily required to run the example. However, it will help you understand how to adapt Flower to your use case. Running this example in itself is quite easy. This example uses [Flower Datasets](https://flower.ai/docs/datasets/) to download, partition and preprocess the CIFAR-10 dataset.
+
+## Set up the project
+
+### Fetch the app
+
+Install Flower:
+
+```shell
+pip install flwr
+```
+
+Fetch the app:
+
+```shell
+flwr new @flwrlabs/quickstart-pytorch
+```
+
+This will create a new directory called `quickstart-pytorch` with the following structure:
+
+```shell
+quickstart-pytorch
+├── pytorchexample
+│   ├── __init__.py
+│   ├── client_app.py   # Defines your ClientApp
+│   ├── server_app.py   # Defines your ServerApp
+│   └── task.py         # Defines your model, training and data loading
+├── pyproject.toml      # Project metadata like dependencies and configs
+└── README.md
+```
+
+### Install dependencies and project
+
+Install the dependencies defined in `pyproject.toml` as well as the `pytorchexample` package.
+
+```bash
+pip install -e .
+```
+
+## Run the project
+
+You can run your Flower project in both _simulation_ and _deployment_ mode without making changes to the code. If you are starting with Flower, we recommend you using the _simulation_ mode as it requires fewer components to be launched manually. By default, `flwr run` will make use of the Simulation Engine.
+
+### Run with the Simulation Engine
+
+> [!TIP]
+> This example runs faster when the `ClientApp`s have access to a GPU. Check the [Simulation Engine documentation](https://flower.ai/docs/framework/how-to-run-simulations.html) to learn more about Flower simulations and how to optimize them.
+
+```bash
+# Run with the default federation (CPU only)
+flwr run .  --stream
+```
+
+You can also override some of the settings for your `ClientApp` and `ServerApp` defined in `pyproject.toml`. For example:
+
+```bash
+flwr run . --run-config "num-server-rounds=5 learning-rate=0.05"  --stream
+```
+
+> [!TIP]
+> For a more detailed walk-through check our [quickstart PyTorch tutorial](https://flower.ai/docs/framework/tutorial-quickstart-pytorch.html)
+
+### Run with the Deployment Engine
+
+Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-with-deployment-engine.html) to run the same app in this example but with Flower's Deployment Engine. After that, you might be intersted in setting up [secure TLS-enabled communications](https://flower.ai/docs/framework/how-to-enable-tls-connections.html) and [SuperNode authentication](https://flower.ai/docs/framework/how-to-authenticate-supernodes.html) in your federation.
+
+If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
+
+
+=== FILE: quickstart-pytorch/preprocess_openforensics.py ===
+import random
+from pathlib import Path
+from PIL import Image
+from tqdm import tqdm
+
+random.seed(42)
+
+# ======================================================
+# CONFIGURATION
+# ======================================================
+
+SOURCE = Path("/root/Rishi/datasets/openforensics/Dataset")
+DEST = Path("dataset_openforensic")
+
+CLIENTS = 5
+IMAGE_SIZE = (224, 224)
+
+split_map = {
+    "Train": "train",
+    "Validation": "val",
+    "Test": "test",
+}
+
+label_map = {
+    "Real": "real",
+    "Fake": "fake",
+}
+
+
+def split_images(images, clients):
+    random.shuffle(images)
+
+    size = len(images) // clients
+    splits = []
+
+    for i in range(clients):
+        start = i * size
+        end = len(images) if i == clients - 1 else (i + 1) * size
+        splits.append(images[start:end])
+
+    return splits
+
+
+for src_split, dst_split in split_map.items():
+
+    print(f"\n{'='*60}")
+    print(f"{src_split}")
+    print(f"{'='*60}")
+
+    for src_label, dst_label in label_map.items():
+
+        images = list((SOURCE / src_split / src_label).glob("*.jpg"))
+        client_splits = split_images(images, CLIENTS)
+
+        print(f"{src_label}: {len(images):,} images")
+
+        for client_id, subset in enumerate(client_splits, start=1):
+
+            target_dir = (
+                DEST
+                / f"client{client_id}"
+                / dst_split
+                / dst_label
+            )
+
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            progress = tqdm(
+                subset,
+                desc=f"Client {client_id} | {dst_split} | {dst_label}",
+                unit="img",
+                leave=True,
+            )
+
+            for img_path in progress:
+
+                try:
+                    img = Image.open(img_path).convert("RGB")
+                    img = img.resize(
+                        IMAGE_SIZE,
+                        Image.Resampling.LANCZOS,
+                    )
+
+                    img.save(
+                        target_dir / img_path.name,
+                        quality=95,
+                    )
+
+                except Exception as e:
+                    tqdm.write(f"Failed: {img_path}")
+                    tqdm.write(str(e))
+
+print("\nDataset preparation completed successfully!")
+
+=== FILE: quickstart-pytorch/evaluate_saved_model.py ===
+import time
+from collections import Counter
+
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    classification_report,
+    roc_auc_score,
+)
+
+from pytorchexample.model import load_model
+from pytorchexample.task import load_data
+
+import subprocess
+
+
+def get_best_gpu():
+
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    best_gpu = 0
+    best_free = -1
+
+    for line in result.strip().split("\n"):
+        gpu_id, mem_used, mem_total = line.split(",")
+
+        gpu_id = int(gpu_id.strip())
+        mem_used = float(mem_used.strip())
+        mem_total = float(mem_total.strip())
+
+        free_mem = mem_total - mem_used
+
+        print(
+            f"GPU {gpu_id}: used={mem_used / 1024:.1f}GB free={free_mem / 1024:.1f}GB"
+        )
+
+        if free_mem > best_free:
+            best_free = free_mem
+            best_gpu = gpu_id
+
+    print(f"\nUsing GPU {best_gpu}")
+
+    return torch.device(f"cuda:{best_gpu}")
+
+
+DEVICE = get_best_gpu()
+print(f"Using device: {DEVICE}")
+if DEVICE.type == "cuda":
+    result = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,memory.used,memory.total",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+    )
+
+    gpu_id = int(str(DEVICE).split(":")[1])
+
+    for line in result.strip().split("\n"):
+        idx, mem_used, mem_total = line.split(",")
+
+        idx = int(idx.strip())
+
+        if idx == gpu_id:
+            mem_used = float(mem_used.strip())
+            mem_total = float(mem_total.strip())
+
+            free_gb = (mem_total - mem_used) / 1024
+
+            print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
+
+            if free_gb < 4:
+                raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
+
+# ==================================================
+# SETTINGS
+# ==================================================
+NUM_CLIENTS = 5
+MODEL_PATH = "saved_models/global_model_round_5.pth"
+
+# H100 can easily handle this
+EVAL_BATCH_SIZE = 32
+
+torch.backends.cudnn.benchmark = True
+torch.set_float32_matmul_precision("high")
+
+if torch.cuda.is_available():
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+
+
+# ==================================================
+# MODEL DETECTION
+# ==================================================
+def detect_model_type(state_dict):
+
+    keys = list(state_dict.keys())
+
+    if any(k.startswith("patch_embed") for k in keys):
+        return "faft"
+
+    if any(k.startswith("frequency_branch") for k in keys):
+        return "artifact_vit"
+
+    if any(k.startswith("resnet.") for k in keys) and any(
+        k.startswith("swin.") for k in keys
+    ):
+        return "hybrid_swin"
+
+    if any(k.startswith("resnet.") for k in keys) and any(
+        k.startswith("vit.") for k in keys
+    ):
+        return "hybrid"
+
+    if "class_token" in keys:
+        return "vit"
+
+    if "head.weight" in keys and any(k.startswith("features.") for k in keys):
+        return "swin"
+
+    if "conv1.weight" in keys:
+        return "resnet18"
+
+    if "features.0.0.weight" in keys and "classifier.1.weight" in keys:
+        return "efficientnet"
+
+    raise ValueError("Unable to determine model type")
+
+
+# ==================================================
+# EVALUATION
+# ==================================================
+def evaluate():
+
+    print("\nLoading checkpoint...")
+
+    checkpoint = torch.load(
+        MODEL_PATH,
+        map_location="cpu",
+        weights_only=True,
+    )
+
+    model_name = detect_model_type(checkpoint)
+
+    print(f"Detected model: {model_name}")
+
+    model = load_model(model_name)
+    model.load_state_dict(checkpoint)
+
+    model = model.to(DEVICE)
+    model = model.to(memory_format=torch.channels_last)
+
+    model.eval()
+
+    USE_COMPILE = False
+
+    # Compile model (optional)
+    if DEVICE.type == "cuda" and USE_COMPILE:
+        print("Compiling model...")
+
+        try:
+            
+            model = torch.compile(model)
+        except Exception as e:
+            print(f"Compile failed: {e}")
+            print("Using eager mode.")
+
+    print("\nWarming up GPU...")
+
+    dummy = torch.randn(
+        8,
+        3,
+        224,
+        224,
+        dtype=torch.float32,
+        device=DEVICE,
+    )
+
+    dummy = dummy.to(memory_format=torch.channels_last)
+
+    with torch.inference_mode():
+        with torch.amp.autocast(
+            "cuda",
+            enabled=(DEVICE.type == "cuda"),
+        ):
+            for _ in range(5):
+                _ = model(dummy)
+
+    if DEVICE.type == "cuda":
+        torch.cuda.synchronize(DEVICE)
+
+    print("Warmup complete.\n")
+    if DEVICE.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(DEVICE)
+    overall_start = time.time()
+    criterion = nn.CrossEntropyLoss()
+
+    all_labels = []
+    all_predictions = []
+    all_probabilities = []
+
+    total_loss = 0.0
+    total_samples = 0
+
+    client_bar = tqdm(
+        range(1, NUM_CLIENTS + 1),
+        desc="Clients",
+    )
+    with torch.inference_mode():
+        for client_id in client_bar:
+            print(f"\nEvaluating Client {client_id}")
+
+            _, _, old_loader = load_data(client_id)
+
+            # -----------------------------------
+            # REBUILD TESTLOADER
+            # -----------------------------------
+            testloader = DataLoader(
+                old_loader.dataset,
+                batch_size=EVAL_BATCH_SIZE,
+                shuffle=False,
+                num_workers=0,
+                pin_memory=True,
+            )
+
+            print("Batch size:", testloader.batch_size)
+            print("Batches:", len(testloader))
+
+            processed = 0
+            client_start = time.time()
+            num_batches = len(testloader)
+            batch_bar = tqdm(
+                testloader,
+                desc=f"Client {client_id}",
+                leave=False,
+            )
+
+            for images, labels in batch_bar:
+                images = images.to(
+                    DEVICE,
+                    dtype=torch.float32,
+                    non_blocking=True,
+                    memory_format=torch.channels_last,
+                )
+
+                labels = labels.to(
+                    DEVICE,
+                    non_blocking=True,
+                )
+
+                infer_start = time.perf_counter()
+
+                with torch.amp.autocast(
+                    "cuda",
+                    enabled=(DEVICE.type == "cuda"),
+                ):
+                    outputs = model(images)
+                    loss = criterion(outputs, labels)
+
+                if DEVICE.type == "cuda":
+                    torch.cuda.synchronize(DEVICE)
+
+                infer_time = time.perf_counter() - infer_start
+                predictions = outputs.detach().argmax(dim=1).cpu().numpy()
+
+                probabilities = (
+                    torch.softmax(outputs.float(), dim=1)[:, 1].detach().cpu().numpy()
+                )
+
+                all_labels.extend(labels.detach().cpu().numpy())
+                all_predictions.extend(predictions)
+                all_probabilities.extend(probabilities)
+                total_loss += loss.item() * labels.size(0)
+                total_samples += labels.size(0)
+                processed += labels.size(0)
+                elapsed = time.time() - client_start
+                img_s = processed / elapsed
+
+                gpu_alloc = (
+                    torch.cuda.memory_allocated(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
+                    else 0
+                )
+
+                gpu_reserved = (
+                    torch.cuda.memory_reserved(DEVICE) / 1024**3
+                    if DEVICE.type == "cuda"
+                    else 0
+                )
+
+                eta = (num_batches - batch_bar.n - 1) * infer_time
+                batch_bar.set_postfix(
+                    loss=f"{loss.item():.4f}",
+                    img_s=f"{img_s:.1f}",
+                    infer_ms=f"{infer_time * 1000:.1f}",
+                    eta=f"{eta:.1f}s",
+                    alloc=f"{gpu_alloc:.1f}GB",
+                    reserv=f"{gpu_reserved:.1f}GB",
+                )
+
+            client_time = time.time() - client_start
+
+            print(
+                f"Client {client_id}: "
+                f"{processed} images "
+                f"in {client_time:.2f}s "
+                f"({processed / client_time:.1f} img/s)"
+            )
+    if DEVICE.type == "cuda":
+        torch.cuda.empty_cache()
+
+    avg_loss = total_loss / total_samples
+
+    accuracy = accuracy_score(
+        all_labels,
+        all_predictions,
+    )
+
+    precision = precision_score(
+        all_labels,
+        all_predictions,
+        zero_division=0,
+    )
+
+    recall = recall_score(
+        all_labels,
+        all_predictions,
+        zero_division=0,
+    )
+
+    f1 = f1_score(
+        all_labels,
+        all_predictions,
+        zero_division=0,
+    )
+
+    auc = roc_auc_score(
+        all_labels,
+        all_probabilities,
+    )
+
+    cm = confusion_matrix(
+        all_labels,
+        all_predictions,
+    )
+
+    total_time = time.time() - overall_start
+
+    if DEVICE.type == "cuda":
+        peak_gpu_alloc = torch.cuda.max_memory_allocated(DEVICE) / 1024**3
+
+        peak_gpu_reserved = torch.cuda.max_memory_reserved(DEVICE) / 1024**3
+
+    print("\nGround Truth Distribution")
+    print(Counter(all_labels))
+
+    print("\nPrediction Distribution")
+    print(Counter(all_predictions))
+
+    print("\n" + "=" * 80)
+    print("FINAL EVALUATION RESULTS")
+    print("=" * 80)
+
+    print(f"Model      : {model_name}")
+    print(f"Loss       : {avg_loss:.6f}")
+    print(f"Accuracy   : {accuracy:.6f}")
+    print(f"Precision  : {precision:.6f}")
+    print(f"Recall     : {recall:.6f}")
+    print(f"F1 Score   : {f1:.6f}")
+    print(f"ROC-AUC    : {auc:.6f}")
+
+    print("\nPerformance")
+    print(f"Images     : {total_samples}")
+    print(f"Time       : {total_time:.2f} sec")
+    print(f"Throughput : {total_samples / total_time:.1f} img/s")
+
+    print(f"Peak GPU allocated : {peak_gpu_alloc:.2f} GB")
+    print(f"Peak GPU reserved  : {peak_gpu_reserved:.2f} GB")
+
+    print("\nConfusion Matrix")
+    print(cm)
+
+    print("\nClassification Report")
+
+    print(
+        classification_report(
+            all_labels,
+            all_predictions,
+            labels=[0, 1],
+            target_names=["Fake", "Real"],
+            zero_division=0,
+        )
+    )
+
+    print("=" * 80)
+
+
+if __name__ == "__main__":
+    evaluate()
 
 
 === FILE: quickstart-pytorch/preprocess_ffpp.py ===
@@ -1890,6 +3013,379 @@ if __name__ == "__main__":
     main()
 
 
+=== FILE: quickstart-pytorch/run_experiment.py ===
+from pathlib import Path
+from datetime import datetime
+import subprocess
+import sys
+import time
+
+# ==========================================================
+# USER SETTINGS (EDIT THESE ONLY)
+# ==========================================================
+
+# Wait for GPU before training/retries
+WAIT_FOR_GPU = True
+
+# Pipeline stages
+RUN_TRAINING = True
+RUN_EVALUATION = True
+RUN_HOLDOUT = False
+
+# GPU availability criteria
+MAX_GPU_UTILIZATION = 95  # %
+MAX_GPU_MEMORY_GB = 70  # GB used threshold
+
+# GPU stability checks
+CHECK_INTERVAL = 3  # seconds
+REQUIRED_STABLE_CHECKS = 3
+
+# Safety timeout
+MAX_WAIT_HOURS = 24
+
+# Retry settings
+MAX_TRAIN_RETRIES = 999999  # effectively infinite
+MAX_EVAL_RETRIES = 50
+MAX_HOLDOUT_RETRIES = 50
+
+RETRY_WAIT_SECONDS = 60
+
+# ==========================================================
+# GPU WAIT FUNCTION
+# ==========================================================
+
+
+def wait_for_gpu():
+
+    if not WAIT_FOR_GPU:
+        print("\n[INFO] GPU waiting disabled. Starting immediately.\n")
+        return
+
+    print("\n[INFO] Waiting for GPU availability...")
+
+    start_time = time.time()
+
+    stable_gpu = None
+    stable_count = 0
+
+    while True:
+        elapsed_hours = (time.time() - start_time) / 3600
+
+        if elapsed_hours > MAX_WAIT_HOURS:
+            raise RuntimeError(
+                f"Timed out after {MAX_WAIT_HOURS} hours waiting for GPU."
+            )
+
+        try:
+            result = subprocess.check_output(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=index,utilization.gpu,memory.used,memory.total",
+                    "--format=csv,noheader,nounits",
+                ],
+                text=True,
+            )
+
+            lines = result.strip().split("\n")
+
+            best_gpu = None
+            best_mem = float("inf")
+
+            print("\n" + "-" * 80)
+
+            for line in lines:
+                gpu_id, util, mem_used, mem_total = line.split(",")
+
+                gpu_id = int(gpu_id.strip())
+                util = float(util.strip())
+
+                mem_used = float(mem_used.strip()) / 1024.0
+                mem_total = float(mem_total.strip()) / 1024.0
+
+                print(
+                    f"GPU {gpu_id}: "
+                    f"util={util:5.1f}% | "
+                    f"mem={mem_used:6.1f}/{mem_total:.1f} GB"
+                )
+
+                if (
+                    util <= MAX_GPU_UTILIZATION
+                    and mem_used <= MAX_GPU_MEMORY_GB
+                    and mem_used < best_mem
+                ):
+                    best_mem = mem_used
+                    best_gpu = gpu_id
+
+            if best_gpu is not None:
+                if stable_gpu == best_gpu:
+                    stable_count += 1
+                else:
+                    stable_gpu = best_gpu
+                    stable_count = 1
+
+                print(
+                    f"[INFO] GPU {stable_gpu} stable "
+                    f"{stable_count}/{REQUIRED_STABLE_CHECKS}"
+                )
+
+                if stable_count >= REQUIRED_STABLE_CHECKS:
+                    print("\n" + "=" * 80)
+                    print(f"[READY] GPU {stable_gpu} selected")
+                    print("[READY] Starting stage")
+                    print("=" * 80 + "\n")
+
+                    return
+
+            else:
+                stable_gpu = None
+                stable_count = 0
+
+                print(f"[WAIT] No GPU below {MAX_GPU_MEMORY_GB} GB memory")
+
+            time.sleep(CHECK_INTERVAL)
+
+        except Exception as e:
+            print(f"[ERROR] GPU check failed: {e}")
+            time.sleep(CHECK_INTERVAL)
+
+
+# ==========================================================
+# RUN COMMAND + LOG
+# ==========================================================
+
+
+def run_and_log(command, logfile):
+
+    print("\n" + "=" * 80)
+    print("RUNNING :", " ".join(command))
+    print("LOG FILE:", logfile)
+    print("=" * 80 + "\n")
+
+    with open(logfile, "a", encoding="utf-8") as f:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+
+        for line in process.stdout:
+            print(line, end="")
+            f.write(line)
+            f.flush()
+
+        process.wait()
+
+        if process.returncode != 0:
+            print("\n" + "=" * 80)
+            print("FAILED")
+            print("Command:", " ".join(command))
+            print("Return Code:", process.returncode)
+            print("Log File:", logfile)
+            print("=" * 80)
+
+            raise subprocess.CalledProcessError(
+                process.returncode,
+                command,
+            )
+
+    print("\n" + "=" * 80)
+    print("COMPLETED:", " ".join(command))
+    print("=" * 80)
+
+
+# ==========================================================
+# STAGE EXECUTION WITH RETRIES
+# ==========================================================
+
+
+def run_stage_with_retries(
+    stage_name,
+    command,
+    logfile,
+    success_marker,
+    max_retries,
+    wait_for_resources=False,
+):
+
+    if success_marker.exists():
+        print(f"\n[SKIP] {stage_name} already completed ({success_marker.name})")
+        return
+
+    attempt = 1
+
+    while attempt <= max_retries:
+        print("\n" + "#" * 80)
+        print(f"{stage_name} - ATTEMPT {attempt}/{max_retries}")
+        print("#" * 80)
+
+        try:
+            if wait_for_resources:
+                wait_for_gpu()
+            with open(logfile, "a", encoding="utf-8") as f:
+                f.write("\n")
+                f.write("=" * 80 + "\n")
+                f.write(f"{stage_name} ATTEMPT {attempt}/{max_retries}\n")
+                f.write("=" * 80 + "\n")
+            run_and_log(command, logfile)
+
+            success_marker.touch()
+
+            print(f"\n[SUCCESS] {stage_name} completed.")
+
+            return
+
+        except Exception as e:
+            print(f"\n[FAILED] {stage_name} attempt {attempt}")
+
+            print(f"Reason: {e}")
+
+            attempt += 1
+
+            if attempt > max_retries:
+                raise RuntimeError(f"{stage_name} failed after {max_retries} attempts")
+
+            print(f"\n[RETRY] Waiting {RETRY_WAIT_SECONDS} seconds...")
+
+            time.sleep(RETRY_WAIT_SECONDS)
+
+
+# ==========================================================
+# MAIN
+# ==========================================================
+
+
+def main():
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    exp_dir = Path("experiment_logs") / timestamp
+
+    exp_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    print("\n" + "=" * 80)
+    print("FAFT EXPERIMENT MANAGER")
+    print("=" * 80)
+
+    print(f"Experiment Folder      : {exp_dir}")
+    print(f"WAIT_FOR_GPU          : {WAIT_FOR_GPU}")
+    print(f"RUN_TRAINING          : {RUN_TRAINING}")
+    print(f"RUN_EVALUATION        : {RUN_EVALUATION}")
+    print(f"RUN_HOLDOUT           : {RUN_HOLDOUT}")
+    print(f"MAX_GPU_MEMORY_GB     : {MAX_GPU_MEMORY_GB}")
+    print(f"MAX_GPU_UTILIZATION   : {MAX_GPU_UTILIZATION}")
+    print(f"CHECK_INTERVAL        : {CHECK_INTERVAL}")
+    print(f"REQUIRED_STABLE_CHECKS: {REQUIRED_STABLE_CHECKS}")
+    print(f"MAX_TRAIN_RETRIES     : {MAX_TRAIN_RETRIES}")
+    print(f"MAX_EVAL_RETRIES      : {MAX_EVAL_RETRIES}")
+    print(f"MAX_HOLDOUT_RETRIES   : {MAX_HOLDOUT_RETRIES}")
+
+    print("=" * 80)
+
+    train_log = exp_dir / "training.log"
+    eval_log = exp_dir / "evaluation.log"
+    holdout_log = exp_dir / "holdout.log"
+
+    training_success = exp_dir / "TRAINING_SUCCESS"
+
+    evaluation_success = exp_dir / "EVALUATION_SUCCESS"
+
+    holdout_success = exp_dir / "HOLDOUT_SUCCESS"
+
+    # ======================================================
+    # TRAINING
+    # ======================================================
+
+    if RUN_TRAINING:
+        run_stage_with_retries(
+            stage_name="TRAINING",
+            command=[
+                "flwr",
+                "run",
+                ".",
+                "--stream",
+            ],
+            logfile=train_log,
+            success_marker=training_success,
+            max_retries=MAX_TRAIN_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # EVALUATION
+    # ======================================================
+
+    if RUN_EVALUATION:
+        run_stage_with_retries(
+            stage_name="EVALUATION",
+            command=[
+                sys.executable,
+                "evaluate_saved_model.py",
+            ],
+            logfile=eval_log,
+            success_marker=evaluation_success,
+            max_retries=MAX_EVAL_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # HOLDOUT
+    # ======================================================
+
+    if RUN_HOLDOUT:
+        run_stage_with_retries(
+            stage_name="HOLDOUT",
+            command=[
+                sys.executable,
+                "evaluate_holdout.py",
+            ],
+            logfile=holdout_log,
+            success_marker=holdout_success,
+            max_retries=MAX_HOLDOUT_RETRIES,
+            wait_for_resources=True,
+        )
+
+    # ======================================================
+    # COMPLETE
+    # ======================================================
+
+    print("\n" + "=" * 80)
+    print("EXPERIMENT COMPLETE")
+    print("=" * 80)
+
+    print(f"Experiment Folder : {exp_dir}")
+
+    if RUN_TRAINING:
+        print(f"Training Log      : {train_log}")
+
+    if RUN_EVALUATION:
+        print(f"Evaluation Log    : {eval_log}")
+
+    if RUN_HOLDOUT:
+        print(f"Holdout Log       : {holdout_log}")
+
+    print("=" * 80)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        print("\n\n[INFO] Experiment cancelled by user.")
+
+        sys.exit(0)
+
+    except Exception as e:
+        print(f"\n\n[FATAL] {e}")
+
+        sys.exit(1)
+
+
 === FILE: quickstart-pytorch/evaluate_holdout.py ===
 import time
 from collections import Counter
@@ -2352,60 +3848,6 @@ if __name__ == "__main__":
     main()
 
 
-=== FILE: quickstart-pytorch/split.py ===
-import shutil
-import random
-from pathlib import Path
-
-random.seed(42)
-
-SOURCE = Path("/root/Rishi/datasets/real_vs_fake/real-vs-fake")
-
-DEST = Path("dataset")
-
-CLIENTS = 5
-
-
-def split_images(images, clients):
-
-    random.shuffle(images)
-    size = len(images) // clients
-    splits = []
-
-    for i in range(clients):
-        start = i * size
-
-        if i == clients - 1:
-            end = len(images)
-        else:
-            end = (i + 1) * size
-
-        splits.append(images[start:end])
-
-    return splits
-
-
-for split in ["train", "valid", "test"]:
-    for label in ["real", "fake"]:
-        images = list((SOURCE / split / label).glob("*"))
-        client_splits = split_images(images, CLIENTS)
-
-        for client_id, subset in enumerate(client_splits, start=1):
-            target_dir = (
-                DEST
-                / f"client{client_id}"
-                / ("val" if split == "valid" else split)
-                / label
-            )
-
-            target_dir.mkdir(parents=True, exist_ok=True)
-
-            for img in subset:
-                shutil.copy2(img, target_dir / img.name)
-
-print("Done.")
-
-
 === FILE: quickstart-pytorch/recreate_holdout_eval.py ===
 from pathlib import Path
 import os
@@ -2475,9 +3917,9 @@ publisher = "rishi"
 
 [tool.flwr.app.config]
 num-server-rounds = 5
-local-epochs = 5
+local-epochs = 1
 model-name = "faft"
-dataset-name = "openforensics"
+dataset-name = "140k"
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -2490,7 +3932,7 @@ default = "local-simulation"
 options.num-supernodes = 5
 
 [tool.flwr.federations.local-simulation.options.backend.client-resources]
-num-cpus = 4
+num-cpus = 2
 num-gpus = 1.0
 
 [tool.hatch.build.targets.wheel]
@@ -2550,1225 +3992,58 @@ for dataset_name in datasets:
 print("\nDone.")
 
 
-=== FILE: quickstart-pytorch/evaluate_saved_model.py ===
-import time
-from collections import Counter
-
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    confusion_matrix,
-    classification_report,
-    roc_auc_score,
-)
-
-from pytorchexample.model import load_model
-from pytorchexample.task import load_data
-
-import subprocess
-
-
-def get_best_gpu():
-
-    if not torch.cuda.is_available():
-        return torch.device("cpu")
-
-    result = subprocess.check_output(
-        [
-            "nvidia-smi",
-            "--query-gpu=index,memory.used,memory.total",
-            "--format=csv,noheader,nounits",
-        ],
-        text=True,
-    )
-
-    best_gpu = 0
-    best_free = -1
-
-    for line in result.strip().split("\n"):
-        gpu_id, mem_used, mem_total = line.split(",")
-
-        gpu_id = int(gpu_id.strip())
-        mem_used = float(mem_used.strip())
-        mem_total = float(mem_total.strip())
-
-        free_mem = mem_total - mem_used
-
-        print(
-            f"GPU {gpu_id}: used={mem_used / 1024:.1f}GB free={free_mem / 1024:.1f}GB"
-        )
-
-        if free_mem > best_free:
-            best_free = free_mem
-            best_gpu = gpu_id
-
-    print(f"\nUsing GPU {best_gpu}")
-
-    return torch.device(f"cuda:{best_gpu}")
-
-
-DEVICE = get_best_gpu()
-print(f"Using device: {DEVICE}")
-if DEVICE.type == "cuda":
-    result = subprocess.check_output(
-        [
-            "nvidia-smi",
-            "--query-gpu=index,memory.used,memory.total",
-            "--format=csv,noheader,nounits",
-        ],
-        text=True,
-    )
-
-    gpu_id = int(str(DEVICE).split(":")[1])
-
-    for line in result.strip().split("\n"):
-        idx, mem_used, mem_total = line.split(",")
-
-        idx = int(idx.strip())
-
-        if idx == gpu_id:
-            mem_used = float(mem_used.strip())
-            mem_total = float(mem_total.strip())
-
-            free_gb = (mem_total - mem_used) / 1024
-
-            print(f"GPU {gpu_id} free memory: {free_gb:.1f} GB")
-
-            if free_gb < 8:
-                raise RuntimeError(f"GPU {gpu_id} only has {free_gb:.1f} GB free.")
-
-# ==================================================
-# SETTINGS
-# ==================================================
-NUM_CLIENTS = 5
-MODEL_PATH = "saved_models/global_model_round_5.pth"
-
-# H100 can easily handle this
-EVAL_BATCH_SIZE = 256
-
-torch.backends.cudnn.benchmark = True
-torch.set_float32_matmul_precision("high")
-
-if torch.cuda.is_available():
-    torch.backends.cuda.matmul.allow_tf32 = True
-    torch.backends.cudnn.allow_tf32 = True
-
-
-# ==================================================
-# MODEL DETECTION
-# ==================================================
-def detect_model_type(state_dict):
-
-    keys = list(state_dict.keys())
-
-    if any(k.startswith("patch_embed") for k in keys):
-        return "faft"
-
-    if any(k.startswith("frequency_branch") for k in keys):
-        return "artifact_vit"
-
-    if any(k.startswith("resnet.") for k in keys) and any(
-        k.startswith("swin.") for k in keys
-    ):
-        return "hybrid_swin"
-
-    if any(k.startswith("resnet.") for k in keys) and any(
-        k.startswith("vit.") for k in keys
-    ):
-        return "hybrid"
-
-    if "class_token" in keys:
-        return "vit"
-
-    if "head.weight" in keys and any(k.startswith("features.") for k in keys):
-        return "swin"
-
-    if "conv1.weight" in keys:
-        return "resnet18"
-
-    if "features.0.0.weight" in keys and "classifier.1.weight" in keys:
-        return "efficientnet"
-
-    raise ValueError("Unable to determine model type")
-
-
-# ==================================================
-# EVALUATION
-# ==================================================
-def evaluate():
-
-    print("\nLoading checkpoint...")
-
-    checkpoint = torch.load(
-        MODEL_PATH,
-        map_location="cpu",
-        weights_only=True,
-    )
-
-    model_name = detect_model_type(checkpoint)
-
-    print(f"Detected model: {model_name}")
-
-    model = load_model(model_name)
-    model.load_state_dict(checkpoint)
-
-    model = model.to(DEVICE)
-    model = model.to(memory_format=torch.channels_last)
-
-    model.eval()
-
-    # Compile model (PyTorch 2.x)
-    if DEVICE.type == "cuda":
-        print("Compiling model...")
-
-        try:
-            model = torch.compile(model)
-        except Exception as e:
-            print(f"Compile failed: {e}")
-
-    print("\nWarming up GPU...")
-
-    dummy = torch.randn(
-        32,
-        3,
-        224,
-        224,
-        dtype=torch.float32,
-        device=DEVICE,
-    )
-
-    dummy = dummy.to(memory_format=torch.channels_last)
-
-    with torch.inference_mode():
-        with torch.amp.autocast(
-            "cuda",
-            enabled=(DEVICE.type == "cuda"),
-        ):
-            for _ in range(5):
-                _ = model(dummy)
-
-    if DEVICE.type == "cuda":
-        torch.cuda.synchronize(DEVICE)
-
-    print("Warmup complete.\n")
-    if DEVICE.type == "cuda":
-        torch.cuda.reset_peak_memory_stats(DEVICE)
-    overall_start = time.time()
-    criterion = nn.CrossEntropyLoss()
-
-    all_labels = []
-    all_predictions = []
-    all_probabilities = []
-
-    total_loss = 0.0
-    total_samples = 0
-
-    client_bar = tqdm(
-        range(1, NUM_CLIENTS + 1),
-        desc="Clients",
-    )
-    with torch.inference_mode():
-        for client_id in client_bar:
-            print(f"\nEvaluating Client {client_id}")
-
-            _, _, old_loader = load_data(client_id)
-
-            # -----------------------------------
-            # REBUILD TESTLOADER
-            # -----------------------------------
-            testloader = DataLoader(
-                old_loader.dataset,
-                batch_size=EVAL_BATCH_SIZE,
-                shuffle=False,
-                num_workers=0,
-                pin_memory=True,
-            )
-
-            print("Batch size:", testloader.batch_size)
-            print("Batches:", len(testloader))
-
-            processed = 0
-            client_start = time.time()
-            num_batches = len(testloader)
-            batch_bar = tqdm(
-                testloader,
-                desc=f"Client {client_id}",
-                leave=False,
-            )
-
-            for images, labels in batch_bar:
-                images = images.to(
-                    DEVICE,
-                    dtype=torch.float32,
-                    non_blocking=True,
-                    memory_format=torch.channels_last,
-                )
-
-                labels = labels.to(
-                    DEVICE,
-                    non_blocking=True,
-                )
-
-                infer_start = time.perf_counter()
-
-                with torch.amp.autocast(
-                    "cuda",
-                    enabled=(DEVICE.type == "cuda"),
-                ):
-                    outputs = model(images)
-                    loss = criterion(outputs, labels)
-
-                if DEVICE.type == "cuda":
-                    torch.cuda.synchronize(DEVICE)
-
-                infer_time = time.perf_counter() - infer_start
-                predictions = outputs.detach().argmax(dim=1).cpu().numpy()
-
-                probabilities = (
-                    torch.softmax(outputs.float(), dim=1)[:, 1].detach().cpu().numpy()
-                )
-
-                all_labels.extend(labels.detach().cpu().numpy())
-                all_predictions.extend(predictions)
-                all_probabilities.extend(probabilities)
-                total_loss += loss.item() * labels.size(0)
-                total_samples += labels.size(0)
-                processed += labels.size(0)
-                elapsed = time.time() - client_start
-                img_s = processed / elapsed
-
-                gpu_alloc = (
-                    torch.cuda.memory_allocated(DEVICE) / 1024**3
-                    if DEVICE.type == "cuda"
-                    else 0
-                )
-
-                gpu_reserved = (
-                    torch.cuda.memory_reserved(DEVICE) / 1024**3
-                    if DEVICE.type == "cuda"
-                    else 0
-                )
-
-                eta = (num_batches - batch_bar.n - 1) * infer_time
-                batch_bar.set_postfix(
-                    loss=f"{loss.item():.4f}",
-                    img_s=f"{img_s:.1f}",
-                    infer_ms=f"{infer_time * 1000:.1f}",
-                    eta=f"{eta:.1f}s",
-                    alloc=f"{gpu_alloc:.1f}GB",
-                    reserv=f"{gpu_reserved:.1f}GB",
-                )
-
-            client_time = time.time() - client_start
-
-            print(
-                f"Client {client_id}: "
-                f"{processed} images "
-                f"in {client_time:.2f}s "
-                f"({processed / client_time:.1f} img/s)"
-            )
-    if DEVICE.type == "cuda":
-        torch.cuda.empty_cache()
-
-    avg_loss = total_loss / total_samples
-
-    accuracy = accuracy_score(
-        all_labels,
-        all_predictions,
-    )
-
-    precision = precision_score(
-        all_labels,
-        all_predictions,
-        zero_division=0,
-    )
-
-    recall = recall_score(
-        all_labels,
-        all_predictions,
-        zero_division=0,
-    )
-
-    f1 = f1_score(
-        all_labels,
-        all_predictions,
-        zero_division=0,
-    )
-
-    auc = roc_auc_score(
-        all_labels,
-        all_probabilities,
-    )
-
-    cm = confusion_matrix(
-        all_labels,
-        all_predictions,
-    )
-
-    total_time = time.time() - overall_start
-
-    if DEVICE.type == "cuda":
-        peak_gpu_alloc = torch.cuda.max_memory_allocated(DEVICE) / 1024**3
-
-        peak_gpu_reserved = torch.cuda.max_memory_reserved(DEVICE) / 1024**3
-
-    print("\nGround Truth Distribution")
-    print(Counter(all_labels))
-
-    print("\nPrediction Distribution")
-    print(Counter(all_predictions))
-
-    print("\n" + "=" * 80)
-    print("FINAL EVALUATION RESULTS")
-    print("=" * 80)
-
-    print(f"Model      : {model_name}")
-    print(f"Loss       : {avg_loss:.6f}")
-    print(f"Accuracy   : {accuracy:.6f}")
-    print(f"Precision  : {precision:.6f}")
-    print(f"Recall     : {recall:.6f}")
-    print(f"F1 Score   : {f1:.6f}")
-    print(f"ROC-AUC    : {auc:.6f}")
-
-    print("\nPerformance")
-    print(f"Images     : {total_samples}")
-    print(f"Time       : {total_time:.2f} sec")
-    print(f"Throughput : {total_samples / total_time:.1f} img/s")
-
-    print(f"Peak GPU allocated : {peak_gpu_alloc:.2f} GB")
-    print(f"Peak GPU reserved  : {peak_gpu_reserved:.2f} GB")
-
-    print("\nConfusion Matrix")
-    print(cm)
-
-    print("\nClassification Report")
-
-    print(
-        classification_report(
-            all_labels,
-            all_predictions,
-            labels=[0, 1],
-            target_names=["Fake", "Real"],
-            zero_division=0,
-        )
-    )
-
-    print("=" * 80)
-
-
-if __name__ == "__main__":
-    evaluate()
-
-
-=== FILE: quickstart-pytorch/run_experiment.py ===
-from pathlib import Path
-from datetime import datetime
-import subprocess
-import sys
-import time
-
-# ==========================================================
-# USER SETTINGS (EDIT THESE ONLY)
-# ==========================================================
-
-# Wait for GPU before training/retries
-WAIT_FOR_GPU = True
-
-# Pipeline stages
-RUN_TRAINING = True
-RUN_EVALUATION = True
-RUN_HOLDOUT = False
-
-# GPU availability criteria
-MAX_GPU_UTILIZATION = 95  # %
-MAX_GPU_MEMORY_GB = 70  # GB used threshold
-
-# GPU stability checks
-CHECK_INTERVAL = 3  # seconds
-REQUIRED_STABLE_CHECKS = 3
-
-# Safety timeout
-MAX_WAIT_HOURS = 24
-
-# Retry settings
-MAX_TRAIN_RETRIES = 999999  # effectively infinite
-MAX_EVAL_RETRIES = 50
-MAX_HOLDOUT_RETRIES = 50
-
-RETRY_WAIT_SECONDS = 60
-
-# ==========================================================
-# GPU WAIT FUNCTION
-# ==========================================================
-
-
-def wait_for_gpu():
-
-    if not WAIT_FOR_GPU:
-        print("\n[INFO] GPU waiting disabled. Starting immediately.\n")
-        return
-
-    print("\n[INFO] Waiting for GPU availability...")
-
-    start_time = time.time()
-
-    stable_gpu = None
-    stable_count = 0
-
-    while True:
-        elapsed_hours = (time.time() - start_time) / 3600
-
-        if elapsed_hours > MAX_WAIT_HOURS:
-            raise RuntimeError(
-                f"Timed out after {MAX_WAIT_HOURS} hours waiting for GPU."
-            )
-
-        try:
-            result = subprocess.check_output(
-                [
-                    "nvidia-smi",
-                    "--query-gpu=index,utilization.gpu,memory.used,memory.total",
-                    "--format=csv,noheader,nounits",
-                ],
-                text=True,
-            )
-
-            lines = result.strip().split("\n")
-
-            best_gpu = None
-            best_mem = float("inf")
-
-            print("\n" + "-" * 80)
-
-            for line in lines:
-                gpu_id, util, mem_used, mem_total = line.split(",")
-
-                gpu_id = int(gpu_id.strip())
-                util = float(util.strip())
-
-                mem_used = float(mem_used.strip()) / 1024.0
-                mem_total = float(mem_total.strip()) / 1024.0
-
-                print(
-                    f"GPU {gpu_id}: "
-                    f"util={util:5.1f}% | "
-                    f"mem={mem_used:6.1f}/{mem_total:.1f} GB"
-                )
-
-                if (
-                    util <= MAX_GPU_UTILIZATION
-                    and mem_used <= MAX_GPU_MEMORY_GB
-                    and mem_used < best_mem
-                ):
-                    best_mem = mem_used
-                    best_gpu = gpu_id
-
-            if best_gpu is not None:
-                if stable_gpu == best_gpu:
-                    stable_count += 1
-                else:
-                    stable_gpu = best_gpu
-                    stable_count = 1
-
-                print(
-                    f"[INFO] GPU {stable_gpu} stable "
-                    f"{stable_count}/{REQUIRED_STABLE_CHECKS}"
-                )
-
-                if stable_count >= REQUIRED_STABLE_CHECKS:
-                    print("\n" + "=" * 80)
-                    print(f"[READY] GPU {stable_gpu} selected")
-                    print("[READY] Starting stage")
-                    print("=" * 80 + "\n")
-
-                    return
-
-            else:
-                stable_gpu = None
-                stable_count = 0
-
-                print(f"[WAIT] No GPU below {MAX_GPU_MEMORY_GB} GB memory")
-
-            time.sleep(CHECK_INTERVAL)
-
-        except Exception as e:
-            print(f"[ERROR] GPU check failed: {e}")
-            time.sleep(CHECK_INTERVAL)
-
-
-# ==========================================================
-# RUN COMMAND + LOG
-# ==========================================================
-
-
-def run_and_log(command, logfile):
-
-    print("\n" + "=" * 80)
-    print("RUNNING :", " ".join(command))
-    print("LOG FILE:", logfile)
-    print("=" * 80 + "\n")
-
-    with open(logfile, "a", encoding="utf-8") as f:
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-
-        for line in process.stdout:
-            print(line, end="")
-            f.write(line)
-            f.flush()
-
-        process.wait()
-
-        if process.returncode != 0:
-            print("\n" + "=" * 80)
-            print("FAILED")
-            print("Command:", " ".join(command))
-            print("Return Code:", process.returncode)
-            print("Log File:", logfile)
-            print("=" * 80)
-
-            raise subprocess.CalledProcessError(
-                process.returncode,
-                command,
-            )
-
-    print("\n" + "=" * 80)
-    print("COMPLETED:", " ".join(command))
-    print("=" * 80)
-
-
-# ==========================================================
-# STAGE EXECUTION WITH RETRIES
-# ==========================================================
-
-
-def run_stage_with_retries(
-    stage_name,
-    command,
-    logfile,
-    success_marker,
-    max_retries,
-    wait_for_resources=False,
-):
-
-    if success_marker.exists():
-        print(f"\n[SKIP] {stage_name} already completed ({success_marker.name})")
-        return
-
-    attempt = 1
-
-    while attempt <= max_retries:
-        print("\n" + "#" * 80)
-        print(f"{stage_name} - ATTEMPT {attempt}/{max_retries}")
-        print("#" * 80)
-
-        try:
-            if wait_for_resources:
-                wait_for_gpu()
-            with open(logfile, "a", encoding="utf-8") as f:
-                f.write("\n")
-                f.write("=" * 80 + "\n")
-                f.write(f"{stage_name} ATTEMPT {attempt}/{max_retries}\n")
-                f.write("=" * 80 + "\n")
-            run_and_log(command, logfile)
-
-            success_marker.touch()
-
-            print(f"\n[SUCCESS] {stage_name} completed.")
-
-            return
-
-        except Exception as e:
-            print(f"\n[FAILED] {stage_name} attempt {attempt}")
-
-            print(f"Reason: {e}")
-
-            attempt += 1
-
-            if attempt > max_retries:
-                raise RuntimeError(f"{stage_name} failed after {max_retries} attempts")
-
-            print(f"\n[RETRY] Waiting {RETRY_WAIT_SECONDS} seconds...")
-
-            time.sleep(RETRY_WAIT_SECONDS)
-
-
-# ==========================================================
-# MAIN
-# ==========================================================
-
-
-def main():
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    exp_dir = Path("experiment_logs") / timestamp
-
-    exp_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    print("\n" + "=" * 80)
-    print("FAFT EXPERIMENT MANAGER")
-    print("=" * 80)
-
-    print(f"Experiment Folder      : {exp_dir}")
-    print(f"WAIT_FOR_GPU          : {WAIT_FOR_GPU}")
-    print(f"RUN_TRAINING          : {RUN_TRAINING}")
-    print(f"RUN_EVALUATION        : {RUN_EVALUATION}")
-    print(f"RUN_HOLDOUT           : {RUN_HOLDOUT}")
-    print(f"MAX_GPU_MEMORY_GB     : {MAX_GPU_MEMORY_GB}")
-    print(f"MAX_GPU_UTILIZATION   : {MAX_GPU_UTILIZATION}")
-    print(f"CHECK_INTERVAL        : {CHECK_INTERVAL}")
-    print(f"REQUIRED_STABLE_CHECKS: {REQUIRED_STABLE_CHECKS}")
-    print(f"MAX_TRAIN_RETRIES     : {MAX_TRAIN_RETRIES}")
-    print(f"MAX_EVAL_RETRIES      : {MAX_EVAL_RETRIES}")
-    print(f"MAX_HOLDOUT_RETRIES   : {MAX_HOLDOUT_RETRIES}")
-
-    print("=" * 80)
-
-    train_log = exp_dir / "training.log"
-    eval_log = exp_dir / "evaluation.log"
-    holdout_log = exp_dir / "holdout.log"
-
-    training_success = exp_dir / "TRAINING_SUCCESS"
-
-    evaluation_success = exp_dir / "EVALUATION_SUCCESS"
-
-    holdout_success = exp_dir / "HOLDOUT_SUCCESS"
-
-    # ======================================================
-    # TRAINING
-    # ======================================================
-
-    if RUN_TRAINING:
-        run_stage_with_retries(
-            stage_name="TRAINING",
-            command=[
-                "flwr",
-                "run",
-                ".",
-                "--stream",
-            ],
-            logfile=train_log,
-            success_marker=training_success,
-            max_retries=MAX_TRAIN_RETRIES,
-            wait_for_resources=True,
-        )
-
-    # ======================================================
-    # EVALUATION
-    # ======================================================
-
-    if RUN_EVALUATION:
-        run_stage_with_retries(
-            stage_name="EVALUATION",
-            command=[
-                sys.executable,
-                "evaluate_saved_model.py",
-            ],
-            logfile=eval_log,
-            success_marker=evaluation_success,
-            max_retries=MAX_EVAL_RETRIES,
-            wait_for_resources=True,
-        )
-
-    # ======================================================
-    # HOLDOUT
-    # ======================================================
-
-    if RUN_HOLDOUT:
-        run_stage_with_retries(
-            stage_name="HOLDOUT",
-            command=[
-                sys.executable,
-                "evaluate_holdout.py",
-            ],
-            logfile=holdout_log,
-            success_marker=holdout_success,
-            max_retries=MAX_HOLDOUT_RETRIES,
-            wait_for_resources=True,
-        )
-
-    # ======================================================
-    # COMPLETE
-    # ======================================================
-
-    print("\n" + "=" * 80)
-    print("EXPERIMENT COMPLETE")
-    print("=" * 80)
-
-    print(f"Experiment Folder : {exp_dir}")
-
-    if RUN_TRAINING:
-        print(f"Training Log      : {train_log}")
-
-    if RUN_EVALUATION:
-        print(f"Evaluation Log    : {eval_log}")
-
-    if RUN_HOLDOUT:
-        print(f"Holdout Log       : {holdout_log}")
-
-    print("=" * 80)
-
-
-if __name__ == "__main__":
-    try:
-        main()
-
-    except KeyboardInterrupt:
-        print("\n\n[INFO] Experiment cancelled by user.")
-
-        sys.exit(0)
-
-    except Exception as e:
-        print(f"\n\n[FATAL] {e}")
-
-        sys.exit(1)
-
-
-=== FILE: quickstart-pytorch/README.md ===
----
-tags: [quickstart, vision, fds]
-dataset: [CIFAR-10]
-framework: [torch, torchvision]
----
-
-# Federated Learning with PyTorch and Flower (Quickstart Example)
-
-This introductory example to Flower uses PyTorch, but deep knowledge of PyTorch is not necessarily required to run the example. However, it will help you understand how to adapt Flower to your use case. Running this example in itself is quite easy. This example uses [Flower Datasets](https://flower.ai/docs/datasets/) to download, partition and preprocess the CIFAR-10 dataset.
-
-## Set up the project
-
-### Fetch the app
-
-Install Flower:
-
-```shell
-pip install flwr
-```
-
-Fetch the app:
-
-```shell
-flwr new @flwrlabs/quickstart-pytorch
-```
-
-This will create a new directory called `quickstart-pytorch` with the following structure:
-
-```shell
-quickstart-pytorch
-├── pytorchexample
-│   ├── __init__.py
-│   ├── client_app.py   # Defines your ClientApp
-│   ├── server_app.py   # Defines your ServerApp
-│   └── task.py         # Defines your model, training and data loading
-├── pyproject.toml      # Project metadata like dependencies and configs
-└── README.md
-```
-
-### Install dependencies and project
-
-Install the dependencies defined in `pyproject.toml` as well as the `pytorchexample` package.
-
-```bash
-pip install -e .
-```
-
-## Run the project
-
-You can run your Flower project in both _simulation_ and _deployment_ mode without making changes to the code. If you are starting with Flower, we recommend you using the _simulation_ mode as it requires fewer components to be launched manually. By default, `flwr run` will make use of the Simulation Engine.
-
-### Run with the Simulation Engine
-
-> [!TIP]
-> This example runs faster when the `ClientApp`s have access to a GPU. Check the [Simulation Engine documentation](https://flower.ai/docs/framework/how-to-run-simulations.html) to learn more about Flower simulations and how to optimize them.
-
-```bash
-# Run with the default federation (CPU only)
-flwr run .  --stream
-```
-
-You can also override some of the settings for your `ClientApp` and `ServerApp` defined in `pyproject.toml`. For example:
-
-```bash
-flwr run . --run-config "num-server-rounds=5 learning-rate=0.05"  --stream
-```
-
-> [!TIP]
-> For a more detailed walk-through check our [quickstart PyTorch tutorial](https://flower.ai/docs/framework/tutorial-quickstart-pytorch.html)
-
-### Run with the Deployment Engine
-
-Follow this [how-to guide](https://flower.ai/docs/framework/how-to-run-flower-with-deployment-engine.html) to run the same app in this example but with Flower's Deployment Engine. After that, you might be intersted in setting up [secure TLS-enabled communications](https://flower.ai/docs/framework/how-to-enable-tls-connections.html) and [SuperNode authentication](https://flower.ai/docs/framework/how-to-authenticate-supernodes.html) in your federation.
-
-If you are already familiar with how the Deployment Engine works, you may want to learn how to run it using Docker. Check out the [Flower with Docker](https://flower.ai/docs/framework/docker/index.html) documentation.
-
-
-=== FILE: quickstart-pytorch/preprocess_openforensics.py ===
+=== FILE: quickstart-pytorch/split.py ===
+import shutil
 import random
 from pathlib import Path
-from PIL import Image
-from tqdm import tqdm
 
 random.seed(42)
 
-# ======================================================
-# CONFIGURATION
-# ======================================================
+SOURCE = Path("/home/ex5/research/rishi/dataset/real_vs_fake/real-vs-fake")
 
-SOURCE = Path("/root/Rishi/datasets/openforensics/Dataset")
-DEST = Path("dataset_openforensic")
+DEST = Path("dataset")
 
 CLIENTS = 5
-IMAGE_SIZE = (224, 224)
-
-split_map = {
-    "Train": "train",
-    "Validation": "val",
-    "Test": "test",
-}
-
-label_map = {
-    "Real": "real",
-    "Fake": "fake",
-}
 
 
 def split_images(images, clients):
-    random.shuffle(images)
 
+    random.shuffle(images)
     size = len(images) // clients
     splits = []
 
     for i in range(clients):
         start = i * size
-        end = len(images) if i == clients - 1 else (i + 1) * size
+
+        if i == clients - 1:
+            end = len(images)
+        else:
+            end = (i + 1) * size
+
         splits.append(images[start:end])
 
     return splits
 
 
-for src_split, dst_split in split_map.items():
-
-    print(f"\n{'='*60}")
-    print(f"{src_split}")
-    print(f"{'='*60}")
-
-    for src_label, dst_label in label_map.items():
-
-        images = list((SOURCE / src_split / src_label).glob("*.jpg"))
+for split in ["train", "valid", "test"]:
+    for label in ["real", "fake"]:
+        images = list((SOURCE / split / label).glob("*"))
         client_splits = split_images(images, CLIENTS)
 
-        print(f"{src_label}: {len(images):,} images")
-
         for client_id, subset in enumerate(client_splits, start=1):
-
             target_dir = (
                 DEST
                 / f"client{client_id}"
-                / dst_split
-                / dst_label
+                / ("val" if split == "valid" else split)
+                / label
             )
 
             target_dir.mkdir(parents=True, exist_ok=True)
 
-            progress = tqdm(
-                subset,
-                desc=f"Client {client_id} | {dst_split} | {dst_label}",
-                unit="img",
-                leave=True,
-            )
+            for img in subset:
+                shutil.copy2(img, target_dir / img.name)
 
-            for img_path in progress:
-
-                try:
-                    img = Image.open(img_path).convert("RGB")
-                    img = img.resize(
-                        IMAGE_SIZE,
-                        Image.Resampling.LANCZOS,
-                    )
-
-                    img.save(
-                        target_dir / img_path.name,
-                        quality=95,
-                    )
-
-                except Exception as e:
-                    tqdm.write(f"Failed: {img_path}")
-                    tqdm.write(str(e))
-
-print("\nDataset preparation completed successfully!")
-
-=== FILE: quickstart-pytorch/pytorchexample/__init__.py ===
-"""pytorchexample."""
-
-
-=== FILE: quickstart-pytorch/pytorchexample/task.py ===
-import os
-import time
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-from torch.utils.data import DataLoader, Subset
-from torchvision import datasets, transforms
-
-from tqdm import tqdm
-from collections import Counter
-
-torch.backends.cudnn.benchmark = True
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(f"Using device: {device}")
-
-try:
-    if device.type == "cuda":
-        print("GPU Enabled")
-        print(f"GPU Count: {torch.cuda.device_count()}")
-
-        if torch.cuda.device_count() > 0:
-            print(torch.cuda.get_device_name(torch.cuda.current_device()))
-
-except Exception as e:
-    print(f"GPU info unavailable: {e}")
-
-DEBUG = False
-
-
-def convert_rgb(img):
-    if img.mode != "RGB":
-        img = img.convert("RGB")
-    return img
-
-
-transform = transforms.Compose(
-    [
-        transforms.Lambda(convert_rgb),
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
-
-
-DATASET_ROOTS = {
-    "140k": "dataset",
-    "ffpp": "dataset_ffpp",
-    "openforensics": "dataset_openforensic",
-}
-
-
-def load_data(client_id, dataset_name="140k"):
-
-    dataset_root = DATASET_ROOTS[dataset_name]
-
-    train_path = f"{dataset_root}/client{client_id}/train"
-    val_path = f"{dataset_root}/client{client_id}/val"
-    test_path = f"{dataset_root}/client{client_id}/test"
-
-    trainset = datasets.ImageFolder(train_path, transform=transform)
-    valset = datasets.ImageFolder(val_path, transform=transform)
-    testset = datasets.ImageFolder(test_path, transform=transform)
-
-    print(trainset.class_to_idx)
-    # DEBUG MODE
-    if DEBUG:
-        import random
-
-        random.seed(client_id)
-
-        train_limit = min(1000, len(trainset))
-        val_limit = min(100, len(valset))
-        test_limit = min(100, len(testset))
-
-        train_indices = random.sample(range(len(trainset)), train_limit)
-        val_indices = random.sample(range(len(valset)), val_limit)
-        test_indices = random.sample(range(len(testset)), test_limit)
-
-        trainset = Subset(trainset, train_indices)
-        valset = Subset(valset, val_indices)
-        testset = Subset(testset, test_indices)
-
-        print(
-            f"[DEBUG MODE] "
-            f"Train={len(trainset)}, "
-            f"Val={len(valset)}, "
-            f"Test={len(testset)}"
-        )
-
-    def get_distribution(dataset):
-
-        if isinstance(dataset, Subset):
-            labels = [dataset.dataset.targets[i] for i in dataset.indices]
-        else:
-            labels = dataset.targets
-
-        return Counter(labels)
-
-    print(f"\nClient {client_id} Class Distribution")
-    print("Train:", get_distribution(trainset))
-    print("Val  :", get_distribution(valset))
-    print("Test :", get_distribution(testset))
-
-    trainloader = DataLoader(trainset, batch_size=128, shuffle=True)
-    valloader = DataLoader(valset, batch_size=128, shuffle=False)
-    testloader = DataLoader(testset, batch_size=128, shuffle=False)
-
-    print(f"Client {client_id}")
-    print(f"Train Images: {len(trainset)}")
-    print(f"Test Images : {len(testset)}")
-    print(f"Validate Images : {len(valset)}")
-    return trainloader, valloader, testloader
-
-
-def train(model, trainloader, device, epochs=1):
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(
-        filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
-    )
-
-    print("START classifier norm:", model.classifier[0].weight.norm().item())
-    scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda"))
-
-    model.train()
-
-    for epoch in range(epochs):
-        running_loss = 0.0
-        correct = 0
-        total = 0
-
-        start_time = time.time()
-        progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
-
-        for batch_idx, (images, labels) in enumerate(progress_bar):
-            images = images.to(device, non_blocking=True)
-            labels = labels.to(device, non_blocking=True)
-            optimizer.zero_grad()
-
-            with torch.amp.autocast(
-                "cuda",
-                enabled=(device.type == "cuda"),
-            ):
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-
-            artifact_embedding = None
-            with torch.no_grad():
-                if hasattr(model, "extract_artifact_embedding"):
-                    artifact_embedding = model.last_artifact_embedding
-
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
-            if (
-                hasattr(model, "extract_artifact_embedding")
-                and artifact_embedding is not None
-            ):
-                model.update_prototypes(
-                    artifact_embedding,
-                    labels,
-                )
-            running_loss += loss.item()
-            _, predicted = torch.max(outputs, 1)
-            correct += (predicted == labels).sum().item()
-            total += labels.size(0)
-            accuracy = 100.0 * correct / total
-            elapsed = time.time() - start_time
-            images_processed = (batch_idx + 1) * images.size(0)
-            img_per_sec = images_processed / elapsed
-
-            eta_seconds = (elapsed / (batch_idx + 1)) * (
-                len(trainloader) - batch_idx - 1
-            )
-
-            progress_bar.set_postfix(
-                {
-                    "loss": f"{loss.item():.4f}",
-                    "acc": f"{accuracy:.2f}%",
-                    "img/s": f"{img_per_sec:.1f}",
-                    "eta": f"{eta_seconds / 60:.1f}m",
-                }
-            )
-
-            if batch_idx % 100 == 0:
-                if torch.cuda.is_available():
-                    allocated = torch.cuda.memory_allocated() / 1024**3
-                    reserved = torch.cuda.memory_reserved() / 1024**3
-
-                    print(f"\nBatch {batch_idx}/{len(trainloader)}")
-                    print(f"GPU Allocated: {allocated:.2f} GB")
-                    print(f"GPU Reserved : {reserved:.2f} GB")
-
-        epoch_time = time.time() - start_time
-        avg_loss = running_loss / len(trainloader)
-        final_acc = 100.0 * correct / total
-
-        print("\n" + "=" * 50)
-        print(f"Epoch {epoch + 1} Complete")
-        print(f"Average Loss : {avg_loss:.4f}")
-        print(f"Accuracy     : {final_acc:.2f}%")
-        print(f"Time         : {epoch_time:.2f}s")
-        print(f"Images       : {total}")
-        print(f"Images/sec   : {total / epoch_time:.2f}")
-
-        if torch.cuda.is_available():
-            allocated = torch.cuda.memory_allocated() / 1024**3
-            reserved = torch.cuda.memory_reserved() / 1024**3
-            print(f"GPU Allocated: {allocated:.2f} GB")
-            print(f"GPU Reserved : {reserved:.2f} GB")
-
-        print("=" * 50)
-    print("END classifier norm:", model.classifier[0].weight.norm().item())
-
-
-def test(model, testloader, device):
-    criterion = nn.CrossEntropyLoss()
-
-    correct = 0
-    total = 0
-    loss = 0.0
-
-    model.eval()
-
-    with torch.no_grad():
-        for images, labels in tqdm(testloader, desc="Testing", leave=True):
-            images = images.to(device)
-            labels = labels.to(device)
-            outputs = model(images)
-            loss += criterion(outputs, labels).item()
-            _, predicted = torch.max(outputs, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    accuracy = correct / total
-
-    print(f"Accuracy: {accuracy:.4f}")
-
-    return loss, accuracy
-
-
-def save_model(model, round_num):
-    os.makedirs("saved_models", exist_ok=True)
-    path = f"saved_models/global_model_round_{round_num}.pth"
-    torch.save(model.state_dict(), path)
-    print(f"Saved: {path}")
+print("Done.")
 
 
 === FILE: quickstart-pytorch/pytorchexample/client_app.py ===
@@ -3972,6 +4247,329 @@ def client_fn(context):
 
 
 app = fl.client.ClientApp(client_fn=client_fn)
+
+
+=== FILE: quickstart-pytorch/pytorchexample/utils.py ===
+import numpy as np
+
+
+def poison_parameters(parameters):
+    print("\nPOISONING STARTED")
+    for i, param in enumerate(parameters):
+        before = np.mean(param)
+        param += np.random.normal(0, 0.05, param.shape).astype(param.dtype)
+        after = np.mean(param)
+
+        print(f"Layer {i}: {before:.6f} -> {after:.6f}")
+
+    print("POISONING FINISHED\n")
+
+    return parameters
+
+
+=== FILE: quickstart-pytorch/pytorchexample/server_app.py ===
+from collections import OrderedDict
+import numpy as np
+import torch
+
+from flwr.common import Context, parameters_to_ndarrays
+
+from flwr.server import (
+    ServerApp,
+    ServerAppComponents,
+    ServerConfig,
+)
+
+from flwr.server.strategy import FedAvg
+
+from .model import load_model
+from .task import save_model
+from flwr.common import ndarrays_to_parameters
+
+
+def weighted_average(metrics):
+
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
+    examples = [num_examples for num_examples, _ in metrics]
+
+    return {"accuracy": sum(accuracies) / sum(examples)}
+
+
+def fedavg_weights(weight_sets, num_examples):
+
+    total_examples = sum(num_examples)
+    aggregated = []
+
+    for layer_idx in range(len(weight_sets[0])):
+        layer_sum = sum(
+            weights[layer_idx] * n for weights, n in zip(weight_sets, num_examples)
+        )
+
+        aggregated.append(layer_sum / total_examples)
+
+    return aggregated
+
+
+class SaveModelStrategy(FedAvg):
+    def __init__(self, model_name, **kwargs):
+        super().__init__(**kwargs)
+
+        self.model_name = model_name
+
+    def aggregate_fit(self, server_round, results, failures):
+        print(
+            f"\nRound {server_round}: results={len(results)}, failures={len(failures)}"
+        )
+
+        aggregated = super().aggregate_fit(
+            server_round,
+            results,
+            failures,
+        )
+
+        if aggregated is None:
+            print(f"Round {server_round}: aggregation returned None")
+            return None
+
+        parameters, metrics = aggregated
+
+        if parameters is None:
+            print(f"Round {server_round}: parameters are None")
+            return aggregated
+
+        ndarrays = parameters_to_ndarrays(parameters)
+        model = load_model(self.model_name)
+        model_ndarrays = ndarrays[: len(model.state_dict())]
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            model_ndarrays,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        model.load_state_dict(state_dict, strict=True)
+        save_model(model, server_round)
+
+        print(f"Round {server_round}: model saved successfully")
+
+        return aggregated
+
+
+def server_fn(context: Context):
+
+    print("\n===== RUN CONFIG =====")
+    print(context.run_config)
+    print("======================\n")
+
+    local_epochs = context.run_config["local-epochs"]
+    model_name = context.run_config["model-name"]
+    num_rounds = context.run_config["num-server-rounds"]
+
+    def fit_config(server_round):
+
+        config = {"local_epochs": local_epochs}
+
+        return config
+
+    if model_name == "faft":
+        strategy = FAFTStrategy(
+            model_name=model_name,
+            fraction_fit=1.0,
+            fraction_evaluate=1.0,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
+            on_fit_config_fn=fit_config,
+            evaluate_metrics_aggregation_fn=weighted_average,
+        )
+
+    else:
+        strategy = SaveModelStrategy(
+            model_name=model_name,
+            fraction_fit=1.0,
+            fraction_evaluate=1.0,
+            min_fit_clients=5,
+            min_evaluate_clients=5,
+            min_available_clients=5,
+            on_fit_config_fn=fit_config,
+            evaluate_metrics_aggregation_fn=weighted_average,
+        )
+
+    return ServerAppComponents(
+        strategy=strategy,
+        config=ServerConfig(num_rounds=num_rounds),
+    )
+
+
+class FAFTStrategy(SaveModelStrategy):
+    def __init__(self, model_name, **kwargs):
+
+        super().__init__(
+            model_name=model_name,
+            **kwargs,
+        )
+
+        # -----------------------------------
+        # Global class memories
+        # -----------------------------------
+        self.global_real_memory = None
+        self.global_fake_memory = None
+
+        model = load_model(model_name)
+        self.num_model_tensors = len(model.state_dict())
+        del model
+
+    def aggregate_fit(
+        self,
+        server_round,
+        results,
+        failures,
+    ):
+
+        print(
+            f"\nFAFT Round {server_round}: "
+            f"results={len(results)}, "
+            f"failures={len(failures)}"
+        )
+
+        if failures:
+            print("\n========== FAILURES ==========")
+
+            for i, failure in enumerate(failures):
+                print(f"\nFailure {i + 1}:")
+                print(type(failure))
+                print(repr(failure))
+
+            print("\n==============================")
+
+        if not results:
+            print("No client results received")
+            return None
+
+        # --------------------------------------------------
+        # Separate model weights and prototypes
+        # --------------------------------------------------
+
+        expected_tensors = self.num_model_tensors + 2
+        weight_sets = []
+        real_prototypes = []
+        fake_prototypes = []
+        example_counts = []
+
+        for _, fit_res in results:
+            ndarrays = parameters_to_ndarrays(fit_res.parameters)
+
+            if len(ndarrays) != expected_tensors:
+                raise ValueError(
+                    f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
+                )
+
+            model_weights = ndarrays[:-2]
+            real_proto = ndarrays[-2]
+            fake_proto = ndarrays[-1]
+            weight_sets.append(model_weights)
+            real_prototypes.append(real_proto)
+            fake_prototypes.append(fake_proto)
+            example_counts.append(fit_res.num_examples)
+        # --------------------------------------------------
+        # FedAvg for model weights
+        # --------------------------------------------------
+        global_weights = fedavg_weights(
+            weight_sets,
+            example_counts,
+        )
+
+        # --------------------------------------------------
+        # Prototype aggregation
+        # --------------------------------------------------
+        global_real_proto = np.average(
+            real_prototypes,
+            axis=0,
+            weights=example_counts,
+        )
+
+        global_fake_proto = np.average(
+            fake_prototypes,
+            axis=0,
+            weights=example_counts,
+        )
+
+        # -------------------------
+        # Real memory
+        # -------------------------
+        if self.global_real_memory is None:
+            self.global_real_memory = global_real_proto
+
+        else:
+            self.global_real_memory = (
+                0.9 * self.global_real_memory + 0.1 * global_real_proto
+            )
+
+        # -------------------------
+        # Fake memory
+        # -------------------------
+        if self.global_fake_memory is None:
+            self.global_fake_memory = global_fake_proto
+
+        else:
+            self.global_fake_memory = (
+                0.9 * self.global_fake_memory + 0.1 * global_fake_proto
+            )
+
+        print(f"\nRound {server_round} Prototype Aggregated")
+        print()
+        print(f"Real memory norm = {np.linalg.norm(self.global_real_memory):.4f}")
+        print(f"Fake memory norm = {np.linalg.norm(self.global_fake_memory):.4f}")
+
+        # --------------------------------------------------
+        # Save aggregated global model
+        # --------------------------------------------------
+        model = load_model(self.model_name)
+
+        params_dict = zip(
+            model.state_dict().keys(),
+            global_weights,
+        )
+
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+
+        model.load_state_dict(
+            state_dict,
+            strict=True,
+        )
+
+        save_model(
+            model,
+            server_round,
+        )
+
+        print(f"Round {server_round}: model saved successfully")
+
+        # Broadcast:
+        #   global model weights
+        #   global memory vector
+        combined_parameters = (
+            global_weights
+            + [self.global_real_memory.astype(np.float32)]
+            + [self.global_fake_memory.astype(np.float32)]
+        )
+        print(
+            f"Broadcasting "
+            f"{len(combined_parameters)} tensors "
+            f"({len(global_weights)} weights + memory)"
+        )
+        parameters = ndarrays_to_parameters(combined_parameters)
+
+        return (
+            parameters,
+            {
+                "real_memory_norm": float(np.linalg.norm(self.global_real_memory)),
+                "fake_memory_norm": float(np.linalg.norm(self.global_fake_memory)),
+            },
+        )
+
+
+app = ServerApp(server_fn=server_fn)
 
 
 === FILE: quickstart-pytorch/pytorchexample/model.py ===
@@ -4723,6 +5321,10 @@ def load_model(model_name):
     return model
 
 
+=== FILE: quickstart-pytorch/pytorchexample/__init__.py ===
+"""pytorchexample."""
+
+
 === FILE: quickstart-pytorch/pytorchexample/gpu_manager.py ===
 import json
 import os
@@ -4884,325 +5486,256 @@ class GPUManager:
         self.assigned_gpu = None
 
 
-=== FILE: quickstart-pytorch/pytorchexample/server_app.py ===
-from collections import OrderedDict
-import numpy as np
+=== FILE: quickstart-pytorch/pytorchexample/task.py ===
+import os
+import time
+
 import torch
+import torch.nn as nn
+import torch.optim as optim
 
-from flwr.common import Context, parameters_to_ndarrays
+from torch.utils.data import DataLoader, Subset
+from torchvision import datasets, transforms
 
-from flwr.server import (
-    ServerApp,
-    ServerAppComponents,
-    ServerConfig,
+from tqdm import tqdm
+from collections import Counter
+
+torch.backends.cudnn.benchmark = True
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+print(f"Using device: {device}")
+
+try:
+    if device.type == "cuda":
+        print("GPU Enabled")
+        print(f"GPU Count: {torch.cuda.device_count()}")
+
+        if torch.cuda.device_count() > 0:
+            print(torch.cuda.get_device_name(torch.cuda.current_device()))
+
+except Exception as e:
+    print(f"GPU info unavailable: {e}")
+
+DEBUG = False
+
+
+def convert_rgb(img):
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    return img
+
+
+transform = transforms.Compose(
+    [
+        transforms.Lambda(convert_rgb),
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
 )
 
-from flwr.server.strategy import FedAvg
 
-from .model import load_model
-from .task import save_model
-from flwr.common import ndarrays_to_parameters
-
-
-def weighted_average(metrics):
-
-    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-    examples = [num_examples for num_examples, _ in metrics]
-
-    return {"accuracy": sum(accuracies) / sum(examples)}
+DATASET_ROOTS = {
+    "140k": "dataset",
+    "ffpp": "dataset_ffpp",
+    "openforensics": "dataset_openforensic",
+}
 
 
-def fedavg_weights(weight_sets, num_examples):
+def load_data(client_id, dataset_name="140k"):
 
-    total_examples = sum(num_examples)
-    aggregated = []
+    dataset_root = DATASET_ROOTS[dataset_name]
 
-    for layer_idx in range(len(weight_sets[0])):
-        layer_sum = sum(
-            weights[layer_idx] * n for weights, n in zip(weight_sets, num_examples)
-        )
+    train_path = f"{dataset_root}/client{client_id}/train"
+    val_path = f"{dataset_root}/client{client_id}/val"
+    test_path = f"{dataset_root}/client{client_id}/test"
 
-        aggregated.append(layer_sum / total_examples)
+    trainset = datasets.ImageFolder(train_path, transform=transform)
+    valset = datasets.ImageFolder(val_path, transform=transform)
+    testset = datasets.ImageFolder(test_path, transform=transform)
 
-    return aggregated
+    print(trainset.class_to_idx)
+    # DEBUG MODE
+    if DEBUG:
+        import random
 
+        random.seed(client_id)
 
-class SaveModelStrategy(FedAvg):
-    def __init__(self, model_name, **kwargs):
-        super().__init__(**kwargs)
+        train_limit = min(100, len(trainset))
+        val_limit = min(10, len(valset))
+        test_limit = min(10, len(testset))
 
-        self.model_name = model_name
+        train_indices = random.sample(range(len(trainset)), train_limit)
+        val_indices = random.sample(range(len(valset)), val_limit)
+        test_indices = random.sample(range(len(testset)), test_limit)
 
-    def aggregate_fit(self, server_round, results, failures):
+        trainset = Subset(trainset, train_indices)
+        valset = Subset(valset, val_indices)
+        testset = Subset(testset, test_indices)
+
         print(
-            f"\nRound {server_round}: results={len(results)}, failures={len(failures)}"
+            f"[DEBUG MODE] "
+            f"Train={len(trainset)}, "
+            f"Val={len(valset)}, "
+            f"Test={len(testset)}"
         )
 
-        aggregated = super().aggregate_fit(
-            server_round,
-            results,
-            failures,
-        )
+    def get_distribution(dataset):
 
-        if aggregated is None:
-            print(f"Round {server_round}: aggregation returned None")
-            return None
+        if isinstance(dataset, Subset):
+            labels = [dataset.dataset.targets[i] for i in dataset.indices]
+        else:
+            labels = dataset.targets
 
-        parameters, metrics = aggregated
+        return Counter(labels)
 
-        if parameters is None:
-            print(f"Round {server_round}: parameters are None")
-            return aggregated
+    print(f"\nClient {client_id} Class Distribution")
+    print("Train:", get_distribution(trainset))
+    print("Val  :", get_distribution(valset))
+    print("Test :", get_distribution(testset))
 
-        ndarrays = parameters_to_ndarrays(parameters)
-        model = load_model(self.model_name)
-        model_ndarrays = ndarrays[: len(model.state_dict())]
+    trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
+    valloader = DataLoader(valset, batch_size=32, shuffle=False)
+    testloader = DataLoader(testset, batch_size=32, shuffle=False)
 
-        params_dict = zip(
-            model.state_dict().keys(),
-            model_ndarrays,
-        )
-
-        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-        model.load_state_dict(state_dict, strict=True)
-        save_model(model, server_round)
-
-        print(f"Round {server_round}: model saved successfully")
-
-        return aggregated
+    print(f"Client {client_id}")
+    print(f"Train Images: {len(trainset)}")
+    print(f"Test Images : {len(testset)}")
+    print(f"Validate Images : {len(valset)}")
+    return trainloader, valloader, testloader
 
 
-def server_fn(context: Context):
-
-    print("\n===== RUN CONFIG =====")
-    print(context.run_config)
-    print("======================\n")
-
-    local_epochs = context.run_config["local-epochs"]
-    model_name = context.run_config["model-name"]
-    num_rounds = context.run_config["num-server-rounds"]
-
-    def fit_config(server_round):
-
-        config = {"local_epochs": local_epochs}
-
-        return config
-
-    if model_name == "faft":
-        strategy = FAFTStrategy(
-            model_name=model_name,
-            fraction_fit=1.0,
-            fraction_evaluate=1.0,
-            min_fit_clients=5,
-            min_evaluate_clients=5,
-            min_available_clients=5,
-            on_fit_config_fn=fit_config,
-            evaluate_metrics_aggregation_fn=weighted_average,
-        )
-
-    else:
-        strategy = SaveModelStrategy(
-            model_name=model_name,
-            fraction_fit=1.0,
-            fraction_evaluate=1.0,
-            min_fit_clients=5,
-            min_evaluate_clients=5,
-            min_available_clients=5,
-            on_fit_config_fn=fit_config,
-            evaluate_metrics_aggregation_fn=weighted_average,
-        )
-
-    return ServerAppComponents(
-        strategy=strategy,
-        config=ServerConfig(num_rounds=num_rounds),
+def train(model, trainloader, device, epochs=1):
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
 
+    print("START classifier norm:", model.classifier[0].weight.norm().item())
+    scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda"))
 
-class FAFTStrategy(SaveModelStrategy):
-    def __init__(self, model_name, **kwargs):
+    model.train()
 
-        super().__init__(
-            model_name=model_name,
-            **kwargs,
-        )
+    for epoch in range(epochs):
+        running_loss = 0.0
+        correct = 0
+        total = 0
 
-        # -----------------------------------
-        # Global class memories
-        # -----------------------------------
-        self.global_real_memory = None
-        self.global_fake_memory = None
+        start_time = time.time()
+        progress_bar = tqdm(trainloader, desc=f"Epoch {epoch + 1}/{epochs}", leave=True)
 
-        model = load_model(model_name)
-        self.num_model_tensors = len(model.state_dict())
-        del model
+        for batch_idx, (images, labels) in enumerate(progress_bar):
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
+            optimizer.zero_grad()
 
-    def aggregate_fit(
-        self,
-        server_round,
-        results,
-        failures,
-    ):
+            with torch.amp.autocast(
+                "cuda",
+                enabled=(device.type == "cuda"),
+            ):
+                outputs = model(images)
+                loss = criterion(outputs, labels)
 
-        print(
-            f"\nFAFT Round {server_round}: "
-            f"results={len(results)}, "
-            f"failures={len(failures)}"
-        )
+            artifact_embedding = None
+            with torch.no_grad():
+                if hasattr(model, "extract_artifact_embedding"):
+                    artifact_embedding = model.last_artifact_embedding
 
-        if failures:
-            print("\n========== FAILURES ==========")
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
-            for i, failure in enumerate(failures):
-                print(f"\nFailure {i + 1}:")
-                print(type(failure))
-                print(repr(failure))
-
-            print("\n==============================")
-
-        if not results:
-            print("No client results received")
-            return None
-
-        # --------------------------------------------------
-        # Separate model weights and prototypes
-        # --------------------------------------------------
-
-        expected_tensors = self.num_model_tensors + 2
-        weight_sets = []
-        real_prototypes = []
-        fake_prototypes = []
-        example_counts = []
-
-        for _, fit_res in results:
-            ndarrays = parameters_to_ndarrays(fit_res.parameters)
-
-            if len(ndarrays) != expected_tensors:
-                raise ValueError(
-                    f"Expected {expected_tensors} tensors but received {len(ndarrays)}"
+            if (
+                hasattr(model, "extract_artifact_embedding")
+                and artifact_embedding is not None
+            ):
+                model.update_prototypes(
+                    artifact_embedding,
+                    labels,
                 )
+            running_loss += loss.item()
+            _, predicted = torch.max(outputs, 1)
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+            accuracy = 100.0 * correct / total
+            elapsed = time.time() - start_time
+            images_processed = (batch_idx + 1) * images.size(0)
+            img_per_sec = images_processed / elapsed
 
-            model_weights = ndarrays[:-2]
-            real_proto = ndarrays[-2]
-            fake_proto = ndarrays[-1]
-            weight_sets.append(model_weights)
-            real_prototypes.append(real_proto)
-            fake_prototypes.append(fake_proto)
-            example_counts.append(fit_res.num_examples)
-        # --------------------------------------------------
-        # FedAvg for model weights
-        # --------------------------------------------------
-        global_weights = fedavg_weights(
-            weight_sets,
-            example_counts,
-        )
-
-        # --------------------------------------------------
-        # Prototype aggregation
-        # --------------------------------------------------
-        global_real_proto = np.average(
-            real_prototypes,
-            axis=0,
-            weights=example_counts,
-        )
-
-        global_fake_proto = np.average(
-            fake_prototypes,
-            axis=0,
-            weights=example_counts,
-        )
-
-        # -------------------------
-        # Real memory
-        # -------------------------
-        if self.global_real_memory is None:
-            self.global_real_memory = global_real_proto
-
-        else:
-            self.global_real_memory = (
-                0.9 * self.global_real_memory + 0.1 * global_real_proto
+            eta_seconds = (elapsed / (batch_idx + 1)) * (
+                len(trainloader) - batch_idx - 1
             )
 
-        # -------------------------
-        # Fake memory
-        # -------------------------
-        if self.global_fake_memory is None:
-            self.global_fake_memory = global_fake_proto
-
-        else:
-            self.global_fake_memory = (
-                0.9 * self.global_fake_memory + 0.1 * global_fake_proto
+            progress_bar.set_postfix(
+                {
+                    "loss": f"{loss.item():.4f}",
+                    "acc": f"{accuracy:.2f}%",
+                    "img/s": f"{img_per_sec:.1f}",
+                    "eta": f"{eta_seconds / 60:.1f}m",
+                }
             )
 
-        print(f"\nRound {server_round} Prototype Aggregated")
-        print()
-        print(f"Real memory norm = {np.linalg.norm(self.global_real_memory):.4f}")
-        print(f"Fake memory norm = {np.linalg.norm(self.global_fake_memory):.4f}")
+            if batch_idx % 100 == 0:
+                if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated() / 1024**3
+                    reserved = torch.cuda.memory_reserved() / 1024**3
 
-        # --------------------------------------------------
-        # Save aggregated global model
-        # --------------------------------------------------
-        model = load_model(self.model_name)
+                    print(f"\nBatch {batch_idx}/{len(trainloader)}")
+                    print(f"GPU Allocated: {allocated:.2f} GB")
+                    print(f"GPU Reserved : {reserved:.2f} GB")
 
-        params_dict = zip(
-            model.state_dict().keys(),
-            global_weights,
-        )
+        epoch_time = time.time() - start_time
+        avg_loss = running_loss / len(trainloader)
+        final_acc = 100.0 * correct / total
 
-        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        print("\n" + "=" * 50)
+        print(f"Epoch {epoch + 1} Complete")
+        print(f"Average Loss : {avg_loss:.4f}")
+        print(f"Accuracy     : {final_acc:.2f}%")
+        print(f"Time         : {epoch_time:.2f}s")
+        print(f"Images       : {total}")
+        print(f"Images/sec   : {total / epoch_time:.2f}")
 
-        model.load_state_dict(
-            state_dict,
-            strict=True,
-        )
+        if torch.cuda.is_available():
+            allocated = torch.cuda.memory_allocated() / 1024**3
+            reserved = torch.cuda.memory_reserved() / 1024**3
+            print(f"GPU Allocated: {allocated:.2f} GB")
+            print(f"GPU Reserved : {reserved:.2f} GB")
 
-        save_model(
-            model,
-            server_round,
-        )
-
-        print(f"Round {server_round}: model saved successfully")
-
-        # Broadcast:
-        #   global model weights
-        #   global memory vector
-        combined_parameters = (
-            global_weights
-            + [self.global_real_memory.astype(np.float32)]
-            + [self.global_fake_memory.astype(np.float32)]
-        )
-        print(
-            f"Broadcasting "
-            f"{len(combined_parameters)} tensors "
-            f"({len(global_weights)} weights + memory)"
-        )
-        parameters = ndarrays_to_parameters(combined_parameters)
-
-        return (
-            parameters,
-            {
-                "real_memory_norm": float(np.linalg.norm(self.global_real_memory)),
-                "fake_memory_norm": float(np.linalg.norm(self.global_fake_memory)),
-            },
-        )
+        print("=" * 50)
+    print("END classifier norm:", model.classifier[0].weight.norm().item())
 
 
-app = ServerApp(server_fn=server_fn)
+def test(model, testloader, device):
+    criterion = nn.CrossEntropyLoss()
+
+    correct = 0
+    total = 0
+    loss = 0.0
+
+    model.eval()
+
+    with torch.no_grad():
+        for images, labels in tqdm(testloader, desc="Testing", leave=True):
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            loss += criterion(outputs, labels).item()
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = correct / total
+
+    print(f"Accuracy: {accuracy:.4f}")
+
+    return loss, accuracy
 
 
-=== FILE: quickstart-pytorch/pytorchexample/utils.py ===
-import numpy as np
-
-
-def poison_parameters(parameters):
-    print("\nPOISONING STARTED")
-    for i, param in enumerate(parameters):
-        before = np.mean(param)
-        param += np.random.normal(0, 0.05, param.shape).astype(param.dtype)
-        after = np.mean(param)
-
-        print(f"Layer {i}: {before:.6f} -> {after:.6f}")
-
-    print("POISONING FINISHED\n")
-
-    return parameters
+def save_model(model, round_num):
+    os.makedirs("saved_models", exist_ok=True)
+    path = f"saved_models/global_model_round_{round_num}.pth"
+    torch.save(model.state_dict(), path)
+    print(f"Saved: {path}")
 

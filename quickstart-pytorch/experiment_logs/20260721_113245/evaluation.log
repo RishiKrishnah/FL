@@ -1,0 +1,2036 @@
+
+================================================================================
+EVALUATION ATTEMPT 1/50
+================================================================================
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.3GB free=11.7GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.7 GB
+
+Loading checkpoint...
+Detected model: faft
+
+Warming up GPU...
+Artifact bias shape: torch.Size([8, 8, 197, 197])
+Warmup complete.
+
+
+Clients:   0%|          | 0/5 [00:00<?, ?it/s]
+Evaluating Client 1
+{'fake': 0, 'real': 1}
+
+Client 1 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 1
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+
+
+Client 1:   0%|          | 0/125 [00:00<?, ?it/s][A
+
+Client 1:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=35.3s, img_s=94.1, infer_ms=284.6, loss=0.0044, reserv=0.9GB][A
+
+Client 1:   1%|          | 1/125 [00:00<00:42,  2.94it/s, alloc=0.5GB, eta=35.3s, img_s=94.1, infer_ms=284.6, loss=0.0044, reserv=0.9GB][A
+
+Client 1:   1%|          | 1/125 [00:00<00:42,  2.94it/s, alloc=0.5GB, eta=5.6s, img_s=147.6, infer_ms=45.6, loss=0.0009, reserv=1.1GB] [A
+
+Client 1:   1%|          | 1/125 [00:00<00:42,  2.94it/s, alloc=0.5GB, eta=5.6s, img_s=184.9, infer_ms=45.7, loss=0.0009, reserv=1.1GB][A
+
+Client 1:   2%|▏         | 3/125 [00:00<00:18,  6.47it/s, alloc=0.5GB, eta=5.6s, img_s=184.9, infer_ms=45.7, loss=0.0009, reserv=1.1GB][A
+
+Client 1:   2%|▏         | 3/125 [00:00<00:18,  6.47it/s, alloc=0.5GB, eta=5.5s, img_s=212.2, infer_ms=45.6, loss=0.0007, reserv=1.1GB][A
+
+Client 1:   2%|▏         | 3/125 [00:00<00:18,  6.47it/s, alloc=0.5GB, eta=5.6s, img_s=232.6, infer_ms=46.1, loss=0.0011, reserv=1.1GB][A
+
+Client 1:   4%|▍         | 5/125 [00:00<00:14,  8.44it/s, alloc=0.5GB, eta=5.6s, img_s=232.6, infer_ms=46.1, loss=0.0011, reserv=1.1GB][A
+
+Client 1:   4%|▍         | 5/125 [00:00<00:14,  8.44it/s, alloc=0.5GB, eta=5.5s, img_s=248.4, infer_ms=46.2, loss=0.0008, reserv=1.1GB][A
+
+Client 1:   4%|▍         | 5/125 [00:00<00:14,  8.44it/s, alloc=0.5GB, eta=5.5s, img_s=260.9, infer_ms=46.1, loss=0.0012, reserv=1.1GB][A
+
+Client 1:   6%|▌         | 7/125 [00:00<00:12,  9.57it/s, alloc=0.5GB, eta=5.5s, img_s=260.9, infer_ms=46.1, loss=0.0012, reserv=1.1GB][A
+
+Client 1:   6%|▌         | 7/125 [00:00<00:12,  9.57it/s, alloc=0.5GB, eta=5.3s, img_s=270.9, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:   6%|▌         | 7/125 [00:01<00:12,  9.57it/s, alloc=0.5GB, eta=5.3s, img_s=279.6, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:   7%|▋         | 9/125 [00:01<00:11, 10.27it/s, alloc=0.5GB, eta=5.3s, img_s=279.6, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:   7%|▋         | 9/125 [00:01<00:11, 10.27it/s, alloc=0.5GB, eta=5.2s, img_s=287.0, infer_ms=45.6, loss=0.0170, reserv=1.1GB][A
+
+Client 1:   7%|▋         | 9/125 [00:01<00:11, 10.27it/s, alloc=0.5GB, eta=5.2s, img_s=293.0, infer_ms=45.6, loss=0.0218, reserv=1.1GB][A
+
+Client 1:   9%|▉         | 11/125 [00:01<00:10, 10.72it/s, alloc=0.5GB, eta=5.2s, img_s=293.0, infer_ms=45.6, loss=0.0218, reserv=1.1GB][A
+
+Client 1:   9%|▉         | 11/125 [00:01<00:10, 10.72it/s, alloc=0.5GB, eta=5.2s, img_s=298.2, infer_ms=45.6, loss=0.0011, reserv=1.1GB][A
+
+Client 1:   9%|▉         | 11/125 [00:01<00:10, 10.72it/s, alloc=0.5GB, eta=5.2s, img_s=303.0, infer_ms=46.2, loss=0.0046, reserv=1.1GB][A
+
+Client 1:  10%|█         | 13/125 [00:01<00:10, 11.02it/s, alloc=0.5GB, eta=5.2s, img_s=303.0, infer_ms=46.2, loss=0.0046, reserv=1.1GB][A
+
+Client 1:  10%|█         | 13/125 [00:01<00:10, 11.02it/s, alloc=0.5GB, eta=5.1s, img_s=307.2, infer_ms=46.3, loss=0.0011, reserv=1.1GB][A
+
+Client 1:  10%|█         | 13/125 [00:01<00:10, 11.02it/s, alloc=0.5GB, eta=5.1s, img_s=311.0, infer_ms=45.6, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  12%|█▏        | 15/125 [00:01<00:09, 11.24it/s, alloc=0.5GB, eta=5.1s, img_s=311.0, infer_ms=45.6, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  12%|█▏        | 15/125 [00:01<00:09, 11.24it/s, alloc=0.5GB, eta=5.0s, img_s=314.7, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  12%|█▏        | 15/125 [00:01<00:09, 11.24it/s, alloc=0.5GB, eta=5.0s, img_s=318.0, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  14%|█▎        | 17/125 [00:01<00:09, 11.45it/s, alloc=0.5GB, eta=5.0s, img_s=318.0, infer_ms=45.6, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  14%|█▎        | 17/125 [00:01<00:09, 11.45it/s, alloc=0.5GB, eta=4.9s, img_s=320.8, infer_ms=45.5, loss=0.0015, reserv=1.1GB][A
+
+Client 1:  14%|█▎        | 17/125 [00:01<00:09, 11.45it/s, alloc=0.5GB, eta=4.9s, img_s=323.3, infer_ms=45.7, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  15%|█▌        | 19/125 [00:01<00:09, 11.55it/s, alloc=0.5GB, eta=4.9s, img_s=323.3, infer_ms=45.7, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  15%|█▌        | 19/125 [00:01<00:09, 11.55it/s, alloc=0.5GB, eta=4.8s, img_s=325.5, infer_ms=45.7, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  15%|█▌        | 19/125 [00:02<00:09, 11.55it/s, alloc=0.5GB, eta=4.8s, img_s=327.7, infer_ms=45.6, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  17%|█▋        | 21/125 [00:02<00:08, 11.62it/s, alloc=0.5GB, eta=4.8s, img_s=327.7, infer_ms=45.6, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  17%|█▋        | 21/125 [00:02<00:08, 11.62it/s, alloc=0.5GB, eta=4.7s, img_s=329.6, infer_ms=45.7, loss=0.0016, reserv=1.1GB][A
+
+Client 1:  17%|█▋        | 21/125 [00:02<00:08, 11.62it/s, alloc=0.5GB, eta=4.7s, img_s=331.5, infer_ms=45.6, loss=0.0032, reserv=1.1GB][A
+
+Client 1:  18%|█▊        | 23/125 [00:02<00:08, 11.67it/s, alloc=0.5GB, eta=4.7s, img_s=331.5, infer_ms=45.6, loss=0.0032, reserv=1.1GB][A
+
+Client 1:  18%|█▊        | 23/125 [00:02<00:08, 11.67it/s, alloc=0.5GB, eta=4.7s, img_s=333.1, infer_ms=46.2, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  18%|█▊        | 23/125 [00:02<00:08, 11.67it/s, alloc=0.5GB, eta=4.7s, img_s=334.5, infer_ms=46.2, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  20%|██        | 25/125 [00:02<00:08, 11.66it/s, alloc=0.5GB, eta=4.7s, img_s=334.5, infer_ms=46.2, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  20%|██        | 25/125 [00:02<00:08, 11.66it/s, alloc=0.5GB, eta=4.5s, img_s=336.0, infer_ms=45.7, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  20%|██        | 25/125 [00:02<00:08, 11.66it/s, alloc=0.5GB, eta=4.5s, img_s=337.4, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 1:  22%|██▏       | 27/125 [00:02<00:08, 11.72it/s, alloc=0.5GB, eta=4.5s, img_s=337.4, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 1:  22%|██▏       | 27/125 [00:02<00:08, 11.72it/s, alloc=0.5GB, eta=4.4s, img_s=338.7, infer_ms=45.8, loss=0.0013, reserv=1.1GB][A
+
+Client 1:  22%|██▏       | 27/125 [00:02<00:08, 11.72it/s, alloc=0.5GB, eta=4.4s, img_s=340.0, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 1:  23%|██▎       | 29/125 [00:02<00:08, 11.75it/s, alloc=0.5GB, eta=4.4s, img_s=340.0, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 1:  23%|██▎       | 29/125 [00:02<00:08, 11.75it/s, alloc=0.5GB, eta=4.4s, img_s=341.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  23%|██▎       | 29/125 [00:02<00:08, 11.75it/s, alloc=0.5GB, eta=4.4s, img_s=342.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  25%|██▍       | 31/125 [00:02<00:07, 11.76it/s, alloc=0.5GB, eta=4.4s, img_s=342.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  25%|██▍       | 31/125 [00:02<00:07, 11.76it/s, alloc=0.5GB, eta=4.3s, img_s=342.9, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 1:  25%|██▍       | 31/125 [00:03<00:07, 11.76it/s, alloc=0.5GB, eta=4.3s, img_s=343.9, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  26%|██▋       | 33/125 [00:03<00:07, 11.73it/s, alloc=0.5GB, eta=4.3s, img_s=343.9, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  26%|██▋       | 33/125 [00:03<00:07, 11.73it/s, alloc=0.5GB, eta=4.2s, img_s=344.7, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  26%|██▋       | 33/125 [00:03<00:07, 11.73it/s, alloc=0.5GB, eta=4.2s, img_s=345.6, infer_ms=46.4, loss=0.0011, reserv=1.1GB][A
+
+Client 1:  28%|██▊       | 35/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.2s, img_s=345.6, infer_ms=46.4, loss=0.0011, reserv=1.1GB][A
+
+Client 1:  28%|██▊       | 35/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.1s, img_s=346.3, infer_ms=45.9, loss=0.0228, reserv=1.1GB][A
+
+Client 1:  28%|██▊       | 35/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.1s, img_s=347.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  30%|██▉       | 37/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.1s, img_s=347.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  30%|██▉       | 37/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.0s, img_s=347.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  30%|██▉       | 37/125 [00:03<00:07, 11.74it/s, alloc=0.5GB, eta=4.0s, img_s=348.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  31%|███       | 39/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=4.0s, img_s=348.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  31%|███       | 39/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=3.9s, img_s=349.0, infer_ms=45.8, loss=0.0016, reserv=1.1GB][A
+
+Client 1:  31%|███       | 39/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=3.9s, img_s=349.6, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  33%|███▎      | 41/125 [00:03<00:07, 11.72it/s, alloc=0.5GB, eta=3.9s, img_s=349.6, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  33%|███▎      | 41/125 [00:03<00:07, 11.72it/s, alloc=0.5GB, eta=3.8s, img_s=350.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  33%|███▎      | 41/125 [00:03<00:07, 11.72it/s, alloc=0.5GB, eta=3.8s, img_s=350.8, infer_ms=46.3, loss=0.0148, reserv=1.1GB][A
+
+Client 1:  34%|███▍      | 43/125 [00:03<00:06, 11.73it/s, alloc=0.5GB, eta=3.8s, img_s=350.8, infer_ms=46.3, loss=0.0148, reserv=1.1GB][A
+
+Client 1:  34%|███▍      | 43/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.8s, img_s=351.3, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  34%|███▍      | 43/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.7s, img_s=351.9, infer_ms=46.2, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  36%|███▌      | 45/125 [00:04<00:06, 11.75it/s, alloc=0.5GB, eta=3.7s, img_s=351.9, infer_ms=46.2, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  36%|███▌      | 45/125 [00:04<00:06, 11.75it/s, alloc=0.5GB, eta=3.6s, img_s=352.4, infer_ms=45.9, loss=0.0034, reserv=1.1GB][A
+
+Client 1:  36%|███▌      | 45/125 [00:04<00:06, 11.75it/s, alloc=0.5GB, eta=3.6s, img_s=352.9, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  38%|███▊      | 47/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.6s, img_s=352.9, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  38%|███▊      | 47/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.5s, img_s=353.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  38%|███▊      | 47/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.5s, img_s=353.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  39%|███▉      | 49/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.5s, img_s=353.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 1:  39%|███▉      | 49/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.4s, img_s=353.1, infer_ms=45.9, loss=0.0125, reserv=1.1GB][A
+
+Client 1:  39%|███▉      | 49/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.4s, img_s=353.6, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  41%|████      | 51/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.4s, img_s=353.6, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  41%|████      | 51/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.3s, img_s=354.0, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  41%|████      | 51/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.3s, img_s=354.5, infer_ms=45.9, loss=0.0012, reserv=1.1GB][A
+
+Client 1:  42%|████▏     | 53/125 [00:04<00:06, 11.59it/s, alloc=0.5GB, eta=3.3s, img_s=354.5, infer_ms=45.9, loss=0.0012, reserv=1.1GB][A
+
+Client 1:  42%|████▏     | 53/125 [00:04<00:06, 11.59it/s, alloc=0.5GB, eta=3.3s, img_s=354.9, infer_ms=45.9, loss=0.0151, reserv=1.1GB][A
+
+Client 1:  42%|████▏     | 53/125 [00:04<00:06, 11.59it/s, alloc=0.5GB, eta=3.3s, img_s=355.2, infer_ms=45.9, loss=0.0022, reserv=1.1GB][A
+
+Client 1:  44%|████▍     | 55/125 [00:04<00:06, 11.65it/s, alloc=0.5GB, eta=3.3s, img_s=355.2, infer_ms=45.9, loss=0.0022, reserv=1.1GB][A
+
+Client 1:  44%|████▍     | 55/125 [00:05<00:06, 11.65it/s, alloc=0.5GB, eta=3.2s, img_s=355.5, infer_ms=46.5, loss=0.0018, reserv=1.1GB][A
+
+Client 1:  44%|████▍     | 55/125 [00:05<00:06, 11.65it/s, alloc=0.5GB, eta=3.2s, img_s=355.9, infer_ms=46.4, loss=0.0013, reserv=1.1GB][A
+
+Client 1:  46%|████▌     | 57/125 [00:05<00:05, 11.66it/s, alloc=0.5GB, eta=3.2s, img_s=355.9, infer_ms=46.4, loss=0.0013, reserv=1.1GB][A
+
+Client 1:  46%|████▌     | 57/125 [00:05<00:05, 11.66it/s, alloc=0.5GB, eta=3.1s, img_s=356.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  46%|████▌     | 57/125 [00:05<00:05, 11.66it/s, alloc=0.5GB, eta=3.1s, img_s=356.5, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 1:  47%|████▋     | 59/125 [00:05<00:05, 11.68it/s, alloc=0.5GB, eta=3.1s, img_s=356.5, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 1:  47%|████▋     | 59/125 [00:05<00:05, 11.68it/s, alloc=0.5GB, eta=3.0s, img_s=356.9, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  47%|████▋     | 59/125 [00:05<00:05, 11.68it/s, alloc=0.5GB, eta=3.0s, img_s=357.1, infer_ms=45.9, loss=0.0007, reserv=1.1GB][A
+
+Client 1:  49%|████▉     | 61/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=3.0s, img_s=357.1, infer_ms=45.9, loss=0.0007, reserv=1.1GB][A
+
+Client 1:  49%|████▉     | 61/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.9s, img_s=357.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 1:  49%|████▉     | 61/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.9s, img_s=357.7, infer_ms=45.8, loss=0.0198, reserv=1.1GB][A
+
+Client 1:  50%|█████     | 63/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.9s, img_s=357.7, infer_ms=45.8, loss=0.0198, reserv=1.1GB][A
+
+Client 1:  50%|█████     | 63/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.8s, img_s=357.9, infer_ms=46.5, loss=0.1069, reserv=1.1GB][A
+
+Client 1:  50%|█████     | 63/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.8s, img_s=358.2, infer_ms=46.4, loss=0.0478, reserv=1.1GB][A
+
+Client 1:  52%|█████▏    | 65/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.8s, img_s=358.2, infer_ms=46.4, loss=0.0478, reserv=1.1GB][A
+
+Client 1:  52%|█████▏    | 65/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.7s, img_s=358.4, infer_ms=45.9, loss=0.0862, reserv=1.1GB][A
+
+Client 1:  52%|█████▏    | 65/125 [00:05<00:05, 11.71it/s, alloc=0.5GB, eta=2.7s, img_s=358.7, infer_ms=45.8, loss=0.0465, reserv=1.1GB][A
+
+Client 1:  54%|█████▎    | 67/125 [00:05<00:04, 11.73it/s, alloc=0.5GB, eta=2.7s, img_s=358.7, infer_ms=45.8, loss=0.0465, reserv=1.1GB][A
+
+Client 1:  54%|█████▎    | 67/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.6s, img_s=358.9, infer_ms=45.8, loss=0.1163, reserv=1.1GB][A
+
+Client 1:  54%|█████▎    | 67/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.6s, img_s=359.2, infer_ms=45.9, loss=0.0312, reserv=1.1GB][A
+
+Client 1:  55%|█████▌    | 69/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.6s, img_s=359.2, infer_ms=45.9, loss=0.0312, reserv=1.1GB][A
+
+Client 1:  55%|█████▌    | 69/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.5s, img_s=359.4, infer_ms=45.9, loss=0.0433, reserv=1.1GB][A
+
+Client 1:  55%|█████▌    | 69/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.5s, img_s=359.6, infer_ms=45.9, loss=0.1427, reserv=1.1GB][A
+
+Client 1:  57%|█████▋    | 71/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.5s, img_s=359.6, infer_ms=45.9, loss=0.1427, reserv=1.1GB][A
+
+Client 1:  57%|█████▋    | 71/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.4s, img_s=359.8, infer_ms=45.8, loss=0.1445, reserv=1.1GB][A
+
+Client 1:  57%|█████▋    | 71/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.5s, img_s=360.0, infer_ms=46.5, loss=0.1215, reserv=1.1GB][A
+
+Client 1:  58%|█████▊    | 73/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.5s, img_s=360.0, infer_ms=46.5, loss=0.1215, reserv=1.1GB][A
+
+Client 1:  58%|█████▊    | 73/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.4s, img_s=360.2, infer_ms=46.3, loss=0.0625, reserv=1.1GB][A
+
+Client 1:  58%|█████▊    | 73/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.3s, img_s=360.4, infer_ms=45.9, loss=0.0682, reserv=1.1GB][A
+
+Client 1:  60%|██████    | 75/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.3s, img_s=360.4, infer_ms=45.9, loss=0.0682, reserv=1.1GB][A
+
+Client 1:  60%|██████    | 75/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.2s, img_s=360.6, infer_ms=45.8, loss=0.1361, reserv=1.1GB][A
+
+Client 1:  60%|██████    | 75/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.2s, img_s=360.8, infer_ms=45.8, loss=0.2562, reserv=1.1GB][A
+
+Client 1:  62%|██████▏   | 77/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=360.8, infer_ms=45.8, loss=0.2562, reserv=1.1GB][A
+
+Client 1:  62%|██████▏   | 77/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=361.0, infer_ms=45.8, loss=0.0599, reserv=1.1GB][A
+
+Client 1:  62%|██████▏   | 77/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=361.3, infer_ms=45.9, loss=0.0586, reserv=1.1GB][A
+
+Client 1:  63%|██████▎   | 79/125 [00:06<00:03, 11.79it/s, alloc=0.5GB, eta=2.2s, img_s=361.3, infer_ms=45.9, loss=0.0586, reserv=1.1GB][A
+
+Client 1:  63%|██████▎   | 79/125 [00:07<00:03, 11.79it/s, alloc=0.5GB, eta=2.1s, img_s=361.5, infer_ms=45.8, loss=0.0825, reserv=1.1GB][A
+
+Client 1:  63%|██████▎   | 79/125 [00:07<00:03, 11.79it/s, alloc=0.5GB, eta=2.1s, img_s=361.7, infer_ms=45.9, loss=0.1721, reserv=1.1GB][A
+
+Client 1:  65%|██████▍   | 81/125 [00:07<00:03, 11.81it/s, alloc=0.5GB, eta=2.1s, img_s=361.7, infer_ms=45.9, loss=0.1721, reserv=1.1GB][A
+
+Client 1:  65%|██████▍   | 81/125 [00:07<00:03, 11.81it/s, alloc=0.5GB, eta=2.0s, img_s=361.9, infer_ms=45.9, loss=0.0554, reserv=1.1GB][A
+
+Client 1:  65%|██████▍   | 81/125 [00:07<00:03, 11.81it/s, alloc=0.5GB, eta=2.0s, img_s=362.1, infer_ms=45.9, loss=0.1037, reserv=1.1GB][A
+
+Client 1:  66%|██████▋   | 83/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=2.0s, img_s=362.1, infer_ms=45.9, loss=0.1037, reserv=1.1GB][A
+
+Client 1:  66%|██████▋   | 83/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.9s, img_s=362.3, infer_ms=45.8, loss=0.0649, reserv=1.1GB][A
+
+Client 1:  66%|██████▋   | 83/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.9s, img_s=362.5, infer_ms=45.9, loss=0.0695, reserv=1.1GB][A
+
+Client 1:  68%|██████▊   | 85/125 [00:07<00:03, 11.83it/s, alloc=0.5GB, eta=1.9s, img_s=362.5, infer_ms=45.9, loss=0.0695, reserv=1.1GB][A
+
+Client 1:  68%|██████▊   | 85/125 [00:07<00:03, 11.83it/s, alloc=0.5GB, eta=1.8s, img_s=362.6, infer_ms=45.9, loss=0.0694, reserv=1.1GB][A
+
+Client 1:  68%|██████▊   | 85/125 [00:07<00:03, 11.83it/s, alloc=0.5GB, eta=1.8s, img_s=362.8, infer_ms=46.5, loss=0.1770, reserv=1.1GB][A
+
+Client 1:  70%|██████▉   | 87/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.8s, img_s=362.8, infer_ms=46.5, loss=0.1770, reserv=1.1GB][A
+
+Client 1:  70%|██████▉   | 87/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=363.0, infer_ms=46.4, loss=0.0470, reserv=1.1GB][A
+
+Client 1:  70%|██████▉   | 87/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=363.1, infer_ms=45.9, loss=0.0369, reserv=1.1GB][A
+
+Client 1:  71%|███████   | 89/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=363.1, infer_ms=45.9, loss=0.0369, reserv=1.1GB][A
+
+Client 1:  71%|███████   | 89/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.6s, img_s=363.3, infer_ms=45.8, loss=0.0390, reserv=1.1GB][A
+
+Client 1:  71%|███████   | 89/125 [00:08<00:03, 11.82it/s, alloc=0.5GB, eta=1.6s, img_s=363.5, infer_ms=45.8, loss=0.1102, reserv=1.1GB][A
+
+Client 1:  73%|███████▎  | 91/125 [00:08<00:02, 11.82it/s, alloc=0.5GB, eta=1.6s, img_s=363.5, infer_ms=45.8, loss=0.1102, reserv=1.1GB][A
+
+Client 1:  73%|███████▎  | 91/125 [00:08<00:02, 11.82it/s, alloc=0.5GB, eta=1.5s, img_s=363.6, infer_ms=45.8, loss=0.0833, reserv=1.1GB][A
+
+Client 1:  73%|███████▎  | 91/125 [00:08<00:02, 11.82it/s, alloc=0.5GB, eta=1.5s, img_s=363.8, infer_ms=45.8, loss=0.1212, reserv=1.1GB][A
+
+Client 1:  74%|███████▍  | 93/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.5s, img_s=363.8, infer_ms=45.8, loss=0.1212, reserv=1.1GB][A
+
+Client 1:  74%|███████▍  | 93/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.4s, img_s=363.9, infer_ms=45.9, loss=0.0596, reserv=1.1GB][A
+
+Client 1:  74%|███████▍  | 93/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.4s, img_s=363.7, infer_ms=45.9, loss=0.1163, reserv=1.1GB][A
+
+Client 1:  76%|███████▌  | 95/125 [00:08<00:02, 11.65it/s, alloc=0.5GB, eta=1.4s, img_s=363.7, infer_ms=45.9, loss=0.1163, reserv=1.1GB][A
+
+Client 1:  76%|███████▌  | 95/125 [00:08<00:02, 11.65it/s, alloc=0.5GB, eta=1.3s, img_s=363.8, infer_ms=45.8, loss=0.0594, reserv=1.1GB][A
+
+Client 1:  76%|███████▌  | 95/125 [00:08<00:02, 11.65it/s, alloc=0.5GB, eta=1.3s, img_s=364.0, infer_ms=45.8, loss=0.1805, reserv=1.1GB][A
+
+Client 1:  78%|███████▊  | 97/125 [00:08<00:02, 11.68it/s, alloc=0.5GB, eta=1.3s, img_s=364.0, infer_ms=45.8, loss=0.1805, reserv=1.1GB][A
+
+Client 1:  78%|███████▊  | 97/125 [00:08<00:02, 11.68it/s, alloc=0.5GB, eta=1.2s, img_s=364.1, infer_ms=45.8, loss=0.0699, reserv=1.1GB][A
+
+Client 1:  78%|███████▊  | 97/125 [00:08<00:02, 11.68it/s, alloc=0.5GB, eta=1.2s, img_s=364.2, infer_ms=45.8, loss=0.1272, reserv=1.1GB][A
+
+Client 1:  79%|███████▉  | 99/125 [00:08<00:02, 11.71it/s, alloc=0.5GB, eta=1.2s, img_s=364.2, infer_ms=45.8, loss=0.1272, reserv=1.1GB][A
+
+Client 1:  79%|███████▉  | 99/125 [00:08<00:02, 11.71it/s, alloc=0.5GB, eta=1.1s, img_s=364.3, infer_ms=45.8, loss=0.1180, reserv=1.1GB][A
+
+Client 1:  79%|███████▉  | 99/125 [00:08<00:02, 11.71it/s, alloc=0.5GB, eta=1.1s, img_s=364.5, infer_ms=45.9, loss=0.1102, reserv=1.1GB][A
+
+Client 1:  81%|████████  | 101/125 [00:08<00:02, 11.73it/s, alloc=0.5GB, eta=1.1s, img_s=364.5, infer_ms=45.9, loss=0.1102, reserv=1.1GB][A
+
+Client 1:  81%|████████  | 101/125 [00:08<00:02, 11.73it/s, alloc=0.5GB, eta=1.1s, img_s=364.6, infer_ms=45.8, loss=0.0680, reserv=1.1GB][A
+
+Client 1:  81%|████████  | 101/125 [00:09<00:02, 11.73it/s, alloc=0.5GB, eta=1.1s, img_s=364.7, infer_ms=45.9, loss=0.1293, reserv=1.1GB][A
+
+Client 1:  82%|████████▏ | 103/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=1.1s, img_s=364.7, infer_ms=45.9, loss=0.1293, reserv=1.1GB][A
+
+Client 1:  82%|████████▏ | 103/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=1.0s, img_s=364.8, infer_ms=45.9, loss=0.0757, reserv=1.1GB][A
+
+Client 1:  82%|████████▏ | 103/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=1.0s, img_s=364.9, infer_ms=46.5, loss=0.0970, reserv=1.1GB][A
+
+Client 1:  84%|████████▍ | 105/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=1.0s, img_s=364.9, infer_ms=46.5, loss=0.0970, reserv=1.1GB][A
+
+Client 1:  84%|████████▍ | 105/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.9s, img_s=365.0, infer_ms=45.9, loss=0.1322, reserv=1.1GB][A
+
+Client 1:  84%|████████▍ | 105/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.9s, img_s=365.1, infer_ms=45.8, loss=0.0355, reserv=1.1GB][A
+
+Client 1:  86%|████████▌ | 107/125 [00:09<00:01, 11.77it/s, alloc=0.5GB, eta=0.9s, img_s=365.1, infer_ms=45.8, loss=0.0355, reserv=1.1GB][A
+
+Client 1:  86%|████████▌ | 107/125 [00:09<00:01, 11.77it/s, alloc=0.5GB, eta=0.8s, img_s=365.2, infer_ms=45.8, loss=0.0971, reserv=1.1GB][A
+
+Client 1:  86%|████████▌ | 107/125 [00:09<00:01, 11.77it/s, alloc=0.5GB, eta=0.8s, img_s=365.4, infer_ms=45.8, loss=0.0312, reserv=1.1GB][A
+
+Client 1:  87%|████████▋ | 109/125 [00:09<00:01, 11.78it/s, alloc=0.5GB, eta=0.8s, img_s=365.4, infer_ms=45.8, loss=0.0312, reserv=1.1GB][A
+
+Client 1:  87%|████████▋ | 109/125 [00:09<00:01, 11.78it/s, alloc=0.5GB, eta=0.7s, img_s=365.4, infer_ms=45.9, loss=0.0522, reserv=1.1GB][A
+
+Client 1:  87%|████████▋ | 109/125 [00:09<00:01, 11.78it/s, alloc=0.5GB, eta=0.7s, img_s=365.5, infer_ms=45.9, loss=0.0888, reserv=1.1GB][A
+
+Client 1:  89%|████████▉ | 111/125 [00:09<00:01, 11.75it/s, alloc=0.5GB, eta=0.7s, img_s=365.5, infer_ms=45.9, loss=0.0888, reserv=1.1GB][A
+
+Client 1:  89%|████████▉ | 111/125 [00:09<00:01, 11.75it/s, alloc=0.5GB, eta=0.6s, img_s=365.2, infer_ms=45.8, loss=0.0649, reserv=1.1GB][A
+
+Client 1:  89%|████████▉ | 111/125 [00:09<00:01, 11.75it/s, alloc=0.5GB, eta=0.6s, img_s=365.3, infer_ms=45.9, loss=0.0803, reserv=1.1GB][A
+
+Client 1:  90%|█████████ | 113/125 [00:09<00:01, 11.55it/s, alloc=0.5GB, eta=0.6s, img_s=365.3, infer_ms=45.9, loss=0.0803, reserv=1.1GB][A
+
+Client 1:  90%|█████████ | 113/125 [00:09<00:01, 11.55it/s, alloc=0.5GB, eta=0.5s, img_s=365.5, infer_ms=45.8, loss=0.0881, reserv=1.1GB][A
+
+Client 1:  90%|█████████ | 113/125 [00:10<00:01, 11.55it/s, alloc=0.5GB, eta=0.5s, img_s=365.5, infer_ms=45.8, loss=0.0680, reserv=1.1GB][A
+
+Client 1:  92%|█████████▏| 115/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.5s, img_s=365.5, infer_ms=45.8, loss=0.0680, reserv=1.1GB][A
+
+Client 1:  92%|█████████▏| 115/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.4s, img_s=365.6, infer_ms=45.8, loss=0.1769, reserv=1.1GB][A
+
+Client 1:  92%|█████████▏| 115/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.4s, img_s=365.7, infer_ms=45.9, loss=0.2365, reserv=1.1GB][A
+
+Client 1:  94%|█████████▎| 117/125 [00:10<00:00, 11.66it/s, alloc=0.5GB, eta=0.4s, img_s=365.7, infer_ms=45.9, loss=0.2365, reserv=1.1GB][A
+
+Client 1:  94%|█████████▎| 117/125 [00:10<00:00, 11.66it/s, alloc=0.5GB, eta=0.3s, img_s=365.8, infer_ms=46.3, loss=0.1545, reserv=1.1GB][A
+
+Client 1:  94%|█████████▎| 117/125 [00:10<00:00, 11.66it/s, alloc=0.5GB, eta=0.3s, img_s=365.9, infer_ms=46.4, loss=0.1042, reserv=1.1GB][A
+
+Client 1:  95%|█████████▌| 119/125 [00:10<00:00, 11.67it/s, alloc=0.5GB, eta=0.3s, img_s=365.9, infer_ms=46.4, loss=0.1042, reserv=1.1GB][A
+
+Client 1:  95%|█████████▌| 119/125 [00:10<00:00, 11.67it/s, alloc=0.5GB, eta=0.2s, img_s=366.0, infer_ms=45.8, loss=0.1683, reserv=1.1GB][A
+
+Client 1:  95%|█████████▌| 119/125 [00:10<00:00, 11.67it/s, alloc=0.5GB, eta=0.2s, img_s=366.1, infer_ms=45.8, loss=0.0571, reserv=1.1GB][A
+
+Client 1:  97%|█████████▋| 121/125 [00:10<00:00, 11.72it/s, alloc=0.5GB, eta=0.2s, img_s=366.1, infer_ms=45.8, loss=0.0571, reserv=1.1GB][A
+
+Client 1:  97%|█████████▋| 121/125 [00:10<00:00, 11.72it/s, alloc=0.5GB, eta=0.1s, img_s=366.1, infer_ms=45.8, loss=0.0845, reserv=1.1GB][A
+
+Client 1:  97%|█████████▋| 121/125 [00:10<00:00, 11.72it/s, alloc=0.5GB, eta=0.1s, img_s=366.2, infer_ms=45.9, loss=0.0331, reserv=1.1GB][A
+
+Client 1:  98%|█████████▊| 123/125 [00:10<00:00, 11.75it/s, alloc=0.5GB, eta=0.1s, img_s=366.2, infer_ms=45.9, loss=0.0331, reserv=1.1GB][A
+
+Client 1:  98%|█████████▊| 123/125 [00:10<00:00, 11.75it/s, alloc=0.5GB, eta=0.0s, img_s=366.3, infer_ms=45.8, loss=0.0479, reserv=1.1GB][A
+
+Client 1:  98%|█████████▊| 123/125 [00:10<00:00, 11.75it/s, alloc=0.5GB, eta=0.0s, img_s=366.4, infer_ms=45.9, loss=0.0635, reserv=1.1GB][A
+
+Client 1: 100%|██████████| 125/125 [00:10<00:00, 11.75it/s, alloc=0.5GB, eta=0.0s, img_s=366.4, infer_ms=45.9, loss=0.0635, reserv=1.1GB][A
+
+                                                                                                                                         [A
+Clients:  20%|██        | 1/5 [00:11<00:44, 11.00s/it]Client 1: 4000 images in 10.92s (366.4 img/s)
+
+Evaluating Client 2
+{'fake': 0, 'real': 1}
+
+Client 2 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 2
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+
+
+Client 2:   0%|          | 0/125 [00:00<?, ?it/s][A
+
+Client 2:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=380.2, infer_ms=45.9, loss=0.0049, reserv=1.1GB][A
+
+Client 2:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=377.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   2%|▏         | 2/125 [00:00<00:10, 11.79it/s, alloc=0.5GB, eta=5.7s, img_s=377.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   2%|▏         | 2/125 [00:00<00:10, 11.79it/s, alloc=0.5GB, eta=5.6s, img_s=377.2, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   2%|▏         | 2/125 [00:00<00:10, 11.79it/s, alloc=0.5GB, eta=5.6s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.6s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.5s, img_s=377.2, infer_ms=45.8, loss=0.0079, reserv=1.1GB][A
+
+Client 2:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.6s, img_s=376.6, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   5%|▍         | 6/125 [00:00<00:10, 11.76it/s, alloc=0.5GB, eta=5.6s, img_s=376.6, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   5%|▍         | 6/125 [00:00<00:10, 11.76it/s, alloc=0.5GB, eta=5.4s, img_s=376.1, infer_ms=46.0, loss=0.0015, reserv=1.1GB][A
+
+Client 2:   5%|▍         | 6/125 [00:00<00:10, 11.76it/s, alloc=0.5GB, eta=5.4s, img_s=375.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   6%|▋         | 8/125 [00:00<00:09, 11.72it/s, alloc=0.5GB, eta=5.4s, img_s=375.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:   6%|▋         | 8/125 [00:00<00:09, 11.72it/s, alloc=0.5GB, eta=5.3s, img_s=376.3, infer_ms=45.8, loss=0.0027, reserv=1.1GB][A
+
+Client 2:   6%|▋         | 8/125 [00:00<00:09, 11.72it/s, alloc=0.5GB, eta=5.3s, img_s=376.6, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:   8%|▊         | 10/125 [00:00<00:09, 11.78it/s, alloc=0.5GB, eta=5.3s, img_s=376.6, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:   8%|▊         | 10/125 [00:00<00:09, 11.78it/s, alloc=0.5GB, eta=5.2s, img_s=376.8, infer_ms=45.9, loss=0.0037, reserv=1.1GB][A
+
+Client 2:   8%|▊         | 10/125 [00:01<00:09, 11.78it/s, alloc=0.5GB, eta=5.2s, img_s=376.6, infer_ms=45.9, loss=0.0015, reserv=1.1GB][A
+
+Client 2:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.2s, img_s=376.6, infer_ms=45.9, loss=0.0015, reserv=1.1GB][A
+
+Client 2:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.1s, img_s=377.0, infer_ms=45.8, loss=0.0040, reserv=1.1GB][A
+
+Client 2:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.1s, img_s=377.0, infer_ms=45.9, loss=0.0013, reserv=1.1GB][A
+
+Client 2:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.1s, img_s=377.0, infer_ms=45.9, loss=0.0013, reserv=1.1GB][A
+
+Client 2:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.0s, img_s=377.2, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 2:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.0s, img_s=377.5, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  13%|█▎        | 16/125 [00:01<00:09, 11.83it/s, alloc=0.5GB, eta=5.0s, img_s=377.5, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  13%|█▎        | 16/125 [00:01<00:09, 11.83it/s, alloc=0.5GB, eta=5.0s, img_s=377.3, infer_ms=46.4, loss=0.0014, reserv=1.1GB][A
+
+Client 2:  13%|█▎        | 16/125 [00:01<00:09, 11.83it/s, alloc=0.5GB, eta=5.0s, img_s=377.4, infer_ms=46.4, loss=0.0015, reserv=1.1GB][A
+
+Client 2:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.0s, img_s=377.4, infer_ms=46.4, loss=0.0015, reserv=1.1GB][A
+
+Client 2:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=4.9s, img_s=377.1, infer_ms=46.2, loss=0.0115, reserv=1.1GB][A
+
+Client 2:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=4.9s, img_s=377.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.9s, img_s=377.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.8s, img_s=377.0, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.8s, img_s=377.1, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 2:  18%|█▊        | 22/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.8s, img_s=377.1, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 2:  18%|█▊        | 22/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.7s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  18%|█▊        | 22/125 [00:02<00:08, 11.78it/s, alloc=0.5GB, eta=4.7s, img_s=377.4, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  19%|█▉        | 24/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.7s, img_s=377.4, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  19%|█▉        | 24/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.6s, img_s=377.5, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  19%|█▉        | 24/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.6s, img_s=377.5, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.6s, img_s=377.5, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.4, infer_ms=45.8, loss=0.0007, reserv=1.1GB][A
+
+Client 2:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.5, infer_ms=45.9, loss=0.0137, reserv=1.1GB][A
+
+Client 2:  22%|██▏       | 28/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.5, infer_ms=45.9, loss=0.0137, reserv=1.1GB][A
+
+Client 2:  22%|██▏       | 28/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.4s, img_s=377.5, infer_ms=46.3, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  22%|██▏       | 28/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.5, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  24%|██▍       | 30/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.5s, img_s=377.5, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  24%|██▍       | 30/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.3s, img_s=377.4, infer_ms=46.1, loss=0.0033, reserv=1.1GB][A
+
+Client 2:  24%|██▍       | 30/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.3s, img_s=377.5, infer_ms=45.8, loss=0.0035, reserv=1.1GB][A
+
+Client 2:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.3s, img_s=377.5, infer_ms=45.8, loss=0.0035, reserv=1.1GB][A
+
+Client 2:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=377.5, infer_ms=45.8, loss=0.0317, reserv=1.1GB][A
+
+Client 2:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=377.4, infer_ms=45.9, loss=0.0065, reserv=1.1GB][A
+
+Client 2:  27%|██▋       | 34/125 [00:02<00:07, 11.79it/s, alloc=0.5GB, eta=4.2s, img_s=377.4, infer_ms=45.9, loss=0.0065, reserv=1.1GB][A
+
+Client 2:  27%|██▋       | 34/125 [00:02<00:07, 11.79it/s, alloc=0.5GB, eta=4.1s, img_s=377.5, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 2:  27%|██▋       | 34/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=4.1s, img_s=377.4, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=377.4, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.0s, img_s=377.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.0s, img_s=377.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  30%|███       | 38/125 [00:03<00:07, 11.81it/s, alloc=0.5GB, eta=4.0s, img_s=377.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  30%|███       | 38/125 [00:03<00:07, 11.81it/s, alloc=0.5GB, eta=3.9s, img_s=377.5, infer_ms=45.9, loss=0.0106, reserv=1.1GB][A
+
+Client 2:  30%|███       | 38/125 [00:03<00:07, 11.81it/s, alloc=0.5GB, eta=3.9s, img_s=377.4, infer_ms=45.8, loss=0.0234, reserv=1.1GB][A
+
+Client 2:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=3.9s, img_s=377.4, infer_ms=45.8, loss=0.0234, reserv=1.1GB][A
+
+Client 2:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=3.9s, img_s=377.2, infer_ms=46.4, loss=0.0032, reserv=1.1GB][A
+
+Client 2:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=3.8s, img_s=377.2, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  34%|███▎      | 42/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=3.8s, img_s=377.2, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  34%|███▎      | 42/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=3.8s, img_s=377.2, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  34%|███▎      | 42/125 [00:03<00:07, 11.75it/s, alloc=0.5GB, eta=3.8s, img_s=377.1, infer_ms=45.9, loss=0.0298, reserv=1.1GB][A
+
+Client 2:  35%|███▌      | 44/125 [00:03<00:06, 11.73it/s, alloc=0.5GB, eta=3.8s, img_s=377.1, infer_ms=45.9, loss=0.0298, reserv=1.1GB][A
+
+Client 2:  35%|███▌      | 44/125 [00:03<00:06, 11.73it/s, alloc=0.5GB, eta=3.7s, img_s=377.0, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  35%|███▌      | 44/125 [00:03<00:06, 11.73it/s, alloc=0.5GB, eta=3.7s, img_s=376.9, infer_ms=45.8, loss=0.0161, reserv=1.1GB][A
+
+Client 2:  37%|███▋      | 46/125 [00:03<00:06, 11.71it/s, alloc=0.5GB, eta=3.7s, img_s=376.9, infer_ms=45.8, loss=0.0161, reserv=1.1GB][A
+
+Client 2:  37%|███▋      | 46/125 [00:03<00:06, 11.71it/s, alloc=0.5GB, eta=3.6s, img_s=376.9, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  37%|███▋      | 46/125 [00:04<00:06, 11.71it/s, alloc=0.5GB, eta=3.6s, img_s=376.9, infer_ms=46.5, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.6s, img_s=376.9, infer_ms=46.5, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.5s, img_s=375.9, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.5s, img_s=375.8, infer_ms=45.8, loss=0.0016, reserv=1.1GB][A
+
+Client 2:  40%|████      | 50/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.5s, img_s=375.8, infer_ms=45.8, loss=0.0016, reserv=1.1GB][A
+
+Client 2:  40%|████      | 50/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.4s, img_s=375.8, infer_ms=46.4, loss=0.0011, reserv=1.1GB][A
+
+Client 2:  40%|████      | 50/125 [00:04<00:06, 11.50it/s, alloc=0.5GB, eta=3.4s, img_s=375.8, infer_ms=46.4, loss=0.0025, reserv=1.1GB][A
+
+Client 2:  42%|████▏     | 52/125 [00:04<00:06, 11.57it/s, alloc=0.5GB, eta=3.4s, img_s=375.8, infer_ms=46.4, loss=0.0025, reserv=1.1GB][A
+
+Client 2:  42%|████▏     | 52/125 [00:04<00:06, 11.57it/s, alloc=0.5GB, eta=3.3s, img_s=375.9, infer_ms=46.1, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  42%|████▏     | 52/125 [00:04<00:06, 11.57it/s, alloc=0.5GB, eta=3.3s, img_s=375.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  43%|████▎     | 54/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.3s, img_s=375.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  43%|████▎     | 54/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.2s, img_s=375.9, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  43%|████▎     | 54/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.2s, img_s=376.0, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  45%|████▍     | 56/125 [00:04<00:05, 11.69it/s, alloc=0.5GB, eta=3.2s, img_s=376.0, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  45%|████▍     | 56/125 [00:04<00:05, 11.69it/s, alloc=0.5GB, eta=3.1s, img_s=376.0, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 2:  45%|████▍     | 56/125 [00:04<00:05, 11.69it/s, alloc=0.5GB, eta=3.1s, img_s=376.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  46%|████▋     | 58/125 [00:04<00:05, 11.75it/s, alloc=0.5GB, eta=3.1s, img_s=376.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  46%|████▋     | 58/125 [00:05<00:05, 11.75it/s, alloc=0.5GB, eta=3.0s, img_s=376.2, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 2:  46%|████▋     | 58/125 [00:05<00:05, 11.75it/s, alloc=0.5GB, eta=3.0s, img_s=376.2, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  48%|████▊     | 60/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=3.0s, img_s=376.2, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  48%|████▊     | 60/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.9s, img_s=376.3, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  48%|████▊     | 60/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.9s, img_s=376.3, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  50%|████▉     | 62/125 [00:05<00:05, 11.81it/s, alloc=0.5GB, eta=2.9s, img_s=376.3, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 2:  50%|████▉     | 62/125 [00:05<00:05, 11.81it/s, alloc=0.5GB, eta=2.8s, img_s=376.4, infer_ms=45.8, loss=0.0508, reserv=1.1GB][A
+
+Client 2:  50%|████▉     | 62/125 [00:05<00:05, 11.81it/s, alloc=0.5GB, eta=2.8s, img_s=376.4, infer_ms=45.8, loss=0.0839, reserv=1.1GB][A
+
+Client 2:  51%|█████     | 64/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.8s, img_s=376.4, infer_ms=45.8, loss=0.0839, reserv=1.1GB][A
+
+Client 2:  51%|█████     | 64/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.8s, img_s=376.3, infer_ms=46.4, loss=0.1006, reserv=1.1GB][A
+
+Client 2:  51%|█████     | 64/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.8s, img_s=376.3, infer_ms=45.9, loss=0.0919, reserv=1.1GB][A
+
+Client 2:  53%|█████▎    | 66/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.8s, img_s=376.3, infer_ms=45.9, loss=0.0919, reserv=1.1GB][A
+
+Client 2:  53%|█████▎    | 66/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.7s, img_s=376.3, infer_ms=45.8, loss=0.0897, reserv=1.1GB][A
+
+Client 2:  53%|█████▎    | 66/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.7s, img_s=376.2, infer_ms=45.9, loss=0.1451, reserv=1.1GB][A
+
+Client 2:  54%|█████▍    | 68/125 [00:05<00:04, 11.74it/s, alloc=0.5GB, eta=2.7s, img_s=376.2, infer_ms=45.9, loss=0.1451, reserv=1.1GB][A
+
+Client 2:  54%|█████▍    | 68/125 [00:05<00:04, 11.74it/s, alloc=0.5GB, eta=2.6s, img_s=376.2, infer_ms=45.8, loss=0.0727, reserv=1.1GB][A
+
+Client 2:  54%|█████▍    | 68/125 [00:05<00:04, 11.74it/s, alloc=0.5GB, eta=2.6s, img_s=376.2, infer_ms=45.8, loss=0.0998, reserv=1.1GB][A
+
+Client 2:  56%|█████▌    | 70/125 [00:05<00:04, 11.74it/s, alloc=0.5GB, eta=2.6s, img_s=376.2, infer_ms=45.8, loss=0.0998, reserv=1.1GB][A
+
+Client 2:  56%|█████▌    | 70/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.5s, img_s=376.2, infer_ms=45.9, loss=0.2160, reserv=1.1GB][A
+
+Client 2:  56%|█████▌    | 70/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.5s, img_s=376.1, infer_ms=45.9, loss=0.0988, reserv=1.1GB][A
+
+Client 2:  58%|█████▊    | 72/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.5s, img_s=376.1, infer_ms=45.9, loss=0.0988, reserv=1.1GB][A
+
+Client 2:  58%|█████▊    | 72/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.4s, img_s=376.1, infer_ms=46.4, loss=0.0995, reserv=1.1GB][A
+
+Client 2:  58%|█████▊    | 72/125 [00:06<00:04, 11.72it/s, alloc=0.5GB, eta=2.4s, img_s=376.1, infer_ms=46.3, loss=0.0653, reserv=1.1GB][A
+
+Client 2:  59%|█████▉    | 74/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.4s, img_s=376.1, infer_ms=46.3, loss=0.0653, reserv=1.1GB][A
+
+Client 2:  59%|█████▉    | 74/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.3s, img_s=376.2, infer_ms=45.8, loss=0.1271, reserv=1.1GB][A
+
+Client 2:  59%|█████▉    | 74/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.3s, img_s=376.2, infer_ms=45.8, loss=0.0858, reserv=1.1GB][A
+
+Client 2:  61%|██████    | 76/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.3s, img_s=376.2, infer_ms=45.8, loss=0.0858, reserv=1.1GB][A
+
+Client 2:  61%|██████    | 76/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.2s, img_s=376.2, infer_ms=45.9, loss=0.1071, reserv=1.1GB][A
+
+Client 2:  61%|██████    | 76/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.2s, img_s=376.1, infer_ms=45.9, loss=0.0943, reserv=1.1GB][A
+
+Client 2:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.2s, img_s=376.1, infer_ms=45.9, loss=0.0943, reserv=1.1GB][A
+
+Client 2:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.1s, img_s=376.2, infer_ms=45.8, loss=0.0348, reserv=1.1GB][A
+
+Client 2:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.1s, img_s=376.2, infer_ms=45.8, loss=0.0324, reserv=1.1GB][A
+
+Client 2:  64%|██████▍   | 80/125 [00:06<00:03, 11.78it/s, alloc=0.5GB, eta=2.1s, img_s=376.2, infer_ms=45.8, loss=0.0324, reserv=1.1GB][A
+
+Client 2:  64%|██████▍   | 80/125 [00:06<00:03, 11.78it/s, alloc=0.5GB, eta=2.0s, img_s=376.2, infer_ms=45.8, loss=0.1282, reserv=1.1GB][A
+
+Client 2:  64%|██████▍   | 80/125 [00:06<00:03, 11.78it/s, alloc=0.5GB, eta=2.0s, img_s=376.2, infer_ms=46.4, loss=0.1259, reserv=1.1GB][A
+
+Client 2:  66%|██████▌   | 82/125 [00:06<00:03, 11.75it/s, alloc=0.5GB, eta=2.0s, img_s=376.2, infer_ms=46.4, loss=0.1259, reserv=1.1GB][A
+
+Client 2:  66%|██████▌   | 82/125 [00:07<00:03, 11.75it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=46.3, loss=0.0850, reserv=1.1GB][A
+
+Client 2:  66%|██████▌   | 82/125 [00:07<00:03, 11.75it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=46.3, loss=0.0528, reserv=1.1GB][A
+
+Client 2:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=46.3, loss=0.0528, reserv=1.1GB][A
+
+Client 2:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=376.2, infer_ms=45.9, loss=0.1030, reserv=1.1GB][A
+
+Client 2:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=376.2, infer_ms=45.8, loss=0.1185, reserv=1.1GB][A
+
+Client 2:  69%|██████▉   | 86/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=376.2, infer_ms=45.8, loss=0.1185, reserv=1.1GB][A
+
+Client 2:  69%|██████▉   | 86/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.7s, img_s=375.8, infer_ms=45.9, loss=0.0565, reserv=1.1GB][A
+
+Client 2:  69%|██████▉   | 86/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=375.8, infer_ms=46.3, loss=0.0462, reserv=1.1GB][A
+
+Client 2:  70%|███████   | 88/125 [00:07<00:03, 11.59it/s, alloc=0.5GB, eta=1.8s, img_s=375.8, infer_ms=46.3, loss=0.0462, reserv=1.1GB][A
+
+Client 2:  70%|███████   | 88/125 [00:07<00:03, 11.59it/s, alloc=0.5GB, eta=1.7s, img_s=375.8, infer_ms=45.8, loss=0.0529, reserv=1.1GB][A
+
+Client 2:  70%|███████   | 88/125 [00:07<00:03, 11.59it/s, alloc=0.5GB, eta=1.6s, img_s=375.7, infer_ms=45.8, loss=0.1122, reserv=1.1GB][A
+
+Client 2:  72%|███████▏  | 90/125 [00:07<00:03, 11.62it/s, alloc=0.5GB, eta=1.6s, img_s=375.7, infer_ms=45.8, loss=0.1122, reserv=1.1GB][A
+
+Client 2:  72%|███████▏  | 90/125 [00:07<00:03, 11.62it/s, alloc=0.5GB, eta=1.6s, img_s=375.7, infer_ms=45.9, loss=0.0657, reserv=1.1GB][A
+
+Client 2:  72%|███████▏  | 90/125 [00:07<00:03, 11.62it/s, alloc=0.5GB, eta=1.6s, img_s=375.8, infer_ms=45.8, loss=0.0527, reserv=1.1GB][A
+
+Client 2:  74%|███████▎  | 92/125 [00:07<00:02, 11.66it/s, alloc=0.5GB, eta=1.6s, img_s=375.8, infer_ms=45.8, loss=0.0527, reserv=1.1GB][A
+
+Client 2:  74%|███████▎  | 92/125 [00:07<00:02, 11.66it/s, alloc=0.5GB, eta=1.5s, img_s=375.8, infer_ms=45.9, loss=0.1148, reserv=1.1GB][A
+
+Client 2:  74%|███████▎  | 92/125 [00:08<00:02, 11.66it/s, alloc=0.5GB, eta=1.5s, img_s=375.8, infer_ms=45.8, loss=0.0519, reserv=1.1GB][A
+
+Client 2:  75%|███████▌  | 94/125 [00:08<00:02, 11.72it/s, alloc=0.5GB, eta=1.5s, img_s=375.8, infer_ms=45.8, loss=0.0519, reserv=1.1GB][A
+
+Client 2:  75%|███████▌  | 94/125 [00:08<00:02, 11.72it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=45.9, loss=0.1982, reserv=1.1GB][A
+
+Client 2:  75%|███████▌  | 94/125 [00:08<00:02, 11.72it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=45.9, loss=0.1183, reserv=1.1GB][A
+
+Client 2:  77%|███████▋  | 96/125 [00:08<00:02, 11.77it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=45.9, loss=0.1183, reserv=1.1GB][A
+
+Client 2:  77%|███████▋  | 96/125 [00:08<00:02, 11.77it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=45.9, loss=0.0791, reserv=1.1GB][A
+
+Client 2:  77%|███████▋  | 96/125 [00:08<00:02, 11.77it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=46.3, loss=0.2924, reserv=1.1GB][A
+
+Client 2:  78%|███████▊  | 98/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=46.3, loss=0.2924, reserv=1.1GB][A
+
+Client 2:  78%|███████▊  | 98/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=46.3, loss=0.0531, reserv=1.1GB][A
+
+Client 2:  78%|███████▊  | 98/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=45.9, loss=0.2231, reserv=1.1GB][A
+
+Client 2:  80%|████████  | 100/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=45.9, loss=0.2231, reserv=1.1GB][A
+
+Client 2:  80%|████████  | 100/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.1s, img_s=375.9, infer_ms=45.8, loss=0.0994, reserv=1.1GB][A
+
+Client 2:  80%|████████  | 100/125 [00:08<00:02, 11.75it/s, alloc=0.5GB, eta=1.1s, img_s=375.9, infer_ms=45.8, loss=0.1426, reserv=1.1GB][A
+
+Client 2:  82%|████████▏ | 102/125 [00:08<00:01, 11.76it/s, alloc=0.5GB, eta=1.1s, img_s=375.9, infer_ms=45.8, loss=0.1426, reserv=1.1GB][A
+
+Client 2:  82%|████████▏ | 102/125 [00:08<00:01, 11.76it/s, alloc=0.5GB, eta=1.0s, img_s=375.9, infer_ms=45.9, loss=0.1302, reserv=1.1GB][A
+
+Client 2:  82%|████████▏ | 102/125 [00:08<00:01, 11.76it/s, alloc=0.5GB, eta=1.0s, img_s=375.8, infer_ms=45.8, loss=0.0829, reserv=1.1GB][A
+
+Client 2:  83%|████████▎ | 104/125 [00:08<00:01, 11.71it/s, alloc=0.5GB, eta=1.0s, img_s=375.8, infer_ms=45.8, loss=0.0829, reserv=1.1GB][A
+
+Client 2:  83%|████████▎ | 104/125 [00:08<00:01, 11.71it/s, alloc=0.5GB, eta=0.9s, img_s=375.8, infer_ms=45.9, loss=0.0628, reserv=1.1GB][A
+
+Client 2:  83%|████████▎ | 104/125 [00:09<00:01, 11.71it/s, alloc=0.5GB, eta=0.9s, img_s=375.7, infer_ms=46.4, loss=0.0848, reserv=1.1GB][A
+
+Client 2:  85%|████████▍ | 106/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.9s, img_s=375.7, infer_ms=46.4, loss=0.0848, reserv=1.1GB][A
+
+Client 2:  85%|████████▍ | 106/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.8s, img_s=375.7, infer_ms=45.9, loss=0.1087, reserv=1.1GB][A
+
+Client 2:  85%|████████▍ | 106/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.8s, img_s=375.7, infer_ms=45.8, loss=0.0352, reserv=1.1GB][A
+
+Client 2:  86%|████████▋ | 108/125 [00:09<00:01, 11.70it/s, alloc=0.5GB, eta=0.8s, img_s=375.7, infer_ms=45.8, loss=0.0352, reserv=1.1GB][A
+
+Client 2:  86%|████████▋ | 108/125 [00:09<00:01, 11.70it/s, alloc=0.5GB, eta=0.7s, img_s=375.7, infer_ms=45.9, loss=0.0561, reserv=1.1GB][A
+
+Client 2:  86%|████████▋ | 108/125 [00:09<00:01, 11.70it/s, alloc=0.5GB, eta=0.7s, img_s=375.7, infer_ms=46.1, loss=0.0856, reserv=1.1GB][A
+
+Client 2:  88%|████████▊ | 110/125 [00:09<00:01, 11.71it/s, alloc=0.5GB, eta=0.7s, img_s=375.7, infer_ms=46.1, loss=0.0856, reserv=1.1GB][A
+
+Client 2:  88%|████████▊ | 110/125 [00:09<00:01, 11.71it/s, alloc=0.5GB, eta=0.6s, img_s=375.7, infer_ms=45.9, loss=0.0557, reserv=1.1GB][A
+
+Client 2:  88%|████████▊ | 110/125 [00:09<00:01, 11.71it/s, alloc=0.5GB, eta=0.6s, img_s=375.2, infer_ms=45.8, loss=0.0497, reserv=1.1GB][A
+
+Client 2:  90%|████████▉ | 112/125 [00:09<00:01, 11.46it/s, alloc=0.5GB, eta=0.6s, img_s=375.2, infer_ms=45.8, loss=0.0497, reserv=1.1GB][A
+
+Client 2:  90%|████████▉ | 112/125 [00:09<00:01, 11.46it/s, alloc=0.5GB, eta=0.5s, img_s=375.2, infer_ms=45.8, loss=0.0609, reserv=1.1GB][A
+
+Client 2:  90%|████████▉ | 112/125 [00:09<00:01, 11.46it/s, alloc=0.5GB, eta=0.5s, img_s=375.1, infer_ms=45.8, loss=0.0477, reserv=1.1GB][A
+
+Client 2:  91%|█████████ | 114/125 [00:09<00:00, 11.49it/s, alloc=0.5GB, eta=0.5s, img_s=375.1, infer_ms=45.8, loss=0.0477, reserv=1.1GB][A
+
+Client 2:  91%|█████████ | 114/125 [00:09<00:00, 11.49it/s, alloc=0.5GB, eta=0.5s, img_s=375.1, infer_ms=46.3, loss=0.1150, reserv=1.1GB][A
+
+Client 2:  91%|█████████ | 114/125 [00:09<00:00, 11.49it/s, alloc=0.5GB, eta=0.5s, img_s=375.1, infer_ms=45.8, loss=0.0850, reserv=1.1GB][A
+
+Client 2:  93%|█████████▎| 116/125 [00:09<00:00, 11.53it/s, alloc=0.5GB, eta=0.5s, img_s=375.1, infer_ms=45.8, loss=0.0850, reserv=1.1GB][A
+
+Client 2:  93%|█████████▎| 116/125 [00:09<00:00, 11.53it/s, alloc=0.5GB, eta=0.4s, img_s=375.1, infer_ms=45.8, loss=0.0727, reserv=1.1GB][A
+
+Client 2:  93%|█████████▎| 116/125 [00:10<00:00, 11.53it/s, alloc=0.5GB, eta=0.4s, img_s=375.1, infer_ms=45.9, loss=0.0666, reserv=1.1GB][A
+
+Client 2:  94%|█████████▍| 118/125 [00:10<00:00, 11.60it/s, alloc=0.5GB, eta=0.4s, img_s=375.1, infer_ms=45.9, loss=0.0666, reserv=1.1GB][A
+
+Client 2:  94%|█████████▍| 118/125 [00:10<00:00, 11.60it/s, alloc=0.5GB, eta=0.3s, img_s=375.1, infer_ms=45.9, loss=0.0559, reserv=1.1GB][A
+
+Client 2:  94%|█████████▍| 118/125 [00:10<00:00, 11.60it/s, alloc=0.5GB, eta=0.3s, img_s=375.0, infer_ms=45.8, loss=0.0364, reserv=1.1GB][A
+
+Client 2:  96%|█████████▌| 120/125 [00:10<00:00, 11.58it/s, alloc=0.5GB, eta=0.3s, img_s=375.0, infer_ms=45.8, loss=0.0364, reserv=1.1GB][A
+
+Client 2:  96%|█████████▌| 120/125 [00:10<00:00, 11.58it/s, alloc=0.5GB, eta=0.2s, img_s=375.0, infer_ms=46.4, loss=0.0976, reserv=1.1GB][A
+
+Client 2:  96%|█████████▌| 120/125 [00:10<00:00, 11.58it/s, alloc=0.5GB, eta=0.2s, img_s=375.0, infer_ms=46.4, loss=0.0697, reserv=1.1GB][A
+
+Client 2:  98%|█████████▊| 122/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.2s, img_s=375.0, infer_ms=46.4, loss=0.0697, reserv=1.1GB][A
+
+Client 2:  98%|█████████▊| 122/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.1s, img_s=375.0, infer_ms=46.0, loss=0.0401, reserv=1.1GB][A
+
+Client 2:  98%|█████████▊| 122/125 [00:10<00:00, 11.63it/s, alloc=0.5GB, eta=0.1s, img_s=375.0, infer_ms=45.8, loss=0.1019, reserv=1.1GB][A
+
+Client 2:  99%|█████████▉| 124/125 [00:10<00:00, 11.66it/s, alloc=0.5GB, eta=0.1s, img_s=375.0, infer_ms=45.8, loss=0.1019, reserv=1.1GB][A
+
+Client 2:  99%|█████████▉| 124/125 [00:10<00:00, 11.66it/s, alloc=0.5GB, eta=0.0s, img_s=375.0, infer_ms=45.9, loss=0.1311, reserv=1.1GB][A
+
+                                                                                                                                         [A
+Clients:  40%|████      | 2/5 [00:21<00:32, 10.82s/it]Client 2: 4000 images in 10.67s (375.0 img/s)
+
+Evaluating Client 3
+{'fake': 0, 'real': 1}
+
+Client 3 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 3
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+
+
+Client 3:   0%|          | 0/125 [00:00<?, ?it/s][A
+
+Client 3:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=373.3, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=372.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:   2%|▏         | 2/125 [00:00<00:10, 11.62it/s, alloc=0.5GB, eta=5.7s, img_s=372.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:   2%|▏         | 2/125 [00:00<00:10, 11.62it/s, alloc=0.5GB, eta=5.6s, img_s=372.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:   2%|▏         | 2/125 [00:00<00:10, 11.62it/s, alloc=0.5GB, eta=5.6s, img_s=373.8, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 3:   3%|▎         | 4/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.6s, img_s=373.8, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 3:   3%|▎         | 4/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.6s, img_s=373.9, infer_ms=46.4, loss=0.0321, reserv=1.1GB][A
+
+Client 3:   3%|▎         | 4/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.6s, img_s=373.9, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 3:   5%|▍         | 6/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.6s, img_s=373.9, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 3:   5%|▍         | 6/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.4s, img_s=373.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:   5%|▍         | 6/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.4s, img_s=374.0, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:   6%|▋         | 8/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.4s, img_s=374.0, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:   6%|▋         | 8/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.3s, img_s=374.9, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 3:   6%|▋         | 8/125 [00:00<00:10, 11.69it/s, alloc=0.5GB, eta=5.3s, img_s=375.5, infer_ms=45.9, loss=0.0007, reserv=1.1GB][A
+
+Client 3:   8%|▊         | 10/125 [00:00<00:09, 11.77it/s, alloc=0.5GB, eta=5.3s, img_s=375.5, infer_ms=45.9, loss=0.0007, reserv=1.1GB][A
+
+Client 3:   8%|▊         | 10/125 [00:00<00:09, 11.77it/s, alloc=0.5GB, eta=5.2s, img_s=376.0, infer_ms=45.8, loss=0.0017, reserv=1.1GB][A
+
+Client 3:   8%|▊         | 10/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.2s, img_s=376.3, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  10%|▉         | 12/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.2s, img_s=376.3, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  10%|▉         | 12/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.1s, img_s=376.2, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  10%|▉         | 12/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.1s, img_s=376.2, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  11%|█         | 14/125 [00:01<00:09, 11.79it/s, alloc=0.5GB, eta=5.1s, img_s=376.2, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  11%|█         | 14/125 [00:01<00:09, 11.79it/s, alloc=0.5GB, eta=5.0s, img_s=376.6, infer_ms=45.8, loss=0.0019, reserv=1.1GB][A
+
+Client 3:  11%|█         | 14/125 [00:01<00:09, 11.79it/s, alloc=0.5GB, eta=5.1s, img_s=376.7, infer_ms=46.4, loss=0.0084, reserv=1.1GB][A
+
+Client 3:  13%|█▎        | 16/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=5.1s, img_s=376.7, infer_ms=46.4, loss=0.0084, reserv=1.1GB][A
+
+Client 3:  13%|█▎        | 16/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=5.0s, img_s=376.7, infer_ms=46.5, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  13%|█▎        | 16/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=5.0s, img_s=376.9, infer_ms=46.5, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  14%|█▍        | 18/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=5.0s, img_s=376.9, infer_ms=46.5, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  14%|█▍        | 18/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=4.9s, img_s=376.8, infer_ms=46.2, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  14%|█▍        | 18/125 [00:01<00:09, 11.82it/s, alloc=0.5GB, eta=4.9s, img_s=376.8, infer_ms=45.8, loss=0.0103, reserv=1.1GB][A
+
+Client 3:  16%|█▌        | 20/125 [00:01<00:08, 11.80it/s, alloc=0.5GB, eta=4.9s, img_s=376.8, infer_ms=45.8, loss=0.0103, reserv=1.1GB][A
+
+Client 3:  16%|█▌        | 20/125 [00:01<00:08, 11.80it/s, alloc=0.5GB, eta=4.8s, img_s=377.1, infer_ms=45.9, loss=0.0021, reserv=1.1GB][A
+
+Client 3:  16%|█▌        | 20/125 [00:01<00:08, 11.80it/s, alloc=0.5GB, eta=4.8s, img_s=376.9, infer_ms=45.8, loss=0.0096, reserv=1.1GB][A
+
+Client 3:  18%|█▊        | 22/125 [00:01<00:08, 11.80it/s, alloc=0.5GB, eta=4.8s, img_s=376.9, infer_ms=45.8, loss=0.0096, reserv=1.1GB][A
+
+Client 3:  18%|█▊        | 22/125 [00:01<00:08, 11.80it/s, alloc=0.5GB, eta=4.7s, img_s=376.7, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  18%|█▊        | 22/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.7s, img_s=377.0, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.7s, img_s=377.0, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.6s, img_s=377.0, infer_ms=45.8, loss=0.0042, reserv=1.1GB][A
+
+Client 3:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.6s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.6s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=45.8, loss=0.0026, reserv=1.1GB][A
+
+Client 3:  21%|██        | 26/125 [00:02<00:08, 11.82it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  22%|██▏       | 28/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  22%|██▏       | 28/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  22%|██▏       | 28/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=46.4, loss=0.0016, reserv=1.1GB][A
+
+Client 3:  24%|██▍       | 30/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.5s, img_s=377.1, infer_ms=46.4, loss=0.0016, reserv=1.1GB][A
+
+Client 3:  24%|██▍       | 30/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.3s, img_s=377.0, infer_ms=45.8, loss=0.0265, reserv=1.1GB][A
+
+Client 3:  24%|██▍       | 30/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.3s, img_s=377.2, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.3s, img_s=377.2, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=377.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=377.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  27%|██▋       | 34/125 [00:02<00:07, 11.79it/s, alloc=0.5GB, eta=4.2s, img_s=377.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  27%|██▋       | 34/125 [00:02<00:07, 11.79it/s, alloc=0.5GB, eta=4.1s, img_s=377.2, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  27%|██▋       | 34/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=4.1s, img_s=377.2, infer_ms=45.9, loss=0.0137, reserv=1.1GB][A
+
+Client 3:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=377.2, infer_ms=45.9, loss=0.0137, reserv=1.1GB][A
+
+Client 3:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.0s, img_s=377.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.0s, img_s=377.4, infer_ms=45.8, loss=0.0080, reserv=1.1GB][A
+
+Client 3:  30%|███       | 38/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=4.0s, img_s=377.4, infer_ms=45.8, loss=0.0080, reserv=1.1GB][A
+
+Client 3:  30%|███       | 38/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=3.9s, img_s=377.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  30%|███       | 38/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=3.9s, img_s=377.4, infer_ms=45.8, loss=0.0056, reserv=1.1GB][A
+
+Client 3:  32%|███▏      | 40/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=3.9s, img_s=377.4, infer_ms=45.8, loss=0.0056, reserv=1.1GB][A
+
+Client 3:  32%|███▏      | 40/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=3.8s, img_s=377.4, infer_ms=45.8, loss=0.0022, reserv=1.1GB][A
+
+Client 3:  32%|███▏      | 40/125 [00:03<00:07, 11.83it/s, alloc=0.5GB, eta=3.9s, img_s=377.5, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.9s, img_s=377.5, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.8s, img_s=377.4, infer_ms=46.5, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.8s, img_s=377.4, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  35%|███▌      | 44/125 [00:03<00:06, 11.79it/s, alloc=0.5GB, eta=3.8s, img_s=377.4, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  35%|███▌      | 44/125 [00:03<00:06, 11.79it/s, alloc=0.5GB, eta=3.7s, img_s=377.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  35%|███▌      | 44/125 [00:03<00:06, 11.79it/s, alloc=0.5GB, eta=3.7s, img_s=377.5, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  37%|███▋      | 46/125 [00:03<00:06, 11.83it/s, alloc=0.5GB, eta=3.7s, img_s=377.5, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  37%|███▋      | 46/125 [00:03<00:06, 11.83it/s, alloc=0.5GB, eta=3.6s, img_s=377.6, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  37%|███▋      | 46/125 [00:04<00:06, 11.83it/s, alloc=0.5GB, eta=3.6s, img_s=377.6, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  38%|███▊      | 48/125 [00:04<00:06, 11.85it/s, alloc=0.5GB, eta=3.6s, img_s=377.6, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 3:  38%|███▊      | 48/125 [00:04<00:06, 11.85it/s, alloc=0.5GB, eta=3.5s, img_s=376.8, infer_ms=45.8, loss=0.0013, reserv=1.1GB][A
+
+Client 3:  38%|███▊      | 48/125 [00:04<00:06, 11.85it/s, alloc=0.5GB, eta=3.5s, img_s=376.7, infer_ms=46.1, loss=0.0012, reserv=1.1GB][A
+
+Client 3:  40%|████      | 50/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.5s, img_s=376.7, infer_ms=46.1, loss=0.0012, reserv=1.1GB][A
+
+Client 3:  40%|████      | 50/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.4s, img_s=376.8, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  40%|████      | 50/125 [00:04<00:06, 11.62it/s, alloc=0.5GB, eta=3.4s, img_s=376.9, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  42%|████▏     | 52/125 [00:04<00:06, 11.70it/s, alloc=0.5GB, eta=3.4s, img_s=376.9, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  42%|████▏     | 52/125 [00:04<00:06, 11.70it/s, alloc=0.5GB, eta=3.3s, img_s=376.9, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  42%|████▏     | 52/125 [00:04<00:06, 11.70it/s, alloc=0.5GB, eta=3.3s, img_s=376.9, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.3s, img_s=376.9, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.2s, img_s=376.9, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 3:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.2s, img_s=377.0, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  45%|████▍     | 56/125 [00:04<00:05, 11.78it/s, alloc=0.5GB, eta=3.2s, img_s=377.0, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  45%|████▍     | 56/125 [00:04<00:05, 11.78it/s, alloc=0.5GB, eta=3.1s, img_s=377.1, infer_ms=45.9, loss=0.0014, reserv=1.1GB][A
+
+Client 3:  45%|████▍     | 56/125 [00:04<00:05, 11.78it/s, alloc=0.5GB, eta=3.1s, img_s=377.1, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  46%|████▋     | 58/125 [00:04<00:05, 11.80it/s, alloc=0.5GB, eta=3.1s, img_s=377.1, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 3:  46%|████▋     | 58/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=3.0s, img_s=377.1, infer_ms=45.8, loss=0.0012, reserv=1.1GB][A
+
+Client 3:  46%|████▋     | 58/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=3.0s, img_s=377.2, infer_ms=45.9, loss=0.0012, reserv=1.1GB][A
+
+Client 3:  48%|████▊     | 60/125 [00:05<00:05, 11.82it/s, alloc=0.5GB, eta=3.0s, img_s=377.2, infer_ms=45.9, loss=0.0012, reserv=1.1GB][A
+
+Client 3:  48%|████▊     | 60/125 [00:05<00:05, 11.82it/s, alloc=0.5GB, eta=2.9s, img_s=377.1, infer_ms=45.8, loss=0.0035, reserv=1.1GB][A
+
+Client 3:  48%|████▊     | 60/125 [00:05<00:05, 11.82it/s, alloc=0.5GB, eta=3.0s, img_s=377.1, infer_ms=46.3, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  50%|████▉     | 62/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=3.0s, img_s=377.1, infer_ms=46.3, loss=0.0008, reserv=1.1GB][A
+
+Client 3:  50%|████▉     | 62/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=2.8s, img_s=377.0, infer_ms=45.8, loss=0.0258, reserv=1.1GB][A
+
+Client 3:  50%|████▉     | 62/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=2.8s, img_s=376.9, infer_ms=45.8, loss=0.0376, reserv=1.1GB][A
+
+Client 3:  51%|█████     | 64/125 [00:05<00:05, 11.74it/s, alloc=0.5GB, eta=2.8s, img_s=376.9, infer_ms=45.8, loss=0.0376, reserv=1.1GB][A
+
+Client 3:  51%|█████     | 64/125 [00:05<00:05, 11.74it/s, alloc=0.5GB, eta=2.8s, img_s=376.9, infer_ms=45.9, loss=0.1281, reserv=1.1GB][A
+
+Client 3:  51%|█████     | 64/125 [00:05<00:05, 11.74it/s, alloc=0.5GB, eta=2.8s, img_s=376.9, infer_ms=45.9, loss=0.1320, reserv=1.1GB][A
+
+Client 3:  53%|█████▎    | 66/125 [00:05<00:05, 11.73it/s, alloc=0.5GB, eta=2.8s, img_s=376.9, infer_ms=45.9, loss=0.1320, reserv=1.1GB][A
+
+Client 3:  53%|█████▎    | 66/125 [00:05<00:05, 11.73it/s, alloc=0.5GB, eta=2.7s, img_s=376.9, infer_ms=45.8, loss=0.1076, reserv=1.1GB][A
+
+Client 3:  53%|█████▎    | 66/125 [00:05<00:05, 11.73it/s, alloc=0.5GB, eta=2.7s, img_s=376.9, infer_ms=45.9, loss=0.1228, reserv=1.1GB][A
+
+Client 3:  54%|█████▍    | 68/125 [00:05<00:04, 11.76it/s, alloc=0.5GB, eta=2.7s, img_s=376.9, infer_ms=45.9, loss=0.1228, reserv=1.1GB][A
+
+Client 3:  54%|█████▍    | 68/125 [00:05<00:04, 11.76it/s, alloc=0.5GB, eta=2.6s, img_s=376.9, infer_ms=45.8, loss=0.0620, reserv=1.1GB][A
+
+Client 3:  54%|█████▍    | 68/125 [00:05<00:04, 11.76it/s, alloc=0.5GB, eta=2.6s, img_s=376.9, infer_ms=46.5, loss=0.1521, reserv=1.1GB][A
+
+Client 3:  56%|█████▌    | 70/125 [00:05<00:04, 11.75it/s, alloc=0.5GB, eta=2.6s, img_s=376.9, infer_ms=46.5, loss=0.1521, reserv=1.1GB][A
+
+Client 3:  56%|█████▌    | 70/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.5s, img_s=376.9, infer_ms=46.4, loss=0.0782, reserv=1.1GB][A
+
+Client 3:  56%|█████▌    | 70/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.5s, img_s=376.8, infer_ms=45.9, loss=0.1092, reserv=1.1GB][A
+
+Client 3:  58%|█████▊    | 72/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.5s, img_s=376.8, infer_ms=45.9, loss=0.1092, reserv=1.1GB][A
+
+Client 3:  58%|█████▊    | 72/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.4s, img_s=376.8, infer_ms=46.0, loss=0.0848, reserv=1.1GB][A
+
+Client 3:  58%|█████▊    | 72/125 [00:06<00:04, 11.75it/s, alloc=0.5GB, eta=2.4s, img_s=376.8, infer_ms=45.8, loss=0.0713, reserv=1.1GB][A
+
+Client 3:  59%|█████▉    | 74/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.4s, img_s=376.8, infer_ms=45.8, loss=0.0713, reserv=1.1GB][A
+
+Client 3:  59%|█████▉    | 74/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.3s, img_s=376.8, infer_ms=45.9, loss=0.0961, reserv=1.1GB][A
+
+Client 3:  59%|█████▉    | 74/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.3s, img_s=376.8, infer_ms=45.9, loss=0.0874, reserv=1.1GB][A
+
+Client 3:  61%|██████    | 76/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.3s, img_s=376.8, infer_ms=45.9, loss=0.0874, reserv=1.1GB][A
+
+Client 3:  61%|██████    | 76/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.2s, img_s=376.9, infer_ms=45.9, loss=0.1005, reserv=1.1GB][A
+
+Client 3:  61%|██████    | 76/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.2s, img_s=376.9, infer_ms=45.8, loss=0.0749, reserv=1.1GB][A
+
+Client 3:  62%|██████▏   | 78/125 [00:06<00:03, 11.79it/s, alloc=0.5GB, eta=2.2s, img_s=376.9, infer_ms=45.8, loss=0.0749, reserv=1.1GB][A
+
+Client 3:  62%|██████▏   | 78/125 [00:06<00:03, 11.79it/s, alloc=0.5GB, eta=2.1s, img_s=376.4, infer_ms=45.8, loss=0.0476, reserv=1.1GB][A
+
+Client 3:  62%|██████▏   | 78/125 [00:06<00:03, 11.79it/s, alloc=0.5GB, eta=2.1s, img_s=376.4, infer_ms=45.8, loss=0.0833, reserv=1.1GB][A
+
+Client 3:  64%|██████▍   | 80/125 [00:06<00:03, 11.60it/s, alloc=0.5GB, eta=2.1s, img_s=376.4, infer_ms=45.8, loss=0.0833, reserv=1.1GB][A
+
+Client 3:  64%|██████▍   | 80/125 [00:06<00:03, 11.60it/s, alloc=0.5GB, eta=2.0s, img_s=376.4, infer_ms=45.9, loss=0.0318, reserv=1.1GB][A
+
+Client 3:  64%|██████▍   | 80/125 [00:06<00:03, 11.60it/s, alloc=0.5GB, eta=2.0s, img_s=376.5, infer_ms=45.8, loss=0.0914, reserv=1.1GB][A
+
+Client 3:  66%|██████▌   | 82/125 [00:06<00:03, 11.69it/s, alloc=0.5GB, eta=2.0s, img_s=376.5, infer_ms=45.8, loss=0.0914, reserv=1.1GB][A
+
+Client 3:  66%|██████▌   | 82/125 [00:07<00:03, 11.69it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=45.9, loss=0.0851, reserv=1.1GB][A
+
+Client 3:  66%|██████▌   | 82/125 [00:07<00:03, 11.69it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=45.8, loss=0.0690, reserv=1.1GB][A
+
+Client 3:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=45.8, loss=0.0690, reserv=1.1GB][A
+
+Client 3:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.8s, img_s=376.6, infer_ms=45.9, loss=0.0482, reserv=1.1GB][A
+
+Client 3:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.8s, img_s=376.6, infer_ms=45.8, loss=0.0617, reserv=1.1GB][A
+
+Client 3:  69%|██████▉   | 86/125 [00:07<00:03, 11.78it/s, alloc=0.5GB, eta=1.8s, img_s=376.6, infer_ms=45.8, loss=0.0617, reserv=1.1GB][A
+
+Client 3:  69%|██████▉   | 86/125 [00:07<00:03, 11.78it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=45.8, loss=0.2271, reserv=1.1GB][A
+
+Client 3:  69%|██████▉   | 86/125 [00:07<00:03, 11.78it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=45.8, loss=0.0457, reserv=1.1GB][A
+
+Client 3:  70%|███████   | 88/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=45.8, loss=0.0457, reserv=1.1GB][A
+
+Client 3:  70%|███████   | 88/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=46.4, loss=0.0624, reserv=1.1GB][A
+
+Client 3:  70%|███████   | 88/125 [00:07<00:03, 11.82it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=46.4, loss=0.1124, reserv=1.1GB][A
+
+Client 3:  72%|███████▏  | 90/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.7s, img_s=376.7, infer_ms=46.4, loss=0.1124, reserv=1.1GB][A
+
+Client 3:  72%|███████▏  | 90/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.6s, img_s=376.8, infer_ms=46.4, loss=0.0612, reserv=1.1GB][A
+
+Client 3:  72%|███████▏  | 90/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.6s, img_s=376.8, infer_ms=45.9, loss=0.0699, reserv=1.1GB][A
+
+Client 3:  74%|███████▎  | 92/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.6s, img_s=376.8, infer_ms=45.9, loss=0.0699, reserv=1.1GB][A
+
+Client 3:  74%|███████▎  | 92/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.5s, img_s=376.8, infer_ms=45.8, loss=0.1023, reserv=1.1GB][A
+
+Client 3:  74%|███████▎  | 92/125 [00:07<00:02, 11.81it/s, alloc=0.5GB, eta=1.5s, img_s=376.8, infer_ms=45.8, loss=0.0412, reserv=1.1GB][A
+
+Client 3:  75%|███████▌  | 94/125 [00:07<00:02, 11.82it/s, alloc=0.5GB, eta=1.5s, img_s=376.8, infer_ms=45.8, loss=0.0412, reserv=1.1GB][A
+
+Client 3:  75%|███████▌  | 94/125 [00:08<00:02, 11.82it/s, alloc=0.5GB, eta=1.4s, img_s=376.8, infer_ms=45.8, loss=0.0510, reserv=1.1GB][A
+
+Client 3:  75%|███████▌  | 94/125 [00:08<00:02, 11.82it/s, alloc=0.5GB, eta=1.4s, img_s=376.9, infer_ms=45.8, loss=0.0770, reserv=1.1GB][A
+
+Client 3:  77%|███████▋  | 96/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.4s, img_s=376.9, infer_ms=45.8, loss=0.0770, reserv=1.1GB][A
+
+Client 3:  77%|███████▋  | 96/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.3s, img_s=376.9, infer_ms=45.9, loss=0.2598, reserv=1.1GB][A
+
+Client 3:  77%|███████▋  | 96/125 [00:08<00:02, 11.84it/s, alloc=0.5GB, eta=1.3s, img_s=376.4, infer_ms=45.8, loss=0.0951, reserv=1.1GB][A
+
+Client 3:  78%|███████▊  | 98/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.3s, img_s=376.4, infer_ms=45.8, loss=0.0951, reserv=1.1GB][A
+
+Client 3:  78%|███████▊  | 98/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.2s, img_s=376.3, infer_ms=45.9, loss=0.0648, reserv=1.1GB][A
+
+Client 3:  78%|███████▊  | 98/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.2s, img_s=376.3, infer_ms=45.9, loss=0.1280, reserv=1.1GB][A
+
+Client 3:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.2s, img_s=376.3, infer_ms=45.9, loss=0.1280, reserv=1.1GB][A
+
+Client 3:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.1s, img_s=376.3, infer_ms=45.9, loss=0.1201, reserv=1.1GB][A
+
+Client 3:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.1s, img_s=376.3, infer_ms=45.9, loss=0.1002, reserv=1.1GB][A
+
+Client 3:  82%|████████▏ | 102/125 [00:08<00:01, 11.65it/s, alloc=0.5GB, eta=1.1s, img_s=376.3, infer_ms=45.9, loss=0.1002, reserv=1.1GB][A
+
+Client 3:  82%|████████▏ | 102/125 [00:08<00:01, 11.65it/s, alloc=0.5GB, eta=1.0s, img_s=376.2, infer_ms=45.9, loss=0.0414, reserv=1.1GB][A
+
+Client 3:  82%|████████▏ | 102/125 [00:08<00:01, 11.65it/s, alloc=0.5GB, eta=1.0s, img_s=376.2, infer_ms=46.3, loss=0.0959, reserv=1.1GB][A
+
+Client 3:  83%|████████▎ | 104/125 [00:08<00:01, 11.65it/s, alloc=0.5GB, eta=1.0s, img_s=376.2, infer_ms=46.3, loss=0.0959, reserv=1.1GB][A
+
+Client 3:  83%|████████▎ | 104/125 [00:08<00:01, 11.65it/s, alloc=0.5GB, eta=0.9s, img_s=376.2, infer_ms=45.9, loss=0.1327, reserv=1.1GB][A
+
+Client 3:  83%|████████▎ | 104/125 [00:09<00:01, 11.65it/s, alloc=0.5GB, eta=0.9s, img_s=376.2, infer_ms=45.8, loss=0.0754, reserv=1.1GB][A
+
+Client 3:  85%|████████▍ | 106/125 [00:09<00:01, 11.67it/s, alloc=0.5GB, eta=0.9s, img_s=376.2, infer_ms=45.8, loss=0.0754, reserv=1.1GB][A
+
+Client 3:  85%|████████▍ | 106/125 [00:09<00:01, 11.67it/s, alloc=0.5GB, eta=0.8s, img_s=376.1, infer_ms=45.8, loss=0.0426, reserv=1.1GB][A
+
+Client 3:  85%|████████▍ | 106/125 [00:09<00:01, 11.67it/s, alloc=0.5GB, eta=0.8s, img_s=376.1, infer_ms=45.9, loss=0.1686, reserv=1.1GB][A
+
+Client 3:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.8s, img_s=376.1, infer_ms=45.9, loss=0.1686, reserv=1.1GB][A
+
+Client 3:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.7s, img_s=376.1, infer_ms=45.8, loss=0.0620, reserv=1.1GB][A
+
+Client 3:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.7s, img_s=376.1, infer_ms=45.9, loss=0.0752, reserv=1.1GB][A
+
+Client 3:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.7s, img_s=376.1, infer_ms=45.9, loss=0.0752, reserv=1.1GB][A
+
+Client 3:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.6s, img_s=376.1, infer_ms=45.9, loss=0.1910, reserv=1.1GB][A
+
+Client 3:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.7s, img_s=376.1, infer_ms=46.4, loss=0.0870, reserv=1.1GB][A
+
+Client 3:  90%|████████▉ | 112/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.7s, img_s=376.1, infer_ms=46.4, loss=0.0870, reserv=1.1GB][A
+
+Client 3:  90%|████████▉ | 112/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=45.8, loss=0.0951, reserv=1.1GB][A
+
+Client 3:  90%|████████▉ | 112/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=45.8, loss=0.0473, reserv=1.1GB][A
+
+Client 3:  91%|█████████ | 114/125 [00:09<00:00, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=45.8, loss=0.0473, reserv=1.1GB][A
+
+Client 3:  91%|█████████ | 114/125 [00:09<00:00, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=376.1, infer_ms=45.9, loss=0.1195, reserv=1.1GB][A
+
+Client 3:  91%|█████████ | 114/125 [00:09<00:00, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=376.1, infer_ms=45.8, loss=0.0623, reserv=1.1GB][A
+
+Client 3:  93%|█████████▎| 116/125 [00:09<00:00, 11.74it/s, alloc=0.5GB, eta=0.5s, img_s=376.1, infer_ms=45.8, loss=0.0623, reserv=1.1GB][A
+
+Client 3:  93%|█████████▎| 116/125 [00:09<00:00, 11.74it/s, alloc=0.5GB, eta=0.4s, img_s=376.1, infer_ms=45.9, loss=0.0636, reserv=1.1GB][A
+
+Client 3:  93%|█████████▎| 116/125 [00:10<00:00, 11.74it/s, alloc=0.5GB, eta=0.4s, img_s=376.2, infer_ms=45.8, loss=0.1442, reserv=1.1GB][A
+
+Client 3:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.4s, img_s=376.2, infer_ms=45.8, loss=0.1442, reserv=1.1GB][A
+
+Client 3:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.3s, img_s=376.1, infer_ms=45.8, loss=0.1062, reserv=1.1GB][A
+
+Client 3:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.3s, img_s=376.2, infer_ms=45.8, loss=0.1481, reserv=1.1GB][A
+
+Client 3:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.3s, img_s=376.2, infer_ms=45.8, loss=0.1481, reserv=1.1GB][A
+
+Client 3:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.2s, img_s=376.2, infer_ms=46.4, loss=0.0368, reserv=1.1GB][A
+
+Client 3:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.2s, img_s=376.2, infer_ms=46.4, loss=0.0284, reserv=1.1GB][A
+
+Client 3:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.2s, img_s=376.2, infer_ms=46.4, loss=0.0284, reserv=1.1GB][A
+
+Client 3:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.1s, img_s=376.2, infer_ms=46.4, loss=0.0771, reserv=1.1GB][A
+
+Client 3:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.1s, img_s=376.2, infer_ms=45.8, loss=0.1100, reserv=1.1GB][A
+
+Client 3:  99%|█████████▉| 124/125 [00:10<00:00, 11.76it/s, alloc=0.5GB, eta=0.1s, img_s=376.2, infer_ms=45.8, loss=0.1100, reserv=1.1GB][A
+
+Client 3:  99%|█████████▉| 124/125 [00:10<00:00, 11.76it/s, alloc=0.5GB, eta=0.0s, img_s=376.2, infer_ms=45.8, loss=0.0354, reserv=1.1GB][A
+
+                                                                                                                                         [A
+Clients:  60%|██████    | 3/5 [00:32<00:21, 10.75s/it]Client 3: 4000 images in 10.63s (376.2 img/s)
+
+Evaluating Client 4
+{'fake': 0, 'real': 1}
+
+Client 4 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 4
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+
+
+Client 4:   0%|          | 0/125 [00:00<?, ?it/s][A
+
+Client 4:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.8s, img_s=378.4, infer_ms=46.4, loss=0.0035, reserv=1.1GB][A
+
+Client 4:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=380.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   2%|▏         | 2/125 [00:00<00:10, 11.87it/s, alloc=0.5GB, eta=5.7s, img_s=380.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   2%|▏         | 2/125 [00:00<00:10, 11.87it/s, alloc=0.5GB, eta=5.6s, img_s=378.1, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 4:   2%|▏         | 2/125 [00:00<00:10, 11.87it/s, alloc=0.5GB, eta=5.6s, img_s=377.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.6s, img_s=377.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.5s, img_s=377.3, infer_ms=45.8, loss=0.0242, reserv=1.1GB][A
+
+Client 4:   3%|▎         | 4/125 [00:00<00:10, 11.78it/s, alloc=0.5GB, eta=5.5s, img_s=377.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:   5%|▍         | 6/125 [00:00<00:10, 11.77it/s, alloc=0.5GB, eta=5.5s, img_s=377.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:   5%|▍         | 6/125 [00:00<00:10, 11.77it/s, alloc=0.5GB, eta=5.4s, img_s=376.6, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   5%|▍         | 6/125 [00:00<00:10, 11.77it/s, alloc=0.5GB, eta=5.5s, img_s=376.7, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   6%|▋         | 8/125 [00:00<00:09, 11.75it/s, alloc=0.5GB, eta=5.5s, img_s=376.7, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   6%|▋         | 8/125 [00:00<00:09, 11.75it/s, alloc=0.5GB, eta=5.4s, img_s=376.4, infer_ms=46.3, loss=0.0163, reserv=1.1GB][A
+
+Client 4:   6%|▋         | 8/125 [00:00<00:09, 11.75it/s, alloc=0.5GB, eta=5.4s, img_s=376.5, infer_ms=46.4, loss=0.0007, reserv=1.1GB][A
+
+Client 4:   8%|▊         | 10/125 [00:00<00:09, 11.75it/s, alloc=0.5GB, eta=5.4s, img_s=376.5, infer_ms=46.4, loss=0.0007, reserv=1.1GB][A
+
+Client 4:   8%|▊         | 10/125 [00:00<00:09, 11.75it/s, alloc=0.5GB, eta=5.3s, img_s=376.8, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:   8%|▊         | 10/125 [00:01<00:09, 11.75it/s, alloc=0.5GB, eta=5.2s, img_s=376.7, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.2s, img_s=376.7, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.1s, img_s=376.9, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  10%|▉         | 12/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.1s, img_s=377.1, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.1s, img_s=377.1, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.0s, img_s=376.9, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  11%|█         | 14/125 [00:01<00:09, 11.80it/s, alloc=0.5GB, eta=5.0s, img_s=376.8, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  13%|█▎        | 16/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.0s, img_s=376.8, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  13%|█▎        | 16/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.0s, img_s=376.7, infer_ms=45.9, loss=0.0014, reserv=1.1GB][A
+
+Client 4:  13%|█▎        | 16/125 [00:01<00:09, 11.77it/s, alloc=0.5GB, eta=5.0s, img_s=376.6, infer_ms=45.9, loss=0.0144, reserv=1.1GB][A
+
+Client 4:  14%|█▍        | 18/125 [00:01<00:09, 11.76it/s, alloc=0.5GB, eta=5.0s, img_s=376.6, infer_ms=45.9, loss=0.0144, reserv=1.1GB][A
+
+Client 4:  14%|█▍        | 18/125 [00:01<00:09, 11.76it/s, alloc=0.5GB, eta=4.9s, img_s=376.5, infer_ms=46.3, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  14%|█▍        | 18/125 [00:01<00:09, 11.76it/s, alloc=0.5GB, eta=4.9s, img_s=376.3, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  16%|█▌        | 20/125 [00:01<00:08, 11.73it/s, alloc=0.5GB, eta=4.9s, img_s=376.3, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  16%|█▌        | 20/125 [00:01<00:08, 11.73it/s, alloc=0.5GB, eta=4.8s, img_s=376.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  16%|█▌        | 20/125 [00:01<00:08, 11.73it/s, alloc=0.5GB, eta=4.8s, img_s=376.3, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  18%|█▊        | 22/125 [00:01<00:08, 11.74it/s, alloc=0.5GB, eta=4.8s, img_s=376.3, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  18%|█▊        | 22/125 [00:01<00:08, 11.74it/s, alloc=0.5GB, eta=4.7s, img_s=376.2, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  18%|█▊        | 22/125 [00:02<00:08, 11.74it/s, alloc=0.5GB, eta=4.7s, img_s=376.0, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 4:  19%|█▉        | 24/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.7s, img_s=376.0, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 4:  19%|█▉        | 24/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.6s, img_s=375.8, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  19%|█▉        | 24/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.6s, img_s=375.9, infer_ms=45.8, loss=0.0020, reserv=1.1GB][A
+
+Client 4:  21%|██        | 26/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.6s, img_s=375.9, infer_ms=45.8, loss=0.0020, reserv=1.1GB][A
+
+Client 4:  21%|██        | 26/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.5s, img_s=375.7, infer_ms=46.3, loss=0.0043, reserv=1.1GB][A
+
+Client 4:  21%|██        | 26/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.5s, img_s=375.8, infer_ms=46.4, loss=0.0015, reserv=1.1GB][A
+
+Client 4:  22%|██▏       | 28/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.5s, img_s=375.8, infer_ms=46.4, loss=0.0015, reserv=1.1GB][A
+
+Client 4:  22%|██▏       | 28/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.4s, img_s=376.0, infer_ms=46.0, loss=0.0031, reserv=1.1GB][A
+
+Client 4:  22%|██▏       | 28/125 [00:02<00:08, 11.71it/s, alloc=0.5GB, eta=4.4s, img_s=376.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  24%|██▍       | 30/125 [00:02<00:08, 11.76it/s, alloc=0.5GB, eta=4.4s, img_s=376.1, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  24%|██▍       | 30/125 [00:02<00:08, 11.76it/s, alloc=0.5GB, eta=4.3s, img_s=376.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  24%|██▍       | 30/125 [00:02<00:08, 11.76it/s, alloc=0.5GB, eta=4.3s, img_s=376.4, infer_ms=46.0, loss=0.0125, reserv=1.1GB][A
+
+Client 4:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.3s, img_s=376.4, infer_ms=46.0, loss=0.0125, reserv=1.1GB][A
+
+Client 4:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=376.3, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  26%|██▌       | 32/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=376.4, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  27%|██▋       | 34/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.2s, img_s=376.4, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  27%|██▋       | 34/125 [00:02<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=376.6, infer_ms=45.9, loss=0.0007, reserv=1.1GB][A
+
+Client 4:  27%|██▋       | 34/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=376.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=376.5, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.0s, img_s=376.4, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  29%|██▉       | 36/125 [00:03<00:07, 11.80it/s, alloc=0.5GB, eta=4.1s, img_s=376.3, infer_ms=46.3, loss=0.0069, reserv=1.1GB][A
+
+Client 4:  30%|███       | 38/125 [00:03<00:07, 11.76it/s, alloc=0.5GB, eta=4.1s, img_s=376.3, infer_ms=46.3, loss=0.0069, reserv=1.1GB][A
+
+Client 4:  30%|███       | 38/125 [00:03<00:07, 11.76it/s, alloc=0.5GB, eta=4.0s, img_s=376.4, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  30%|███       | 38/125 [00:03<00:07, 11.76it/s, alloc=0.5GB, eta=4.0s, img_s=376.5, infer_ms=46.3, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=4.0s, img_s=376.5, infer_ms=46.3, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=3.9s, img_s=376.6, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  32%|███▏      | 40/125 [00:03<00:07, 11.79it/s, alloc=0.5GB, eta=3.9s, img_s=376.7, infer_ms=45.9, loss=0.0031, reserv=1.1GB][A
+
+Client 4:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.9s, img_s=376.7, infer_ms=45.9, loss=0.0031, reserv=1.1GB][A
+
+Client 4:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.8s, img_s=376.7, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  34%|███▎      | 42/125 [00:03<00:07, 11.82it/s, alloc=0.5GB, eta=3.8s, img_s=376.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  35%|███▌      | 44/125 [00:03<00:06, 11.83it/s, alloc=0.5GB, eta=3.8s, img_s=376.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  35%|███▌      | 44/125 [00:03<00:06, 11.83it/s, alloc=0.5GB, eta=3.7s, img_s=376.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  35%|███▌      | 44/125 [00:03<00:06, 11.83it/s, alloc=0.5GB, eta=3.7s, img_s=376.6, infer_ms=45.9, loss=0.0019, reserv=1.1GB][A
+
+Client 4:  37%|███▋      | 46/125 [00:03<00:06, 11.77it/s, alloc=0.5GB, eta=3.7s, img_s=376.6, infer_ms=45.9, loss=0.0019, reserv=1.1GB][A
+
+Client 4:  37%|███▋      | 46/125 [00:03<00:06, 11.77it/s, alloc=0.5GB, eta=3.6s, img_s=376.6, infer_ms=45.8, loss=0.0060, reserv=1.1GB][A
+
+Client 4:  37%|███▋      | 46/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.6s, img_s=376.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  38%|███▊      | 48/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.6s, img_s=376.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 4:  38%|███▊      | 48/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.5s, img_s=376.7, infer_ms=45.8, loss=0.0120, reserv=1.1GB][A
+
+Client 4:  38%|███▊      | 48/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.5s, img_s=376.7, infer_ms=46.3, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  40%|████      | 50/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.5s, img_s=376.7, infer_ms=46.3, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  40%|████      | 50/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.4s, img_s=376.7, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  40%|████      | 50/125 [00:04<00:06, 11.78it/s, alloc=0.5GB, eta=3.4s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  42%|████▏     | 52/125 [00:04<00:06, 11.71it/s, alloc=0.5GB, eta=3.4s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  42%|████▏     | 52/125 [00:04<00:06, 11.71it/s, alloc=0.5GB, eta=3.3s, img_s=376.3, infer_ms=45.8, loss=0.0181, reserv=1.1GB][A
+
+Client 4:  42%|████▏     | 52/125 [00:04<00:06, 11.71it/s, alloc=0.5GB, eta=3.3s, img_s=376.3, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.3s, img_s=376.3, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.2s, img_s=376.3, infer_ms=45.9, loss=0.0013, reserv=1.1GB][A
+
+Client 4:  43%|████▎     | 54/125 [00:04<00:06, 11.72it/s, alloc=0.5GB, eta=3.2s, img_s=376.2, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  45%|████▍     | 56/125 [00:04<00:05, 11.70it/s, alloc=0.5GB, eta=3.2s, img_s=376.2, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  45%|████▍     | 56/125 [00:04<00:05, 11.70it/s, alloc=0.5GB, eta=3.2s, img_s=376.3, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  45%|████▍     | 56/125 [00:04<00:05, 11.70it/s, alloc=0.5GB, eta=3.2s, img_s=376.3, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  46%|████▋     | 58/125 [00:04<00:05, 11.74it/s, alloc=0.5GB, eta=3.2s, img_s=376.3, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  46%|████▋     | 58/125 [00:05<00:05, 11.74it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=46.3, loss=0.0011, reserv=1.1GB][A
+
+Client 4:  46%|████▋     | 58/125 [00:05<00:05, 11.74it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  48%|████▊     | 60/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 4:  48%|████▊     | 60/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.9s, img_s=376.5, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 4:  48%|████▊     | 60/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.9s, img_s=376.5, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 4:  50%|████▉     | 62/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.9s, img_s=376.5, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 4:  50%|████▉     | 62/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.8s, img_s=376.5, infer_ms=45.8, loss=0.0596, reserv=1.1GB][A
+
+Client 4:  50%|████▉     | 62/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.8s, img_s=376.5, infer_ms=45.9, loss=0.1377, reserv=1.1GB][A
+
+Client 4:  51%|█████     | 64/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.8s, img_s=376.5, infer_ms=45.9, loss=0.1377, reserv=1.1GB][A
+
+Client 4:  51%|█████     | 64/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.8s, img_s=376.5, infer_ms=45.8, loss=0.1226, reserv=1.1GB][A
+
+Client 4:  51%|█████     | 64/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.1661, reserv=1.1GB][A
+
+Client 4:  53%|█████▎    | 66/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.1661, reserv=1.1GB][A
+
+Client 4:  53%|█████▎    | 66/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.9, loss=0.0227, reserv=1.1GB][A
+
+Client 4:  53%|█████▎    | 66/125 [00:05<00:05, 11.78it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.9, loss=0.0458, reserv=1.1GB][A
+
+Client 4:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.9, loss=0.0458, reserv=1.1GB][A
+
+Client 4:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.6s, img_s=376.5, infer_ms=46.5, loss=0.0721, reserv=1.1GB][A
+
+Client 4:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.6s, img_s=376.5, infer_ms=46.4, loss=0.0469, reserv=1.1GB][A
+
+Client 4:  56%|█████▌    | 70/125 [00:05<00:04, 11.76it/s, alloc=0.5GB, eta=2.6s, img_s=376.5, infer_ms=46.4, loss=0.0469, reserv=1.1GB][A
+
+Client 4:  56%|█████▌    | 70/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.5s, img_s=376.2, infer_ms=45.8, loss=0.0371, reserv=1.1GB][A
+
+Client 4:  56%|█████▌    | 70/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.5s, img_s=376.3, infer_ms=45.9, loss=0.0784, reserv=1.1GB][A
+
+Client 4:  58%|█████▊    | 72/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.5s, img_s=376.3, infer_ms=45.9, loss=0.0784, reserv=1.1GB][A
+
+Client 4:  58%|█████▊    | 72/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.4s, img_s=376.3, infer_ms=45.9, loss=0.0696, reserv=1.1GB][A
+
+Client 4:  58%|█████▊    | 72/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.4s, img_s=376.2, infer_ms=45.8, loss=0.0918, reserv=1.1GB][A
+
+Client 4:  59%|█████▉    | 74/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.4s, img_s=376.2, infer_ms=45.8, loss=0.0918, reserv=1.1GB][A
+
+Client 4:  59%|█████▉    | 74/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.3s, img_s=376.3, infer_ms=45.9, loss=0.0927, reserv=1.1GB][A
+
+Client 4:  59%|█████▉    | 74/125 [00:06<00:04, 11.70it/s, alloc=0.5GB, eta=2.3s, img_s=376.3, infer_ms=45.8, loss=0.0790, reserv=1.1GB][A
+
+Client 4:  61%|██████    | 76/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.3s, img_s=376.3, infer_ms=45.8, loss=0.0790, reserv=1.1GB][A
+
+Client 4:  61%|██████    | 76/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=376.3, infer_ms=46.4, loss=0.0879, reserv=1.1GB][A
+
+Client 4:  61%|██████    | 76/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=376.3, infer_ms=46.5, loss=0.1281, reserv=1.1GB][A
+
+Client 4:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.2s, img_s=376.3, infer_ms=46.5, loss=0.1281, reserv=1.1GB][A
+
+Client 4:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.1s, img_s=376.3, infer_ms=45.9, loss=0.0530, reserv=1.1GB][A
+
+Client 4:  62%|██████▏   | 78/125 [00:06<00:04, 11.73it/s, alloc=0.5GB, eta=2.1s, img_s=376.3, infer_ms=45.8, loss=0.0936, reserv=1.1GB][A
+
+Client 4:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.1s, img_s=376.3, infer_ms=45.8, loss=0.0936, reserv=1.1GB][A
+
+Client 4:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.0s, img_s=376.3, infer_ms=45.8, loss=0.1104, reserv=1.1GB][A
+
+Client 4:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.0s, img_s=376.3, infer_ms=45.9, loss=0.1364, reserv=1.1GB][A
+
+Client 4:  66%|██████▌   | 82/125 [00:06<00:03, 11.76it/s, alloc=0.5GB, eta=2.0s, img_s=376.3, infer_ms=45.9, loss=0.1364, reserv=1.1GB][A
+
+Client 4:  66%|██████▌   | 82/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.9s, img_s=376.3, infer_ms=45.9, loss=0.1075, reserv=1.1GB][A
+
+Client 4:  66%|██████▌   | 82/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=45.8, loss=0.0636, reserv=1.1GB][A
+
+Client 4:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=45.8, loss=0.0636, reserv=1.1GB][A
+
+Client 4:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.8s, img_s=376.2, infer_ms=45.8, loss=0.0379, reserv=1.1GB][A
+
+Client 4:  67%|██████▋   | 84/125 [00:07<00:03, 11.73it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=46.5, loss=0.0719, reserv=1.1GB][A
+
+Client 4:  69%|██████▉   | 86/125 [00:07<00:03, 11.71it/s, alloc=0.5GB, eta=1.9s, img_s=376.2, infer_ms=46.5, loss=0.0719, reserv=1.1GB][A
+
+Client 4:  69%|██████▉   | 86/125 [00:07<00:03, 11.71it/s, alloc=0.5GB, eta=1.8s, img_s=376.2, infer_ms=46.2, loss=0.0550, reserv=1.1GB][A
+
+Client 4:  69%|██████▉   | 86/125 [00:07<00:03, 11.71it/s, alloc=0.5GB, eta=1.7s, img_s=376.2, infer_ms=45.8, loss=0.0599, reserv=1.1GB][A
+
+Client 4:  70%|███████   | 88/125 [00:07<00:03, 11.72it/s, alloc=0.5GB, eta=1.7s, img_s=376.2, infer_ms=45.8, loss=0.0599, reserv=1.1GB][A
+
+Client 4:  70%|███████   | 88/125 [00:07<00:03, 11.72it/s, alloc=0.5GB, eta=1.6s, img_s=376.2, infer_ms=45.8, loss=0.1299, reserv=1.1GB][A
+
+Client 4:  70%|███████   | 88/125 [00:07<00:03, 11.72it/s, alloc=0.5GB, eta=1.7s, img_s=376.2, infer_ms=45.8, loss=0.1244, reserv=1.1GB][A
+
+Client 4:  72%|███████▏  | 90/125 [00:07<00:02, 11.75it/s, alloc=0.5GB, eta=1.7s, img_s=376.2, infer_ms=45.8, loss=0.1244, reserv=1.1GB][A
+
+Client 4:  72%|███████▏  | 90/125 [00:07<00:02, 11.75it/s, alloc=0.5GB, eta=1.6s, img_s=376.2, infer_ms=45.8, loss=0.0485, reserv=1.1GB][A
+
+Client 4:  72%|███████▏  | 90/125 [00:07<00:02, 11.75it/s, alloc=0.5GB, eta=1.6s, img_s=376.2, infer_ms=45.9, loss=0.0726, reserv=1.1GB][A
+
+Client 4:  74%|███████▎  | 92/125 [00:07<00:02, 11.76it/s, alloc=0.5GB, eta=1.6s, img_s=376.2, infer_ms=45.9, loss=0.0726, reserv=1.1GB][A
+
+Client 4:  74%|███████▎  | 92/125 [00:07<00:02, 11.76it/s, alloc=0.5GB, eta=1.5s, img_s=376.2, infer_ms=45.9, loss=0.0947, reserv=1.1GB][A
+
+Client 4:  74%|███████▎  | 92/125 [00:07<00:02, 11.76it/s, alloc=0.5GB, eta=1.5s, img_s=376.2, infer_ms=45.8, loss=0.0748, reserv=1.1GB][A
+
+Client 4:  75%|███████▌  | 94/125 [00:07<00:02, 11.73it/s, alloc=0.5GB, eta=1.5s, img_s=376.2, infer_ms=45.8, loss=0.0748, reserv=1.1GB][A
+
+Client 4:  75%|███████▌  | 94/125 [00:08<00:02, 11.73it/s, alloc=0.5GB, eta=1.4s, img_s=376.2, infer_ms=46.4, loss=0.0773, reserv=1.1GB][A
+
+Client 4:  75%|███████▌  | 94/125 [00:08<00:02, 11.73it/s, alloc=0.5GB, eta=1.4s, img_s=376.2, infer_ms=46.4, loss=0.0470, reserv=1.1GB][A
+
+Client 4:  77%|███████▋  | 96/125 [00:08<00:02, 11.74it/s, alloc=0.5GB, eta=1.4s, img_s=376.2, infer_ms=46.4, loss=0.0470, reserv=1.1GB][A
+
+Client 4:  77%|███████▋  | 96/125 [00:08<00:02, 11.74it/s, alloc=0.5GB, eta=1.3s, img_s=376.2, infer_ms=46.2, loss=0.1589, reserv=1.1GB][A
+
+Client 4:  77%|███████▋  | 96/125 [00:08<00:02, 11.74it/s, alloc=0.5GB, eta=1.3s, img_s=375.7, infer_ms=45.8, loss=0.0656, reserv=1.1GB][A
+
+Client 4:  78%|███████▊  | 98/125 [00:08<00:02, 11.53it/s, alloc=0.5GB, eta=1.3s, img_s=375.7, infer_ms=45.8, loss=0.0656, reserv=1.1GB][A
+
+Client 4:  78%|███████▊  | 98/125 [00:08<00:02, 11.53it/s, alloc=0.5GB, eta=1.2s, img_s=375.7, infer_ms=46.4, loss=0.1519, reserv=1.1GB][A
+
+Client 4:  78%|███████▊  | 98/125 [00:08<00:02, 11.53it/s, alloc=0.5GB, eta=1.2s, img_s=375.7, infer_ms=46.4, loss=0.0696, reserv=1.1GB][A
+
+Client 4:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.2s, img_s=375.7, infer_ms=46.4, loss=0.0696, reserv=1.1GB][A
+
+Client 4:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.1s, img_s=375.7, infer_ms=45.9, loss=0.1124, reserv=1.1GB][A
+
+Client 4:  80%|████████  | 100/125 [00:08<00:02, 11.61it/s, alloc=0.5GB, eta=1.1s, img_s=375.7, infer_ms=45.8, loss=0.0676, reserv=1.1GB][A
+
+Client 4:  82%|████████▏ | 102/125 [00:08<00:01, 11.64it/s, alloc=0.5GB, eta=1.1s, img_s=375.7, infer_ms=45.8, loss=0.0676, reserv=1.1GB][A
+
+Client 4:  82%|████████▏ | 102/125 [00:08<00:01, 11.64it/s, alloc=0.5GB, eta=1.0s, img_s=375.6, infer_ms=45.8, loss=0.0638, reserv=1.1GB][A
+
+Client 4:  82%|████████▏ | 102/125 [00:08<00:01, 11.64it/s, alloc=0.5GB, eta=1.0s, img_s=375.6, infer_ms=45.8, loss=0.0741, reserv=1.1GB][A
+
+Client 4:  83%|████████▎ | 104/125 [00:08<00:01, 11.63it/s, alloc=0.5GB, eta=1.0s, img_s=375.6, infer_ms=45.8, loss=0.0741, reserv=1.1GB][A
+
+Client 4:  83%|████████▎ | 104/125 [00:08<00:01, 11.63it/s, alloc=0.5GB, eta=0.9s, img_s=375.6, infer_ms=45.9, loss=0.0863, reserv=1.1GB][A
+
+Client 4:  83%|████████▎ | 104/125 [00:09<00:01, 11.63it/s, alloc=0.5GB, eta=0.9s, img_s=375.6, infer_ms=46.4, loss=0.0519, reserv=1.1GB][A
+
+Client 4:  85%|████████▍ | 106/125 [00:09<00:01, 11.63it/s, alloc=0.5GB, eta=0.9s, img_s=375.6, infer_ms=46.4, loss=0.0519, reserv=1.1GB][A
+
+Client 4:  85%|████████▍ | 106/125 [00:09<00:01, 11.63it/s, alloc=0.5GB, eta=0.8s, img_s=375.6, infer_ms=46.5, loss=0.0896, reserv=1.1GB][A
+
+Client 4:  85%|████████▍ | 106/125 [00:09<00:01, 11.63it/s, alloc=0.5GB, eta=0.8s, img_s=375.6, infer_ms=45.8, loss=0.0760, reserv=1.1GB][A
+
+Client 4:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.8s, img_s=375.6, infer_ms=45.8, loss=0.0760, reserv=1.1GB][A
+
+Client 4:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.7s, img_s=375.5, infer_ms=45.8, loss=0.1597, reserv=1.1GB][A
+
+Client 4:  86%|████████▋ | 108/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.7s, img_s=375.6, infer_ms=45.8, loss=0.0951, reserv=1.1GB][A
+
+Client 4:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.7s, img_s=375.6, infer_ms=45.8, loss=0.0951, reserv=1.1GB][A
+
+Client 4:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.6s, img_s=375.5, infer_ms=45.9, loss=0.1123, reserv=1.1GB][A
+
+Client 4:  88%|████████▊ | 110/125 [00:09<00:01, 11.68it/s, alloc=0.5GB, eta=0.6s, img_s=375.5, infer_ms=45.8, loss=0.0669, reserv=1.1GB][A
+
+Client 4:  90%|████████▉ | 112/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.6s, img_s=375.5, infer_ms=45.8, loss=0.0669, reserv=1.1GB][A
+
+Client 4:  90%|████████▉ | 112/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.5s, img_s=375.5, infer_ms=45.8, loss=0.1141, reserv=1.1GB][A
+
+Client 4:  90%|████████▉ | 112/125 [00:09<00:01, 11.66it/s, alloc=0.5GB, eta=0.6s, img_s=375.4, infer_ms=46.4, loss=0.0654, reserv=1.1GB][A
+
+Client 4:  91%|█████████ | 114/125 [00:09<00:00, 11.66it/s, alloc=0.5GB, eta=0.6s, img_s=375.4, infer_ms=46.4, loss=0.0654, reserv=1.1GB][A
+
+Client 4:  91%|█████████ | 114/125 [00:09<00:00, 11.66it/s, alloc=0.5GB, eta=0.5s, img_s=375.5, infer_ms=46.2, loss=0.3072, reserv=1.1GB][A
+
+Client 4:  91%|█████████ | 114/125 [00:09<00:00, 11.66it/s, alloc=0.5GB, eta=0.5s, img_s=375.5, infer_ms=46.1, loss=0.0995, reserv=1.1GB][A
+
+Client 4:  93%|█████████▎| 116/125 [00:09<00:00, 11.68it/s, alloc=0.5GB, eta=0.5s, img_s=375.5, infer_ms=46.1, loss=0.0995, reserv=1.1GB][A
+
+Client 4:  93%|█████████▎| 116/125 [00:09<00:00, 11.68it/s, alloc=0.5GB, eta=0.4s, img_s=375.5, infer_ms=45.8, loss=0.2195, reserv=1.1GB][A
+
+Client 4:  93%|█████████▎| 116/125 [00:10<00:00, 11.68it/s, alloc=0.5GB, eta=0.4s, img_s=375.5, infer_ms=45.8, loss=0.1082, reserv=1.1GB][A
+
+Client 4:  94%|█████████▍| 118/125 [00:10<00:00, 11.76it/s, alloc=0.5GB, eta=0.4s, img_s=375.5, infer_ms=45.8, loss=0.1082, reserv=1.1GB][A
+
+Client 4:  94%|█████████▍| 118/125 [00:10<00:00, 11.76it/s, alloc=0.5GB, eta=0.3s, img_s=375.5, infer_ms=45.8, loss=0.0397, reserv=1.1GB][A
+
+Client 4:  94%|█████████▍| 118/125 [00:10<00:00, 11.76it/s, alloc=0.5GB, eta=0.3s, img_s=375.6, infer_ms=45.8, loss=0.0493, reserv=1.1GB][A
+
+Client 4:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.3s, img_s=375.6, infer_ms=45.8, loss=0.0493, reserv=1.1GB][A
+
+Client 4:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.2s, img_s=375.6, infer_ms=45.9, loss=0.2786, reserv=1.1GB][A
+
+Client 4:  96%|█████████▌| 120/125 [00:10<00:00, 11.77it/s, alloc=0.5GB, eta=0.2s, img_s=375.6, infer_ms=45.9, loss=0.0836, reserv=1.1GB][A
+
+Client 4:  98%|█████████▊| 122/125 [00:10<00:00, 11.79it/s, alloc=0.5GB, eta=0.2s, img_s=375.6, infer_ms=45.9, loss=0.0836, reserv=1.1GB][A
+
+Client 4:  98%|█████████▊| 122/125 [00:10<00:00, 11.79it/s, alloc=0.5GB, eta=0.1s, img_s=375.7, infer_ms=45.8, loss=0.0681, reserv=1.1GB][A
+
+Client 4:  98%|█████████▊| 122/125 [00:10<00:00, 11.79it/s, alloc=0.5GB, eta=0.1s, img_s=375.7, infer_ms=45.8, loss=0.0466, reserv=1.1GB][A
+
+Client 4:  99%|█████████▉| 124/125 [00:10<00:00, 11.81it/s, alloc=0.5GB, eta=0.1s, img_s=375.7, infer_ms=45.8, loss=0.0466, reserv=1.1GB][A
+
+Client 4:  99%|█████████▉| 124/125 [00:10<00:00, 11.81it/s, alloc=0.5GB, eta=0.0s, img_s=375.7, infer_ms=45.9, loss=0.0656, reserv=1.1GB][A
+
+                                                                                                                                         [A
+Clients:  80%|████████  | 4/5 [00:43<00:10, 10.72s/it]Client 4: 4000 images in 10.65s (375.7 img/s)
+
+Evaluating Client 5
+{'fake': 0, 'real': 1}
+
+Client 5 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 5
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+
+
+Client 5:   0%|          | 0/125 [00:00<?, ?it/s][A
+
+Client 5:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=374.2, infer_ms=45.8, loss=0.0020, reserv=1.1GB][A
+
+Client 5:   0%|          | 0/125 [00:00<?, ?it/s, alloc=0.5GB, eta=5.7s, img_s=378.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   2%|▏         | 2/125 [00:00<00:10, 11.80it/s, alloc=0.5GB, eta=5.7s, img_s=378.1, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   2%|▏         | 2/125 [00:00<00:10, 11.80it/s, alloc=0.5GB, eta=5.7s, img_s=375.6, infer_ms=46.4, loss=0.0010, reserv=1.1GB][A
+
+Client 5:   2%|▏         | 2/125 [00:00<00:10, 11.80it/s, alloc=0.5GB, eta=5.7s, img_s=376.6, infer_ms=46.3, loss=0.0013, reserv=1.1GB][A
+
+Client 5:   3%|▎         | 4/125 [00:00<00:10, 11.75it/s, alloc=0.5GB, eta=5.7s, img_s=376.6, infer_ms=46.3, loss=0.0013, reserv=1.1GB][A
+
+Client 5:   3%|▎         | 4/125 [00:00<00:10, 11.75it/s, alloc=0.5GB, eta=5.5s, img_s=375.7, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   3%|▎         | 4/125 [00:00<00:10, 11.75it/s, alloc=0.5GB, eta=5.5s, img_s=375.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   5%|▍         | 6/125 [00:00<00:10, 11.73it/s, alloc=0.5GB, eta=5.5s, img_s=375.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   5%|▍         | 6/125 [00:00<00:10, 11.73it/s, alloc=0.5GB, eta=5.4s, img_s=376.6, infer_ms=45.8, loss=0.0010, reserv=1.1GB][A
+
+Client 5:   5%|▍         | 6/125 [00:00<00:10, 11.73it/s, alloc=0.5GB, eta=5.4s, img_s=376.7, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 5:   6%|▋         | 8/125 [00:00<00:09, 11.78it/s, alloc=0.5GB, eta=5.4s, img_s=376.7, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 5:   6%|▋         | 8/125 [00:00<00:09, 11.78it/s, alloc=0.5GB, eta=5.3s, img_s=376.8, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:   6%|▋         | 8/125 [00:00<00:09, 11.78it/s, alloc=0.5GB, eta=5.3s, img_s=377.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:   8%|▊         | 10/125 [00:00<00:09, 11.81it/s, alloc=0.5GB, eta=5.3s, img_s=377.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:   8%|▊         | 10/125 [00:00<00:09, 11.81it/s, alloc=0.5GB, eta=5.2s, img_s=377.6, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 5:   8%|▊         | 10/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.2s, img_s=377.8, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  10%|▉         | 12/125 [00:01<00:09, 11.84it/s, alloc=0.5GB, eta=5.2s, img_s=377.8, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  10%|▉         | 12/125 [00:01<00:09, 11.84it/s, alloc=0.5GB, eta=5.1s, img_s=378.0, infer_ms=45.8, loss=0.0042, reserv=1.1GB][A
+
+Client 5:  10%|▉         | 12/125 [00:01<00:09, 11.84it/s, alloc=0.5GB, eta=5.1s, img_s=378.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  11%|█         | 14/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.1s, img_s=378.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  11%|█         | 14/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.0s, img_s=378.5, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  11%|█         | 14/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.0s, img_s=378.4, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  13%|█▎        | 16/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.0s, img_s=378.4, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  13%|█▎        | 16/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.0s, img_s=378.3, infer_ms=46.5, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  13%|█▎        | 16/125 [00:01<00:09, 11.86it/s, alloc=0.5GB, eta=5.0s, img_s=378.0, infer_ms=46.4, loss=0.0016, reserv=1.1GB][A
+
+Client 5:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=5.0s, img_s=378.0, infer_ms=46.4, loss=0.0016, reserv=1.1GB][A
+
+Client 5:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=4.9s, img_s=377.9, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  14%|█▍        | 18/125 [00:01<00:09, 11.81it/s, alloc=0.5GB, eta=4.9s, img_s=377.7, infer_ms=45.8, loss=0.0012, reserv=1.1GB][A
+
+Client 5:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.9s, img_s=377.7, infer_ms=45.8, loss=0.0012, reserv=1.1GB][A
+
+Client 5:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.8s, img_s=377.8, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  16%|█▌        | 20/125 [00:01<00:08, 11.78it/s, alloc=0.5GB, eta=4.8s, img_s=377.9, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  18%|█▊        | 22/125 [00:01<00:08, 11.81it/s, alloc=0.5GB, eta=4.8s, img_s=377.9, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  18%|█▊        | 22/125 [00:01<00:08, 11.81it/s, alloc=0.5GB, eta=4.7s, img_s=377.9, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  18%|█▊        | 22/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.7s, img_s=377.8, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.7s, img_s=377.8, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.6s, img_s=377.9, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  19%|█▉        | 24/125 [00:02<00:08, 11.80it/s, alloc=0.5GB, eta=4.6s, img_s=377.9, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 5:  21%|██        | 26/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.6s, img_s=377.9, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 5:  21%|██        | 26/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.5s, img_s=377.7, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  21%|██        | 26/125 [00:02<00:08, 11.81it/s, alloc=0.5GB, eta=4.5s, img_s=377.8, infer_ms=46.4, loss=0.0042, reserv=1.1GB][A
+
+Client 5:  22%|██▏       | 28/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.5s, img_s=377.8, infer_ms=46.4, loss=0.0042, reserv=1.1GB][A
+
+Client 5:  22%|██▏       | 28/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.4s, img_s=377.7, infer_ms=46.3, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  22%|██▏       | 28/125 [00:02<00:08, 11.79it/s, alloc=0.5GB, eta=4.4s, img_s=377.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  24%|██▍       | 30/125 [00:02<00:08, 11.78it/s, alloc=0.5GB, eta=4.4s, img_s=377.7, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  24%|██▍       | 30/125 [00:02<00:08, 11.78it/s, alloc=0.5GB, eta=4.3s, img_s=377.7, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  24%|██▍       | 30/125 [00:02<00:08, 11.78it/s, alloc=0.5GB, eta=4.3s, img_s=377.8, infer_ms=45.8, loss=0.0069, reserv=1.1GB][A
+
+Client 5:  26%|██▌       | 32/125 [00:02<00:07, 11.81it/s, alloc=0.5GB, eta=4.3s, img_s=377.8, infer_ms=45.8, loss=0.0069, reserv=1.1GB][A
+
+Client 5:  26%|██▌       | 32/125 [00:02<00:07, 11.81it/s, alloc=0.5GB, eta=4.2s, img_s=376.4, infer_ms=45.9, loss=0.0010, reserv=1.1GB][A
+
+Client 5:  26%|██▌       | 32/125 [00:02<00:07, 11.81it/s, alloc=0.5GB, eta=4.3s, img_s=376.6, infer_ms=46.3, loss=0.0016, reserv=1.1GB][A
+
+Client 5:  27%|██▋       | 34/125 [00:02<00:07, 11.62it/s, alloc=0.5GB, eta=4.3s, img_s=376.6, infer_ms=46.3, loss=0.0016, reserv=1.1GB][A
+
+Client 5:  27%|██▋       | 34/125 [00:02<00:07, 11.62it/s, alloc=0.5GB, eta=4.2s, img_s=376.5, infer_ms=46.4, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  27%|██▋       | 34/125 [00:03<00:07, 11.62it/s, alloc=0.5GB, eta=4.1s, img_s=376.4, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  29%|██▉       | 36/125 [00:03<00:07, 11.63it/s, alloc=0.5GB, eta=4.1s, img_s=376.4, infer_ms=45.9, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  29%|██▉       | 36/125 [00:03<00:07, 11.63it/s, alloc=0.5GB, eta=4.0s, img_s=376.3, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  29%|██▉       | 36/125 [00:03<00:07, 11.63it/s, alloc=0.5GB, eta=4.0s, img_s=376.4, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  30%|███       | 38/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=4.0s, img_s=376.4, infer_ms=45.8, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  30%|███       | 38/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=3.9s, img_s=376.3, infer_ms=45.8, loss=0.0029, reserv=1.1GB][A
+
+Client 5:  30%|███       | 38/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=3.9s, img_s=376.2, infer_ms=45.8, loss=0.0015, reserv=1.1GB][A
+
+Client 5:  32%|███▏      | 40/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=3.9s, img_s=376.2, infer_ms=45.8, loss=0.0015, reserv=1.1GB][A
+
+Client 5:  32%|███▏      | 40/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=3.9s, img_s=376.3, infer_ms=45.9, loss=0.0120, reserv=1.1GB][A
+
+Client 5:  32%|███▏      | 40/125 [00:03<00:07, 11.67it/s, alloc=0.5GB, eta=3.9s, img_s=376.2, infer_ms=46.5, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  34%|███▎      | 42/125 [00:03<00:07, 11.70it/s, alloc=0.5GB, eta=3.9s, img_s=376.2, infer_ms=46.5, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  34%|███▎      | 42/125 [00:03<00:07, 11.70it/s, alloc=0.5GB, eta=3.8s, img_s=376.1, infer_ms=45.9, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  34%|███▎      | 42/125 [00:03<00:07, 11.70it/s, alloc=0.5GB, eta=3.8s, img_s=376.2, infer_ms=45.8, loss=0.0167, reserv=1.1GB][A
+
+Client 5:  35%|███▌      | 44/125 [00:03<00:06, 11.71it/s, alloc=0.5GB, eta=3.8s, img_s=376.2, infer_ms=45.8, loss=0.0167, reserv=1.1GB][A
+
+Client 5:  35%|███▌      | 44/125 [00:03<00:06, 11.71it/s, alloc=0.5GB, eta=3.7s, img_s=376.1, infer_ms=45.8, loss=0.0012, reserv=1.1GB][A
+
+Client 5:  35%|███▌      | 44/125 [00:03<00:06, 11.71it/s, alloc=0.5GB, eta=3.7s, img_s=376.1, infer_ms=45.9, loss=0.0046, reserv=1.1GB][A
+
+Client 5:  37%|███▋      | 46/125 [00:03<00:06, 11.70it/s, alloc=0.5GB, eta=3.7s, img_s=376.1, infer_ms=45.9, loss=0.0046, reserv=1.1GB][A
+
+Client 5:  37%|███▋      | 46/125 [00:03<00:06, 11.70it/s, alloc=0.5GB, eta=3.6s, img_s=376.1, infer_ms=45.9, loss=0.0011, reserv=1.1GB][A
+
+Client 5:  37%|███▋      | 46/125 [00:04<00:06, 11.70it/s, alloc=0.5GB, eta=3.6s, img_s=376.2, infer_ms=45.8, loss=0.0007, reserv=1.1GB][A
+
+Client 5:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.6s, img_s=376.2, infer_ms=45.8, loss=0.0007, reserv=1.1GB][A
+
+Client 5:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.5s, img_s=376.2, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  38%|███▊      | 48/125 [00:04<00:06, 11.73it/s, alloc=0.5GB, eta=3.5s, img_s=376.2, infer_ms=45.9, loss=0.0015, reserv=1.1GB][A
+
+Client 5:  40%|████      | 50/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.5s, img_s=376.2, infer_ms=45.9, loss=0.0015, reserv=1.1GB][A
+
+Client 5:  40%|████      | 50/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.4s, img_s=376.2, infer_ms=46.4, loss=0.0012, reserv=1.1GB][A
+
+Client 5:  40%|████      | 50/125 [00:04<00:06, 11.74it/s, alloc=0.5GB, eta=3.4s, img_s=376.2, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  42%|████▏     | 52/125 [00:04<00:06, 11.76it/s, alloc=0.5GB, eta=3.4s, img_s=376.2, infer_ms=46.4, loss=0.0009, reserv=1.1GB][A
+
+Client 5:  42%|████▏     | 52/125 [00:04<00:06, 11.76it/s, alloc=0.5GB, eta=3.3s, img_s=376.2, infer_ms=46.3, loss=0.0007, reserv=1.1GB][A
+
+Client 5:  42%|████▏     | 52/125 [00:04<00:06, 11.76it/s, alloc=0.5GB, eta=3.3s, img_s=376.3, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 5:  43%|████▎     | 54/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.3s, img_s=376.3, infer_ms=45.8, loss=0.0011, reserv=1.1GB][A
+
+Client 5:  43%|████▎     | 54/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.2s, img_s=376.3, infer_ms=45.8, loss=0.0013, reserv=1.1GB][A
+
+Client 5:  43%|████▎     | 54/125 [00:04<00:06, 11.77it/s, alloc=0.5GB, eta=3.2s, img_s=376.4, infer_ms=45.9, loss=0.0164, reserv=1.1GB][A
+
+Client 5:  45%|████▍     | 56/125 [00:04<00:05, 11.80it/s, alloc=0.5GB, eta=3.2s, img_s=376.4, infer_ms=45.9, loss=0.0164, reserv=1.1GB][A
+
+Client 5:  45%|████▍     | 56/125 [00:04<00:05, 11.80it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=45.8, loss=0.0142, reserv=1.1GB][A
+
+Client 5:  45%|████▍     | 56/125 [00:04<00:05, 11.80it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 5:  46%|████▋     | 58/125 [00:04<00:05, 11.77it/s, alloc=0.5GB, eta=3.1s, img_s=376.4, infer_ms=45.8, loss=0.0014, reserv=1.1GB][A
+
+Client 5:  46%|████▋     | 58/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=3.0s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  46%|████▋     | 58/125 [00:05<00:05, 11.77it/s, alloc=0.5GB, eta=3.0s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  48%|████▊     | 60/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=3.0s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  48%|████▊     | 60/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.9s, img_s=376.4, infer_ms=45.8, loss=0.0008, reserv=1.1GB][A
+
+Client 5:  48%|████▊     | 60/125 [00:05<00:05, 11.80it/s, alloc=0.5GB, eta=2.9s, img_s=376.5, infer_ms=45.9, loss=0.0196, reserv=1.1GB][A
+
+Client 5:  50%|████▉     | 62/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.9s, img_s=376.5, infer_ms=45.9, loss=0.0196, reserv=1.1GB][A
+
+Client 5:  50%|████▉     | 62/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.9s, img_s=376.4, infer_ms=46.4, loss=0.0205, reserv=1.1GB][A
+
+Client 5:  50%|████▉     | 62/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.9s, img_s=376.4, infer_ms=46.4, loss=0.1155, reserv=1.1GB][A
+
+Client 5:  51%|█████     | 64/125 [00:05<00:05, 11.76it/s, alloc=0.5GB, eta=2.9s, img_s=376.4, infer_ms=46.4, loss=0.1155, reserv=1.1GB][A
+
+Client 5:  51%|█████     | 64/125 [00:05<00:05, 11.76it/s, alloc=0.5GB, eta=2.8s, img_s=376.4, infer_ms=45.9, loss=0.1242, reserv=1.1GB][A
+
+Client 5:  51%|█████     | 64/125 [00:05<00:05, 11.76it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.0684, reserv=1.1GB][A
+
+Client 5:  53%|█████▎    | 66/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.0684, reserv=1.1GB][A
+
+Client 5:  53%|█████▎    | 66/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.7s, img_s=376.4, infer_ms=45.8, loss=0.0304, reserv=1.1GB][A
+
+Client 5:  53%|█████▎    | 66/125 [00:05<00:05, 11.79it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.0773, reserv=1.1GB][A
+
+Client 5:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.7s, img_s=376.5, infer_ms=45.8, loss=0.0773, reserv=1.1GB][A
+
+Client 5:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.6s, img_s=376.5, infer_ms=45.8, loss=0.0803, reserv=1.1GB][A
+
+Client 5:  54%|█████▍    | 68/125 [00:05<00:04, 11.78it/s, alloc=0.5GB, eta=2.6s, img_s=376.6, infer_ms=45.9, loss=0.1739, reserv=1.1GB][A
+
+Client 5:  56%|█████▌    | 70/125 [00:05<00:04, 11.80it/s, alloc=0.5GB, eta=2.6s, img_s=376.6, infer_ms=45.9, loss=0.1739, reserv=1.1GB][A
+
+Client 5:  56%|█████▌    | 70/125 [00:06<00:04, 11.80it/s, alloc=0.5GB, eta=2.5s, img_s=376.5, infer_ms=45.8, loss=0.1027, reserv=1.1GB][A
+
+Client 5:  56%|█████▌    | 70/125 [00:06<00:04, 11.80it/s, alloc=0.5GB, eta=2.5s, img_s=376.5, infer_ms=45.8, loss=0.0601, reserv=1.1GB][A
+
+Client 5:  58%|█████▊    | 72/125 [00:06<00:04, 11.79it/s, alloc=0.5GB, eta=2.5s, img_s=376.5, infer_ms=45.8, loss=0.0601, reserv=1.1GB][A
+
+Client 5:  58%|█████▊    | 72/125 [00:06<00:04, 11.79it/s, alloc=0.5GB, eta=2.4s, img_s=376.6, infer_ms=45.9, loss=0.0898, reserv=1.1GB][A
+
+Client 5:  58%|█████▊    | 72/125 [00:06<00:04, 11.79it/s, alloc=0.5GB, eta=2.4s, img_s=376.5, infer_ms=46.4, loss=0.1401, reserv=1.1GB][A
+
+Client 5:  59%|█████▉    | 74/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.4s, img_s=376.5, infer_ms=46.4, loss=0.1401, reserv=1.1GB][A
+
+Client 5:  59%|█████▉    | 74/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.3s, img_s=376.5, infer_ms=46.6, loss=0.0364, reserv=1.1GB][A
+
+Client 5:  59%|█████▉    | 74/125 [00:06<00:04, 11.76it/s, alloc=0.5GB, eta=2.3s, img_s=376.5, infer_ms=45.9, loss=0.1214, reserv=1.1GB][A
+
+Client 5:  61%|██████    | 76/125 [00:06<00:04, 11.78it/s, alloc=0.5GB, eta=2.3s, img_s=376.5, infer_ms=45.9, loss=0.1214, reserv=1.1GB][A
+
+Client 5:  61%|██████    | 76/125 [00:06<00:04, 11.78it/s, alloc=0.5GB, eta=2.2s, img_s=376.5, infer_ms=45.8, loss=0.0685, reserv=1.1GB][A
+
+Client 5:  61%|██████    | 76/125 [00:06<00:04, 11.78it/s, alloc=0.5GB, eta=2.2s, img_s=376.4, infer_ms=45.8, loss=0.0212, reserv=1.1GB][A
+
+Client 5:  62%|██████▏   | 78/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.2s, img_s=376.4, infer_ms=45.8, loss=0.0212, reserv=1.1GB][A
+
+Client 5:  62%|██████▏   | 78/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.1s, img_s=376.5, infer_ms=45.8, loss=0.0775, reserv=1.1GB][A
+
+Client 5:  62%|██████▏   | 78/125 [00:06<00:04, 11.74it/s, alloc=0.5GB, eta=2.1s, img_s=376.5, infer_ms=45.8, loss=0.0747, reserv=1.1GB][A
+
+Client 5:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.1s, img_s=376.5, infer_ms=45.8, loss=0.0747, reserv=1.1GB][A
+
+Client 5:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.0s, img_s=376.4, infer_ms=45.8, loss=0.0894, reserv=1.1GB][A
+
+Client 5:  64%|██████▍   | 80/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.0s, img_s=376.5, infer_ms=45.8, loss=0.0606, reserv=1.1GB][A
+
+Client 5:  66%|██████▌   | 82/125 [00:06<00:03, 11.77it/s, alloc=0.5GB, eta=2.0s, img_s=376.5, infer_ms=45.8, loss=0.0606, reserv=1.1GB][A
+
+Client 5:  66%|██████▌   | 82/125 [00:07<00:03, 11.77it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=46.4, loss=0.0788, reserv=1.1GB][A
+
+Client 5:  66%|██████▌   | 82/125 [00:07<00:03, 11.77it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=46.3, loss=0.0518, reserv=1.1GB][A
+
+Client 5:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.9s, img_s=376.5, infer_ms=46.3, loss=0.0518, reserv=1.1GB][A
+
+Client 5:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=376.5, infer_ms=46.2, loss=0.0576, reserv=1.1GB][A
+
+Client 5:  67%|██████▋   | 84/125 [00:07<00:03, 11.76it/s, alloc=0.5GB, eta=1.8s, img_s=376.5, infer_ms=45.8, loss=0.1140, reserv=1.1GB][A
+
+Client 5:  69%|██████▉   | 86/125 [00:07<00:03, 11.77it/s, alloc=0.5GB, eta=1.8s, img_s=376.5, infer_ms=45.8, loss=0.1140, reserv=1.1GB][A
+
+Client 5:  69%|██████▉   | 86/125 [00:07<00:03, 11.77it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.8, loss=0.0633, reserv=1.1GB][A
+
+Client 5:  69%|██████▉   | 86/125 [00:07<00:03, 11.77it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.8, loss=0.0898, reserv=1.1GB][A
+
+Client 5:  70%|███████   | 88/125 [00:07<00:03, 11.74it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.8, loss=0.0898, reserv=1.1GB][A
+
+Client 5:  70%|███████   | 88/125 [00:07<00:03, 11.74it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.9, loss=0.1583, reserv=1.1GB][A
+
+Client 5:  70%|███████   | 88/125 [00:07<00:03, 11.74it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.9, loss=0.0758, reserv=1.1GB][A
+
+Client 5:  72%|███████▏  | 90/125 [00:07<00:02, 11.74it/s, alloc=0.5GB, eta=1.7s, img_s=376.4, infer_ms=45.9, loss=0.0758, reserv=1.1GB][A
+
+Client 5:  72%|███████▏  | 90/125 [00:07<00:02, 11.74it/s, alloc=0.5GB, eta=1.6s, img_s=376.4, infer_ms=45.9, loss=0.0856, reserv=1.1GB][A
+
+Client 5:  72%|███████▏  | 90/125 [00:07<00:02, 11.74it/s, alloc=0.5GB, eta=1.6s, img_s=376.4, infer_ms=46.4, loss=0.1010, reserv=1.1GB][A
+
+Client 5:  74%|███████▎  | 92/125 [00:07<00:02, 11.74it/s, alloc=0.5GB, eta=1.6s, img_s=376.4, infer_ms=46.4, loss=0.1010, reserv=1.1GB][A
+
+Client 5:  74%|███████▎  | 92/125 [00:07<00:02, 11.74it/s, alloc=0.5GB, eta=1.5s, img_s=376.4, infer_ms=46.3, loss=0.0659, reserv=1.1GB][A
+
+Client 5:  74%|███████▎  | 92/125 [00:08<00:02, 11.74it/s, alloc=0.5GB, eta=1.5s, img_s=375.9, infer_ms=45.9, loss=0.0563, reserv=1.1GB][A
+
+Client 5:  75%|███████▌  | 94/125 [00:08<00:02, 11.51it/s, alloc=0.5GB, eta=1.5s, img_s=375.9, infer_ms=45.9, loss=0.0563, reserv=1.1GB][A
+
+Client 5:  75%|███████▌  | 94/125 [00:08<00:02, 11.51it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=46.4, loss=0.0730, reserv=1.1GB][A
+
+Client 5:  75%|███████▌  | 94/125 [00:08<00:02, 11.51it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=46.4, loss=0.1078, reserv=1.1GB][A
+
+Client 5:  77%|███████▋  | 96/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.4s, img_s=375.9, infer_ms=46.4, loss=0.1078, reserv=1.1GB][A
+
+Client 5:  77%|███████▋  | 96/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=46.5, loss=0.0581, reserv=1.1GB][A
+
+Client 5:  77%|███████▋  | 96/125 [00:08<00:02, 11.59it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=45.8, loss=0.0770, reserv=1.1GB][A
+
+Client 5:  78%|███████▊  | 98/125 [00:08<00:02, 11.64it/s, alloc=0.5GB, eta=1.3s, img_s=375.9, infer_ms=45.8, loss=0.0770, reserv=1.1GB][A
+
+Client 5:  78%|███████▊  | 98/125 [00:08<00:02, 11.64it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=45.8, loss=0.0841, reserv=1.1GB][A
+
+Client 5:  78%|███████▊  | 98/125 [00:08<00:02, 11.64it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=45.8, loss=0.0663, reserv=1.1GB][A
+
+Client 5:  80%|████████  | 100/125 [00:08<00:02, 11.69it/s, alloc=0.5GB, eta=1.2s, img_s=375.9, infer_ms=45.8, loss=0.0663, reserv=1.1GB][A
+
+Client 5:  80%|████████  | 100/125 [00:08<00:02, 11.69it/s, alloc=0.5GB, eta=1.1s, img_s=376.0, infer_ms=45.9, loss=0.0572, reserv=1.1GB][A
+
+Client 5:  80%|████████  | 100/125 [00:08<00:02, 11.69it/s, alloc=0.5GB, eta=1.1s, img_s=375.9, infer_ms=45.9, loss=0.1571, reserv=1.1GB][A
+
+Client 5:  82%|████████▏ | 102/125 [00:08<00:01, 11.71it/s, alloc=0.5GB, eta=1.1s, img_s=375.9, infer_ms=45.9, loss=0.1571, reserv=1.1GB][A
+
+Client 5:  82%|████████▏ | 102/125 [00:08<00:01, 11.71it/s, alloc=0.5GB, eta=1.0s, img_s=376.0, infer_ms=45.8, loss=0.1245, reserv=1.1GB][A
+
+Client 5:  82%|████████▏ | 102/125 [00:08<00:01, 11.71it/s, alloc=0.5GB, eta=1.0s, img_s=376.0, infer_ms=45.8, loss=0.0518, reserv=1.1GB][A
+
+Client 5:  83%|████████▎ | 104/125 [00:08<00:01, 11.74it/s, alloc=0.5GB, eta=1.0s, img_s=376.0, infer_ms=45.8, loss=0.0518, reserv=1.1GB][A
+
+Client 5:  83%|████████▎ | 104/125 [00:08<00:01, 11.74it/s, alloc=0.5GB, eta=0.9s, img_s=376.0, infer_ms=45.8, loss=0.1223, reserv=1.1GB][A
+
+Client 5:  83%|████████▎ | 104/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.9s, img_s=375.9, infer_ms=46.4, loss=0.0770, reserv=1.1GB][A
+
+Client 5:  85%|████████▍ | 106/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.9s, img_s=375.9, infer_ms=46.4, loss=0.0770, reserv=1.1GB][A
+
+Client 5:  85%|████████▍ | 106/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.8s, img_s=375.9, infer_ms=46.4, loss=0.0815, reserv=1.1GB][A
+
+Client 5:  85%|████████▍ | 106/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.8s, img_s=375.9, infer_ms=45.8, loss=0.0634, reserv=1.1GB][A
+
+Client 5:  86%|████████▋ | 108/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.8s, img_s=375.9, infer_ms=45.8, loss=0.0634, reserv=1.1GB][A
+
+Client 5:  86%|████████▋ | 108/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.7s, img_s=376.0, infer_ms=45.8, loss=0.1046, reserv=1.1GB][A
+
+Client 5:  86%|████████▋ | 108/125 [00:09<00:01, 11.73it/s, alloc=0.5GB, eta=0.7s, img_s=375.9, infer_ms=45.9, loss=0.0743, reserv=1.1GB][A
+
+Client 5:  88%|████████▊ | 110/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.7s, img_s=375.9, infer_ms=45.9, loss=0.0743, reserv=1.1GB][A
+
+Client 5:  88%|████████▊ | 110/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.6s, img_s=375.9, infer_ms=45.9, loss=0.0428, reserv=1.1GB][A
+
+Client 5:  88%|████████▊ | 110/125 [00:09<00:01, 11.74it/s, alloc=0.5GB, eta=0.6s, img_s=376.0, infer_ms=45.9, loss=0.0885, reserv=1.1GB][A
+
+Client 5:  90%|████████▉ | 112/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=0.6s, img_s=376.0, infer_ms=45.9, loss=0.0885, reserv=1.1GB][A
+
+Client 5:  90%|████████▉ | 112/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=0.6s, img_s=376.0, infer_ms=45.9, loss=0.0932, reserv=1.1GB][A
+
+Client 5:  90%|████████▉ | 112/125 [00:09<00:01, 11.76it/s, alloc=0.5GB, eta=0.6s, img_s=376.0, infer_ms=45.8, loss=0.1150, reserv=1.1GB][A
+
+Client 5:  91%|█████████ | 114/125 [00:09<00:00, 11.77it/s, alloc=0.5GB, eta=0.6s, img_s=376.0, infer_ms=45.8, loss=0.1150, reserv=1.1GB][A
+
+Client 5:  91%|█████████ | 114/125 [00:09<00:00, 11.77it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=45.9, loss=0.0816, reserv=1.1GB][A
+
+Client 5:  91%|█████████ | 114/125 [00:09<00:00, 11.77it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=46.4, loss=0.0497, reserv=1.1GB][A
+
+Client 5:  93%|█████████▎| 116/125 [00:09<00:00, 11.78it/s, alloc=0.5GB, eta=0.5s, img_s=376.0, infer_ms=46.4, loss=0.0497, reserv=1.1GB][A
+
+Client 5:  93%|█████████▎| 116/125 [00:09<00:00, 11.78it/s, alloc=0.5GB, eta=0.4s, img_s=376.0, infer_ms=46.3, loss=0.0953, reserv=1.1GB][A
+
+Client 5:  93%|█████████▎| 116/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.4s, img_s=376.0, infer_ms=46.4, loss=0.1187, reserv=1.1GB][A
+
+Client 5:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.4s, img_s=376.0, infer_ms=46.4, loss=0.1187, reserv=1.1GB][A
+
+Client 5:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.3s, img_s=376.1, infer_ms=45.8, loss=0.2516, reserv=1.1GB][A
+
+Client 5:  94%|█████████▍| 118/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.3s, img_s=376.1, infer_ms=45.8, loss=0.0818, reserv=1.1GB][A
+
+Client 5:  96%|█████████▌| 120/125 [00:10<00:00, 11.80it/s, alloc=0.5GB, eta=0.3s, img_s=376.1, infer_ms=45.8, loss=0.0818, reserv=1.1GB][A
+
+Client 5:  96%|█████████▌| 120/125 [00:10<00:00, 11.80it/s, alloc=0.5GB, eta=0.2s, img_s=376.1, infer_ms=45.8, loss=0.0888, reserv=1.1GB][A
+
+Client 5:  96%|█████████▌| 120/125 [00:10<00:00, 11.80it/s, alloc=0.5GB, eta=0.2s, img_s=376.1, infer_ms=45.8, loss=0.0453, reserv=1.1GB][A
+
+Client 5:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.2s, img_s=376.1, infer_ms=45.8, loss=0.0453, reserv=1.1GB][A
+
+Client 5:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.1s, img_s=376.0, infer_ms=45.9, loss=0.1023, reserv=1.1GB][A
+
+Client 5:  98%|█████████▊| 122/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.1s, img_s=376.1, infer_ms=45.8, loss=0.1841, reserv=1.1GB][A
+
+Client 5:  99%|█████████▉| 124/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.1s, img_s=376.1, infer_ms=45.8, loss=0.1841, reserv=1.1GB][A
+
+Client 5:  99%|█████████▉| 124/125 [00:10<00:00, 11.78it/s, alloc=0.5GB, eta=0.0s, img_s=376.1, infer_ms=45.9, loss=0.0534, reserv=1.1GB][A
+
+                                                                                                                                         [A
+Clients: 100%|██████████| 5/5 [00:53<00:00, 10.70s/it]
+Clients: 100%|██████████| 5/5 [00:53<00:00, 10.74s/it]
+Client 5: 4000 images in 10.64s (376.0 img/s)
+
+Ground Truth Distribution
+Counter({np.int64(0): 10000, np.int64(1): 10000})
+
+Prediction Distribution
+Counter({np.int64(0): 10214, np.int64(1): 9786})
+
+================================================================================
+FINAL EVALUATION RESULTS
+================================================================================
+Model      : faft
+Loss       : 0.047287
+Accuracy   : 0.988600
+Precision  : 0.999285
+Recall     : 0.977900
+F1 Score   : 0.988477
+ROC-AUC    : 0.999932
+
+Performance
+Images     : 20000
+Time       : 53.77 sec
+Throughput : 371.9 img/s
+Peak GPU allocated : 0.86 GB
+Peak GPU reserved  : 1.13 GB
+
+Confusion Matrix
+[[9993    7]
+ [ 221 9779]]
+
+Classification Report
+              precision    recall  f1-score   support
+
+        Fake       0.98      1.00      0.99     10000
+        Real       1.00      0.98      0.99     10000
+
+    accuracy                           0.99     20000
+   macro avg       0.99      0.99      0.99     20000
+weighted avg       0.99      0.99      0.99     20000
+
+================================================================================

@@ -24,9 +24,10 @@ dependencies = [
 publisher = "rishi"
 
 [tool.flwr.app.config]
-num-server-rounds = 3
-local-epochs = 3
-model-name = "vit"
+num-server-rounds = 5
+local-epochs = 1
+model-name = "faft"
+dataset-name = "140k"
 
 [tool.flwr.app.components]
 serverapp = "pytorchexample.server_app:app"
@@ -36,7 +37,7 @@ clientapp = "pytorchexample.client_app:app"
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 3
+options.num-supernodes = 5
 
 [tool.flwr.federations.local-simulation.options.backend.client-resources]
 num-cpus = 2
