@@ -315,7 +315,7 @@ class FAFTNet(nn.Module):
         # ----------------------------------
         # Spatial Branch
         # ----------------------------------
-        self.resnet = resnet18(weights="IMAGENET1K_V1")
+        self.resnet = resnet18(weights=None)
         self.resnet.fc = nn.Identity()
 
         # ----------------------------------

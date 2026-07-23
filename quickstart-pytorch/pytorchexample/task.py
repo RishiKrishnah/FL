@@ -116,6 +116,34 @@ def load_data(client_id, dataset_name="140k"):
     print(f"Validate Images : {len(valset)}")
     return trainloader, valloader, testloader
 
+def get_classifier_weight(model):
+    """
+    Return the final classification layer weight for logging.
+    Supports all architectures.
+    """
+
+    if hasattr(model, "classifier"):
+        classifier = model.classifier
+
+        if isinstance(classifier, nn.Sequential):
+            for layer in classifier:
+                if isinstance(layer, nn.Linear):
+                    return layer.weight
+        elif isinstance(classifier, nn.Linear):
+            return classifier.weight
+
+    if hasattr(model, "fc"):          # ResNet
+        return model.fc.weight
+
+    if hasattr(model, "head"):        # Swin
+        return model.head.weight
+
+    if hasattr(model, "heads"):       # ViT
+        return model.heads.head.weight
+
+    raise AttributeError(
+        f"Unsupported model type: {type(model).__name__}"
+    )
 
 def train(model, trainloader, device, epochs=1):
     criterion = nn.CrossEntropyLoss()
@@ -123,7 +151,7 @@ def train(model, trainloader, device, epochs=1):
         filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4
     )
 
-    print("START classifier norm:", model.classifier[0].weight.norm().item())
+    print("START classifier norm:",get_classifier_weight(model).norm().item(),)
     scaler = torch.amp.GradScaler("cuda", enabled=(device.type == "cuda"))
 
     model.train()
@@ -215,7 +243,7 @@ def train(model, trainloader, device, epochs=1):
             print(f"GPU Reserved : {reserved:.2f} GB")
 
         print("=" * 50)
-    print("END classifier norm:", model.classifier[0].weight.norm().item())
+    print("END classifier norm:",get_classifier_weight(model).norm().item(),)
 
 
 def test(model, testloader, device):
