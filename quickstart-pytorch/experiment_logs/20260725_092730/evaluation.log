@@ -1,0 +1,220 @@
+
+================================================================================
+EVALUATION ATTEMPT 1/50
+================================================================================
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.3GB free=11.7GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.7 GB
+
+Loading checkpoint...
+Detected model: resnet18
+
+Warming up GPU...
+Warmup complete.
+
+
+Clients:   0%|          | 0/5 [00:00<?, ?it/s]
+Evaluating Client 1
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 1 Class Distribution
+Train: Counter({1: 1011, 0: 989})
+Val  : Counter({0: 55, 1: 45})
+Test : Counter({0: 53, 1: 47})
+Client 1
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 1:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 1:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.5s, img_s=125.5, infer_ms=156.9, loss=0.4484, reserv=0.1GB][A
+
+Client 1:  25%|██▌       | 1/4 [00:00<00:00,  3.91it/s, alloc=0.1GB, eta=0.5s, img_s=125.5, infer_ms=156.9, loss=0.4484, reserv=0.1GB][A
+
+Client 1:  25%|██▌       | 1/4 [00:00<00:00,  3.91it/s, alloc=0.1GB, eta=0.0s, img_s=202.1, infer_ms=10.0, loss=0.4462, reserv=0.2GB] [A
+
+Client 1:  25%|██▌       | 1/4 [00:00<00:00,  3.91it/s, alloc=0.1GB, eta=0.0s, img_s=262.5, infer_ms=10.1, loss=0.5636, reserv=0.2GB][A
+
+Client 1:  75%|███████▌  | 3/4 [00:00<00:00,  9.34it/s, alloc=0.1GB, eta=0.0s, img_s=262.5, infer_ms=10.1, loss=0.5636, reserv=0.2GB][A
+
+Client 1:  75%|███████▌  | 3/4 [00:00<00:00,  9.34it/s, alloc=0.1GB, eta=0.0s, img_s=216.7, infer_ms=90.4, loss=0.9331, reserv=0.1GB][A
+
+                                                                                                                                     [A
+Clients:  20%|██        | 1/5 [00:00<00:02,  1.82it/s]Client 1: 100 images in 0.46s (216.5 img/s)
+
+Evaluating Client 2
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 2 Class Distribution
+Train: Counter({0: 1012, 1: 988})
+Val  : Counter({0: 60, 1: 40})
+Test : Counter({0: 51, 1: 49})
+Client 2
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=651.2, infer_ms=10.0, loss=0.3536, reserv=0.2GB][A
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=650.7, infer_ms=10.6, loss=0.5326, reserv=0.2GB][A
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=648.4, infer_ms=10.6, loss=0.5850, reserv=0.2GB][A
+
+Client 2:  75%|███████▌  | 3/4 [00:00<00:00, 20.26it/s, alloc=0.1GB, eta=0.0s, img_s=648.4, infer_ms=10.6, loss=0.5850, reserv=0.2GB][A
+
+Client 2:  75%|███████▌  | 3/4 [00:00<00:00, 20.26it/s, alloc=0.1GB, eta=0.0s, img_s=643.1, infer_ms=1.9, loss=0.5954, reserv=0.2GB] [A
+
+                                                                                                                                    [A
+Clients:  40%|████      | 2/5 [00:00<00:01,  2.98it/s]Client 2: 100 images in 0.16s (641.6 img/s)
+
+Evaluating Client 3
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 3 Class Distribution
+Train: Counter({1: 1024, 0: 976})
+Val  : Counter({1: 54, 0: 46})
+Test : Counter({1: 50, 0: 50})
+Client 3
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=649.2, infer_ms=10.0, loss=0.6756, reserv=0.2GB][A
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=646.8, infer_ms=10.1, loss=0.6012, reserv=0.2GB][A
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=649.0, infer_ms=10.0, loss=0.5599, reserv=0.2GB][A
+
+Client 3:  75%|███████▌  | 3/4 [00:00<00:00, 20.26it/s, alloc=0.1GB, eta=0.0s, img_s=649.0, infer_ms=10.0, loss=0.5599, reserv=0.2GB][A
+
+Client 3:  75%|███████▌  | 3/4 [00:00<00:00, 20.26it/s, alloc=0.1GB, eta=0.0s, img_s=639.6, infer_ms=2.7, loss=0.8870, reserv=0.2GB] [A
+
+                                                                                                                                    [A
+Clients:  60%|██████    | 3/5 [00:00<00:00,  3.73it/s]Client 3: 100 images in 0.16s (638.0 img/s)
+
+Evaluating Client 4
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 4 Class Distribution
+Train: Counter({0: 1013, 1: 987})
+Val  : Counter({0: 56, 1: 44})
+Test : Counter({1: 53, 0: 47})
+Client 4
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=658.4, infer_ms=10.3, loss=0.4067, reserv=0.2GB][A
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=657.3, infer_ms=10.0, loss=0.5914, reserv=0.2GB][A
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=661.8, infer_ms=10.1, loss=0.6021, reserv=0.2GB][A
+
+Client 4:  75%|███████▌  | 3/4 [00:00<00:00, 20.67it/s, alloc=0.1GB, eta=0.0s, img_s=661.8, infer_ms=10.1, loss=0.6021, reserv=0.2GB][A
+
+Client 4:  75%|███████▌  | 3/4 [00:00<00:00, 20.67it/s, alloc=0.1GB, eta=0.0s, img_s=654.3, infer_ms=2.1, loss=0.5993, reserv=0.2GB] [A
+
+                                                                                                                                    [A
+Clients:  80%|████████  | 4/5 [00:01<00:00,  4.25it/s]Client 4: 100 images in 0.15s (652.7 img/s)
+
+Evaluating Client 5
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 5 Class Distribution
+Train: Counter({0: 1014, 1: 986})
+Val  : Counter({0: 56, 1: 44})
+Test : Counter({0: 51, 1: 49})
+Client 5
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=658.6, infer_ms=10.3, loss=0.5695, reserv=0.2GB][A
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=656.6, infer_ms=10.1, loss=0.6755, reserv=0.2GB][A
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.1GB, eta=0.0s, img_s=653.8, infer_ms=10.0, loss=0.4918, reserv=0.2GB][A
+
+Client 5:  75%|███████▌  | 3/4 [00:00<00:00, 20.41it/s, alloc=0.1GB, eta=0.0s, img_s=653.8, infer_ms=10.0, loss=0.4918, reserv=0.2GB][A
+
+Client 5:  75%|███████▌  | 3/4 [00:00<00:00, 20.41it/s, alloc=0.1GB, eta=0.0s, img_s=648.1, infer_ms=2.0, loss=0.3523, reserv=0.2GB] [A
+
+                                                                                                                                    [A
+Clients: 100%|██████████| 5/5 [00:01<00:00,  4.61it/s]
+Clients: 100%|██████████| 5/5 [00:01<00:00,  3.87it/s]
+Client 5: 100 images in 0.15s (646.6 img/s)
+
+Ground Truth Distribution
+Counter({np.int64(0): 252, np.int64(1): 248})
+
+Prediction Distribution
+Counter({np.int64(0): 301, np.int64(1): 199})
+
+================================================================================
+FINAL EVALUATION RESULTS
+================================================================================
+Model      : resnet18
+Loss       : 0.545538
+Accuracy   : 0.742000
+Precision  : 0.798995
+Recall     : 0.641129
+F1 Score   : 0.711409
+ROC-AUC    : 0.833709
+
+Performance
+Images     : 500
+Time       : 1.57 sec
+Throughput : 317.5 img/s
+Peak GPU allocated : 0.25 GB
+Peak GPU reserved  : 0.31 GB
+
+Confusion Matrix
+[[212  40]
+ [ 89 159]]
+
+Classification Report
+              precision    recall  f1-score   support
+
+        Fake       0.70      0.84      0.77       252
+        Real       0.80      0.64      0.71       248
+
+    accuracy                           0.74       500
+   macro avg       0.75      0.74      0.74       500
+weighted avg       0.75      0.74      0.74       500
+
+================================================================================

@@ -73,9 +73,9 @@ def load_data(client_id, dataset_name="140k"):
 
         random.seed(client_id)
 
-        train_limit = min(100, len(trainset))
-        val_limit = min(10, len(valset))
-        test_limit = min(10, len(testset))
+        train_limit = min(2000, len(trainset))
+        val_limit = min(100, len(valset))
+        test_limit = min(100, len(testset))
 
         train_indices = random.sample(range(len(trainset)), train_limit)
         val_indices = random.sample(range(len(valset)), val_limit)

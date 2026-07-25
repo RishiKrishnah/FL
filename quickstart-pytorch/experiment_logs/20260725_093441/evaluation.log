@@ -1,0 +1,241 @@
+
+================================================================================
+EVALUATION ATTEMPT 1/50
+================================================================================
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.4GB free=11.6GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.6 GB
+
+Loading checkpoint...
+Detected model: faft
+
+Warming up GPU...
+Artifact bias shape: torch.Size([8, 8, 197, 197])
+Warmup complete.
+
+
+Clients:   0%|          | 0/5 [00:00<?, ?it/s]
+Evaluating Client 1
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 1 Class Distribution
+Train: Counter({1: 1011, 0: 989})
+Val  : Counter({0: 55, 1: 45})
+Test : Counter({0: 53, 1: 47})
+Client 1
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 1:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 1:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.6GB, eta=1.0s, img_s=82.3, infer_ms=330.3, loss=0.6055, reserv=1.1GB][A
+
+Client 1:  25%|██▌       | 1/4 [00:00<00:01,  2.57it/s, alloc=0.6GB, eta=1.0s, img_s=82.3, infer_ms=330.3, loss=0.6055, reserv=1.1GB][A
+
+Client 1:  25%|██▌       | 1/4 [00:00<00:01,  2.57it/s, alloc=0.6GB, eta=0.2s, img_s=124.0, infer_ms=75.8, loss=0.5133, reserv=1.3GB][A
+
+Client 1:  50%|█████     | 2/4 [00:00<00:00,  4.25it/s, alloc=0.6GB, eta=0.2s, img_s=124.0, infer_ms=75.8, loss=0.5133, reserv=1.3GB][A
+
+Client 1:  50%|█████     | 2/4 [00:00<00:00,  4.25it/s, alloc=0.6GB, eta=0.1s, img_s=151.1, infer_ms=76.4, loss=0.6104, reserv=1.3GB][A
+
+Client 1:  75%|███████▌  | 3/4 [00:00<00:00,  5.49it/s, alloc=0.6GB, eta=0.1s, img_s=151.1, infer_ms=76.4, loss=0.6104, reserv=1.3GB][A
+
+Client 1:  75%|███████▌  | 3/4 [00:00<00:00,  5.49it/s, alloc=0.6GB, eta=0.0s, img_s=125.6, infer_ms=155.0, loss=0.4385, reserv=0.9GB][A
+
+Client 1: 100%|██████████| 4/4 [00:00<00:00,  5.76it/s, alloc=0.6GB, eta=0.0s, img_s=125.6, infer_ms=155.0, loss=0.4385, reserv=0.9GB][A
+
+                                                                                                                                      [A
+Clients:  20%|██        | 1/5 [00:00<00:03,  1.13it/s]Client 1: 100 images in 0.80s (125.5 img/s)
+
+Evaluating Client 2
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 2 Class Distribution
+Train: Counter({0: 1012, 1: 988})
+Val  : Counter({0: 60, 1: 40})
+Test : Counter({0: 51, 1: 49})
+Client 2
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 2:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.6GB, eta=0.2s, img_s=265.4, infer_ms=76.1, loss=0.5579, reserv=1.1GB][A
+
+Client 2:  25%|██▌       | 1/4 [00:00<00:00,  8.29it/s, alloc=0.6GB, eta=0.2s, img_s=265.4, infer_ms=76.1, loss=0.5579, reserv=1.1GB][A
+
+Client 2:  25%|██▌       | 1/4 [00:00<00:00,  8.29it/s, alloc=0.6GB, eta=0.2s, img_s=268.7, infer_ms=75.1, loss=0.4944, reserv=1.1GB][A
+
+Client 2:  50%|█████     | 2/4 [00:00<00:00,  8.41it/s, alloc=0.6GB, eta=0.2s, img_s=268.7, infer_ms=75.1, loss=0.4944, reserv=1.1GB][A
+
+Client 2:  50%|█████     | 2/4 [00:00<00:00,  8.41it/s, alloc=0.6GB, eta=0.1s, img_s=265.9, infer_ms=74.8, loss=0.7635, reserv=1.1GB][A
+
+Client 2:  75%|███████▌  | 3/4 [00:00<00:00,  8.29it/s, alloc=0.6GB, eta=0.1s, img_s=265.9, infer_ms=74.8, loss=0.7635, reserv=1.1GB][A
+
+Client 2:  75%|███████▌  | 3/4 [00:00<00:00,  8.29it/s, alloc=0.6GB, eta=0.0s, img_s=261.2, infer_ms=15.3, loss=0.5345, reserv=1.1GB][A
+
+                                                                                                                                     [A
+Clients:  40%|████      | 2/5 [00:01<00:01,  1.63it/s]Client 2: 100 images in 0.38s (260.9 img/s)
+
+Evaluating Client 3
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 3 Class Distribution
+Train: Counter({1: 1024, 0: 976})
+Val  : Counter({1: 54, 0: 46})
+Test : Counter({1: 50, 0: 50})
+Client 3
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 3:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.6GB, eta=0.2s, img_s=287.2, infer_ms=71.7, loss=0.6539, reserv=1.1GB][A
+
+Client 3:  25%|██▌       | 1/4 [00:00<00:00,  8.96it/s, alloc=0.6GB, eta=0.2s, img_s=287.2, infer_ms=71.7, loss=0.6539, reserv=1.1GB][A
+
+Client 3:  25%|██▌       | 1/4 [00:00<00:00,  8.96it/s, alloc=0.6GB, eta=0.1s, img_s=286.5, infer_ms=70.4, loss=0.5559, reserv=1.1GB][A
+
+Client 3:  50%|█████     | 2/4 [00:00<00:00,  8.94it/s, alloc=0.6GB, eta=0.1s, img_s=286.5, infer_ms=70.4, loss=0.5559, reserv=1.1GB][A
+
+Client 3:  50%|█████     | 2/4 [00:00<00:00,  8.94it/s, alloc=0.6GB, eta=0.1s, img_s=284.1, infer_ms=71.0, loss=0.6083, reserv=1.1GB][A
+
+Client 3:  75%|███████▌  | 3/4 [00:00<00:00,  8.85it/s, alloc=0.6GB, eta=0.1s, img_s=284.1, infer_ms=71.0, loss=0.6083, reserv=1.1GB][A
+
+Client 3:  75%|███████▌  | 3/4 [00:00<00:00,  8.85it/s, alloc=0.6GB, eta=0.0s, img_s=277.8, infer_ms=16.1, loss=0.5043, reserv=1.1GB][A
+
+                                                                                                                                     [A
+Clients:  60%|██████    | 3/5 [00:01<00:01,  1.96it/s]Client 3: 100 images in 0.36s (277.5 img/s)
+
+Evaluating Client 4
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 4 Class Distribution
+Train: Counter({0: 1013, 1: 987})
+Val  : Counter({0: 56, 1: 44})
+Test : Counter({1: 53, 0: 47})
+Client 4
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 4:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.6GB, eta=0.2s, img_s=289.7, infer_ms=70.7, loss=0.4933, reserv=1.1GB][A
+
+Client 4:  25%|██▌       | 1/4 [00:00<00:00,  9.04it/s, alloc=0.6GB, eta=0.2s, img_s=289.7, infer_ms=70.7, loss=0.4933, reserv=1.1GB][A
+
+Client 4:  25%|██▌       | 1/4 [00:00<00:00,  9.04it/s, alloc=0.6GB, eta=0.1s, img_s=289.1, infer_ms=70.4, loss=0.6772, reserv=1.1GB][A
+
+Client 4:  50%|█████     | 2/4 [00:00<00:00,  9.02it/s, alloc=0.6GB, eta=0.1s, img_s=289.1, infer_ms=70.4, loss=0.6772, reserv=1.1GB][A
+
+Client 4:  50%|█████     | 2/4 [00:00<00:00,  9.02it/s, alloc=0.6GB, eta=0.1s, img_s=289.0, infer_ms=70.4, loss=0.6074, reserv=1.1GB][A
+
+Client 4:  75%|███████▌  | 3/4 [00:00<00:00,  9.03it/s, alloc=0.6GB, eta=0.1s, img_s=289.0, infer_ms=70.4, loss=0.6074, reserv=1.1GB][A
+
+Client 4:  75%|███████▌  | 3/4 [00:00<00:00,  9.03it/s, alloc=0.6GB, eta=0.0s, img_s=282.2, infer_ms=16.4, loss=0.3726, reserv=1.1GB][A
+
+                                                                                                                                     [A
+Clients:  80%|████████  | 4/5 [00:02<00:00,  2.17it/s]Client 4: 100 images in 0.35s (281.9 img/s)
+
+Evaluating Client 5
+{'fake': 0, 'real': 1}
+[DEBUG MODE] Train=2000, Val=100, Test=100
+
+Client 5 Class Distribution
+Train: Counter({0: 1014, 1: 986})
+Val  : Counter({0: 56, 1: 44})
+Test : Counter({0: 51, 1: 49})
+Client 5
+Train Images: 2000
+Test Images : 100
+Validate Images : 100
+Batch size: 32
+Batches: 4
+
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s][A
+
+Client 5:   0%|          | 0/4 [00:00<?, ?it/s, alloc=0.6GB, eta=0.2s, img_s=289.2, infer_ms=71.2, loss=0.5907, reserv=1.1GB][A
+
+Client 5:  25%|██▌       | 1/4 [00:00<00:00,  9.03it/s, alloc=0.6GB, eta=0.2s, img_s=289.2, infer_ms=71.2, loss=0.5907, reserv=1.1GB][A
+
+Client 5:  25%|██▌       | 1/4 [00:00<00:00,  9.03it/s, alloc=0.6GB, eta=0.1s, img_s=290.3, infer_ms=70.5, loss=0.4758, reserv=1.1GB][A
+
+Client 5:  50%|█████     | 2/4 [00:00<00:00,  9.07it/s, alloc=0.6GB, eta=0.1s, img_s=290.3, infer_ms=70.5, loss=0.4758, reserv=1.1GB][A
+
+Client 5:  50%|█████     | 2/4 [00:00<00:00,  9.07it/s, alloc=0.6GB, eta=0.1s, img_s=290.1, infer_ms=71.1, loss=0.5528, reserv=1.1GB][A
+
+Client 5:  75%|███████▌  | 3/4 [00:00<00:00,  9.06it/s, alloc=0.6GB, eta=0.1s, img_s=290.1, infer_ms=71.1, loss=0.5528, reserv=1.1GB][A
+
+Client 5:  75%|███████▌  | 3/4 [00:00<00:00,  9.06it/s, alloc=0.6GB, eta=0.0s, img_s=282.6, infer_ms=17.2, loss=0.7733, reserv=1.1GB][A
+
+                                                                                                                                     [A
+Clients: 100%|██████████| 5/5 [00:02<00:00,  2.31it/s]
+Clients: 100%|██████████| 5/5 [00:02<00:00,  2.03it/s]
+Client 5: 100 images in 0.35s (282.2 img/s)
+
+Ground Truth Distribution
+Counter({np.int64(0): 252, np.int64(1): 248})
+
+Prediction Distribution
+Counter({np.int64(0): 262, np.int64(1): 238})
+
+================================================================================
+FINAL EVALUATION RESULTS
+================================================================================
+Model      : faft
+Loss       : 0.581632
+Accuracy   : 0.712000
+Precision  : 0.718487
+Recall     : 0.689516
+F1 Score   : 0.703704
+ROC-AUC    : 0.766265
+
+Performance
+Images     : 500
+Time       : 2.49 sec
+Throughput : 201.0 img/s
+Peak GPU allocated : 1.02 GB
+Peak GPU reserved  : 1.28 GB
+
+Confusion Matrix
+[[185  67]
+ [ 77 171]]
+
+Classification Report
+              precision    recall  f1-score   support
+
+        Fake       0.71      0.73      0.72       252
+        Real       0.72      0.69      0.70       248
+
+    accuracy                           0.71       500
+   macro avg       0.71      0.71      0.71       500
+weighted avg       0.71      0.71      0.71       500
+
+================================================================================

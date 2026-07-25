@@ -384,7 +384,7 @@ class FAFTNet(nn.Module):
                     embed_dim=768,
                     num_heads=8,
                 )
-                for _ in range(4)
+                for _ in range(8)
             ]
         )
 

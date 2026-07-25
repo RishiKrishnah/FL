@@ -1,0 +1,185 @@
+(.venv) ex5@scope-208-29:~/research/rishi/FL/quickstart-pytorch$ python evaluate_saved_model.py 
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.3GB free=11.7GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.7 GB
+
+Loading checkpoint...
+Detected model: faft
+
+Warming up GPU...
+Artifact bias shape: torch.Size([8, 8, 197, 197])
+Warmup complete.
+
+Clients:   0%|                                                                                                                                                                  | 0/5 [00:00<?, ?it/s]
+Evaluating Client 1
+================================================================================
+EVALUATION ATTEMPT 1/50
+================================================================================
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.3GB free=11.7GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.7 GB
+
+Loading checkpoint...
+Detected model: faft
+Traceback (most recent call last):
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/evaluate_saved_model.py", line 418, in <module>
+    evaluate()
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/evaluate_saved_model.py", line 167, in evaluate
+    model.load_state_dict(checkpoint)
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 2189, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for FAFTNet:
+	Missing key(s) in state_dict: "blocks.4.norm1.weight", "blocks.4.norm1.bias", "blocks.4.attn.qkv.weight", "blocks.4.attn.qkv.bias", "blocks.4.attn.proj.weight", "blocks.4.attn.proj.bias", "blocks.4.norm2.weight", "blocks.4.norm2.bias", "blocks.4.mlp.0.weight", "blocks.4.mlp.0.bias", "blocks.4.mlp.3.weight", "blocks.4.mlp.3.bias", "blocks.5.norm1.weight", "blocks.5.norm1.bias", "blocks.5.attn.qkv.weight", "blocks.5.attn.qkv.bias", "blocks.5.attn.proj.weight", "blocks.5.attn.proj.bias", "blocks.5.norm2.weight", "blocks.5.norm2.bias", "blocks.5.mlp.0.weight", "blocks.5.mlp.0.bias", "blocks.5.mlp.3.weight", "blocks.5.mlp.3.bias", "blocks.6.norm1.weight", "blocks.6.norm1.bias", "blocks.6.attn.qkv.weight", "blocks.6.attn.qkv.bias", "blocks.6.attn.proj.weight", "blocks.6.attn.proj.bias", "blocks.6.norm2.weight", "blocks.6.norm2.bias", "blocks.6.mlp.0.weight", "blocks.6.mlp.0.bias", "blocks.6.mlp.3.weight", "blocks.6.mlp.3.bias", "blocks.7.norm1.weight", "blocks.7.norm1.bias", "blocks.7.attn.qkv.weight", "blocks.7.attn.qkv.bias", "blocks.7.attn.proj.weight", "blocks.7.attn.proj.bias", "blocks.7.norm2.weight", "blocks.7.norm2.bias", "blocks.7.mlp.0.weight", "blocks.7.mlp.0.bias", "blocks.7.mlp.3.weight", "blocks.7.mlp.3.bias". 
+
+================================================================================
+EVALUATION ATTEMPT 2/50
+================================================================================
+Using device: cuda
+GPU Enabled
+GPU Count: 1
+NVIDIA GeForce RTX 3060
+GPU 0: used=0.3GB free=11.7GB
+
+Using GPU 0
+Using device: cuda:0
+GPU 0 free memory: 11.7 GB
+
+Loading checkpoint...
+Detected model: faft
+Traceback (most recent call last):
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/evaluate_saved_model.py", line 418, in <module>
+    evaluate()
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/evaluate_saved_model.py", line 167, in evaluate
+    model.load_state_dict(checkpoint)
+  File "/home/ex5/research/rishi/FL/quickstart-pytorch/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 2189, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for FAFTNet:
+	Missing key(s) in state_dict: "blocks.4.norm1.weight", "blocks.4.norm1.bias", "blocks.4.attn.qkv.weight", "blocks.4.attn.qkv.bias", "blocks.4.attn.proj.weight", "blocks.4.attn.proj.bias", "blocks.4.norm2.weight", "blocks.4.norm2.bias", "blocks.4.mlp.0.weight", "blocks.4.mlp.0.bias", "blocks.4.mlp.3.weight", "blocks.4.mlp.3.bias", "blocks.5.norm1.weight", "blocks.5.norm1.bias", "blocks.5.attn.qkv.weight", "blocks.5.attn.qkv.bias", "blocks.5.attn.proj.weight", "blocks.5.attn.proj.bias", "blocks.5.norm2.weight", "blocks.5.norm2.bias", "blocks.5.mlp.0.weight", "blocks.5.mlp.0.bias", "blocks.5.mlp.3.weight", "blocks.5.mlp.3.bias", "blocks.6.norm1.weight", "blocks.6.norm1.bias", "blocks.6.attn.qkv.weight", "blocks.6.attn.qkv.bias", "blocks.6.attn.proj.weight", "blocks.6.attn.proj.bias", "blocks.6.norm2.weight", "blocks.6.norm2.bias", "blocks.6.mlp.0.weight", "blocks.6.mlp.0.bias", "blocks.6.mlp.3.weight", "blocks.6.mlp.3.bias", "blocks.7.norm1.weight", "blocks.7.norm1.bias", "blocks.7.attn.qkv.weight", "blocks.7.attn.qkv.bias", "blocks.7.attn.proj.weight", "blocks.7.attn.proj.bias", "blocks.7.norm2.weight", "blocks.7.norm2.bias", "blocks.7.mlp.0.weight", "blocks.7.mlp.0.bias", "blocks.7.mlp.3.weight", "blocks.7.mlp.3.bias". 
+
+{'fake': 0, 'real': 1}
+
+Client 1 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 1
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+                                                                                                                                                                                                      Client 1: 4000 images in 16.33s (244.9 img/s)                                                                                                                                                          
+Clients:  20%|██████████████████████████████▊                                                                                                                           | 1/5 [00:16<01:05, 16.42s/it]
+Evaluating Client 2
+{'fake': 0, 'real': 1}
+
+Client 2 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 2
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+                                                                                                                                                                                                      Client 2: 4000 images in 15.68s (255.1 img/s)                                                                                                                                                          
+Clients:  40%|█████████████████████████████████████████████████████████████▌                                                                                            | 2/5 [00:32<00:48, 16.01s/it]
+Evaluating Client 3
+{'fake': 0, 'real': 1}
+
+Client 3 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 3
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+                                                                                                                                                                                                      Client 3: 4000 images in 14.99s (266.8 img/s)                                                                                                                                                          
+Clients:  60%|████████████████████████████████████████████████████████████████████████████████████████████▍                                                             | 3/5 [00:47<00:31, 15.56s/it]
+Evaluating Client 4
+{'fake': 0, 'real': 1}
+
+Client 4 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 4
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+                                                                                                                                                                                                      Client 4: 4000 images in 15.43s (259.3 img/s)                                                                                                                                                          
+Clients:  80%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏                              | 4/5 [01:02<00:15, 15.52s/it]
+Evaluating Client 5
+{'fake': 0, 'real': 1}
+
+Client 5 Class Distribution
+Train: Counter({0: 10000, 1: 10000})
+Val  : Counter({0: 2000, 1: 2000})
+Test : Counter({0: 2000, 1: 2000})
+Client 5
+Train Images: 20000
+Test Images : 4000
+Validate Images : 4000
+Batch size: 32
+Batches: 125
+                                                                                                                                                                                                      Client 5: 4000 images in 15.94s (250.9 img/s)                                                                                                                                                          
+Clients: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [01:18<00:00, 15.72s/it]
+
+Ground Truth Distribution
+Counter({np.int64(0): 10000, np.int64(1): 10000})
+
+Prediction Distribution
+Counter({np.int64(0): 11065, np.int64(1): 8935})
+
+================================================================================
+FINAL EVALUATION RESULTS
+================================================================================
+Model      : faft
+Loss       : 0.575023
+Accuracy   : 0.706550
+Precision  : 0.731170
+Recall     : 0.653300
+F1 Score   : 0.690045
+ROC-AUC    : 0.777304
+
+Performance
+Images     : 20000
+Time       : 78.67 sec
+Throughput : 254.2 img/s
+Peak GPU allocated : 0.86 GB
+Peak GPU reserved  : 1.13 GB
+
+Confusion Matrix
+[[7598 2402]
+ [3467 6533]]
+
+Classification Report
+              precision    recall  f1-score   support
+
+        Fake       0.69      0.76      0.72     10000
+        Real       0.73      0.65      0.69     10000
+
+    accuracy                           0.71     20000
+   macro avg       0.71      0.71      0.71     20000
+weighted avg       0.71      0.71      0.71     20000
+
+================================================================================
+(.venv) ex5@scope-208-29:~/research/rishi/FL/quickstart-pytorch$ 
