@@ -3928,7 +3928,7 @@ publisher = "rishi"
 [tool.flwr.app.config]
 num-server-rounds = 5
 local-epochs = 1
-model-name = "faft"
+model-name = "resnet18"
 dataset-name = "140k"
 
 [tool.flwr.app.components]
@@ -5278,7 +5278,7 @@ def load_model(model_name):
     # ResNet18
     # ------------------------------------------------------
     elif model_name == "resnet18":
-        model = resnet18(weights="IMAGENET1K_V1")
+        model = resnet18(weights=None)
 
         model.fc = nn.Linear(
             model.fc.in_features,
