@@ -98,7 +98,7 @@ NUM_CLIENTS = 5
 MODEL_PATH = "saved_models/global_model_round_5.pth"
 
 # H100 can easily handle this
-EVAL_BATCH_SIZE = 32
+EVAL_BATCH_SIZE = 96
 
 torch.backends.cudnn.benchmark = True
 torch.set_float32_matmul_precision("high")

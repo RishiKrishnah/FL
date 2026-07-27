@@ -106,9 +106,35 @@ def load_data(client_id, dataset_name="140k"):
     print("Val  :", get_distribution(valset))
     print("Test :", get_distribution(testset))
 
-    trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
-    valloader = DataLoader(valset, batch_size=32, shuffle=False)
-    testloader = DataLoader(testset, batch_size=32, shuffle=False)
+    trainloader = DataLoader(
+        trainset,
+        batch_size=96,
+        shuffle=True,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+        prefetch_factor=4,
+    )
+
+    valloader = DataLoader(
+        valset,
+        batch_size=96,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+        prefetch_factor=4,
+    )
+
+    testloader = DataLoader(
+        testset,
+        batch_size=96,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+        prefetch_factor=4,
+    )
 
     print(f"Client {client_id}")
     print(f"Train Images: {len(trainset)}")
