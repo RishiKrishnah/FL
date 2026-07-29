@@ -679,7 +679,7 @@ def load_model(model_name):
     # Vision Transformer
     # ------------------------------------------------------
     if model_name == "vit":
-        model = vit_b_16(weights="IMAGENET1K_V1")
+        model = vit_b_16(weights=None)
 
         for param in model.parameters():
             param.requires_grad = False
