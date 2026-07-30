@@ -715,7 +715,7 @@ def load_model(model_name):
     # Swin Transformer
     # ------------------------------------------------------
     elif model_name == "swin":
-        model = swin_t(weights="IMAGENET1K_V1")
+        model = swin_t(weights=None)
 
         model.head = nn.Linear(
             model.head.in_features,
