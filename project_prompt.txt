@@ -3928,7 +3928,7 @@ publisher = "rishi"
 [tool.flwr.app.config]
 num-server-rounds = 5
 local-epochs = 5
-model-name = "faft"
+model-name = "efficientnet"
 dataset-name = "140k"
 
 [tool.flwr.app.components]
@@ -5264,7 +5264,7 @@ def load_model(model_name):
     # Vision Transformer
     # ------------------------------------------------------
     if model_name == "vit":
-        model = vit_b_16(weights="IMAGENET1K_V1")
+        model = vit_b_16(weights=None)
 
         for param in model.parameters():
             param.requires_grad = False
@@ -5289,7 +5289,7 @@ def load_model(model_name):
     # EfficientNet-B0
     # ------------------------------------------------------
     elif model_name == "efficientnet":
-        model = efficientnet_b0(weights="IMAGENET1K_V1")
+        model = efficientnet_b0(weights=None)
 
         model.classifier[1] = nn.Linear(
             model.classifier[1].in_features,

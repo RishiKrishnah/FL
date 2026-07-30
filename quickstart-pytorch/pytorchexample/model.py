@@ -704,7 +704,7 @@ def load_model(model_name):
     # EfficientNet-B0
     # ------------------------------------------------------
     elif model_name == "efficientnet":
-        model = efficientnet_b0(weights="IMAGENET1K_V1")
+        model = efficientnet_b0(weights=None)
 
         model.classifier[1] = nn.Linear(
             model.classifier[1].in_features,
